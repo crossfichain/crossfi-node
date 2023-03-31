@@ -8,5 +8,6 @@ option go_package = "github.com/mineplex/mineplex-chain/x/treasury/types";
 // Params defines the parameters for the module.
 message Params {
   option (gogoproto.goproto_stringer) = false;
-  
+
+  string owner = 1;
 }

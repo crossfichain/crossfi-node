@@ -38,9 +38,12 @@ func (msg *MsgChangeOwner) GetSignBytes() []byte {
 }
 
 func (msg *MsgChangeOwner) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Creator)
-	if err != nil {
+	if _, err := sdk.AccAddressFromBech32(msg.Creator); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.NewOwner); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid new owner address (%s)", err)
 	}
 	return nil
 }
