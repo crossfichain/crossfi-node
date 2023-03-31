@@ -17,36 +17,36 @@ seed:
       pprof_laddr: ""
       laddr: "tcp://0.0.0.0:26657"
 genesis:
-  chain_id: "mineplex-testnet-6"
-  genesis_time: "2023-03-29T13:30:00.000000Z"
+  chain_id: "mineplex-mainnet-1"
+  genesis_time: "2023-03-30T08:30:00.000000Z"
   app_state:
     crisis:
       constant_fee:
+        amount: "1000000000000000000000"
         denom: mpx
+    distribution:
+      base_proposer_reward: "0.000000000000000000"
+      bonus_proposer_reward: "0.000000000000000000"
+      community_tax: "0.000000000000000000"
     gov:
       deposit_params:
         min_deposit:
-          - amount: "1000000000000000000"
+          - amount: "1000000000000000000000"
             denom: mpx
       voting_params:
         voting_period:
-          600s
+          172800s
     staking:
       params:
         bond_denom: mpx
         max_validators: 64
-        unbonding_time: 6000s
+        unbonding_time: 1296000s
     treasury:
       params:
-        owner: mx1fv9cgmsgvs4r4f346axfd76twmjd7mqllwndy5
-accounts:
-  - name: myacc
-    coins:
-      - 100000000000000000000000000mpx
-      - 100000000000000000000000000xfi
+        owner: mx1anctd79de6ry2m0u2va9x8tcls9jeflhg3r6ys
 validators:
   - name: validator1
-    bonded: 1000000000000000000000000mpx
+    bonded: 500000000000000000000000000mpx
     client:
       keyring-backend: file
       broadcast-mode: block
@@ -64,7 +64,7 @@ validators:
       rosetta:
         enable: false
   - name: validator2
-    bonded: 1000000000000000000000000mpx
+    bonded: 500000000000000000000000000mpx
     client:
       keyring-backend: file
       broadcast-mode: block
@@ -82,7 +82,7 @@ validators:
       rosetta:
         enable: false
   - name: validator3
-    bonded: 1000000000000000000000000mpx
+    bonded: 500000000000000000000000000mpx
     client:
       keyring-backend: file
       broadcast-mode: block
@@ -100,7 +100,7 @@ validators:
       rosetta:
         enable: false
   - name: validator4
-    bonded: 1000000000000000000000000mpx
+    bonded: 500000000000000000000000000mpx
     client:
       keyring-backend: file
       broadcast-mode: block
@@ -118,7 +118,7 @@ validators:
       rosetta:
         enable: false
   - name: validator5
-    bonded: 1000000000000000000000000mpx
+    bonded: 500000000000000000000000000mpx
     client:
       keyring-backend: file
       broadcast-mode: block
@@ -136,7 +136,7 @@ validators:
       rosetta:
         enable: false
   - name: validator6
-    bonded: 1000000000000000000000000mpx
+    bonded: 500000000000000000000000000mpx
     client:
       keyring-backend: file
       broadcast-mode: block
@@ -154,7 +154,7 @@ validators:
       rosetta:
         enable: false
   - name: validator7
-    bonded: 1000000000000000000000000mpx
+    bonded: 500000000000000000000000000mpx
     client:
       keyring-backend: file
       broadcast-mode: block
@@ -172,7 +172,7 @@ validators:
       rosetta:
         enable: false
   - name: validator8
-    bonded: 1000000000000000000000000mpx
+    bonded: 500000000000000000000000000mpx
     client:
       keyring-backend: file
       broadcast-mode: block
