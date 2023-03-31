@@ -1,12 +1,13 @@
 syntax = "proto3";
 package mineplex.explorer_api;
 
+import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "tendermint/types/block.proto";
 import "tendermint/abci/types.proto";
-import "cosmos_proto/cosmos.proto";
 import "cosmos/staking/v1beta1/staking.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/mineplex/mineplex-chain/explorer-api";
 
@@ -21,6 +22,10 @@ service Query {
 
   rpc Tx(TxRequest) returns (TxResponse) {
     option (google.api.http).get = "/tx/{hash}";
+  }
+
+  rpc Txs(TxsRequest) returns (TxsResponse) {
+    option (google.api.http).get = "/txs";
   }
 
   rpc Address(AddressRequest) returns (AddressResponse) {
@@ -48,7 +53,7 @@ message ValidatorsRequest {
 }
 
 message ValidatorsResponse {
-  repeated cosmos.staking.v1beta1.Validator validators = 1 [(gogoproto.nullable)   = false];
+  repeated cosmos.staking.v1beta1.Validator validators = 1 [(gogoproto.nullable) = false];
 }
 
 message ValidatorRequest {
@@ -57,6 +62,14 @@ message ValidatorRequest {
 
 message ValidatorResponse {
   cosmos.staking.v1beta1.Validator validator = 1 [(gogoproto.nullable)   = false];
+}
+
+message TxsRequest {
+  string address = 1;
+}
+
+message TxsResponse {
+  repeated TxResponse txs = 1 [(gogoproto.nullable) = false];
 }
 
 message TxRequest {
@@ -101,6 +114,27 @@ message AddressResponse {
   ];
   uint64 number = 2;
   uint64 sequence = 3;
+  repeated cosmos.staking.v1beta1.DelegationResponse delegations = 4 [(gogoproto.nullable) = false];
+  repeated cosmos.staking.v1beta1.UnbondingDelegation unbonding_delegations = 5 [(gogoproto.nullable) = false];
+  repeated cosmos.staking.v1beta1.RedelegationResponse redelegations = 6 [(gogoproto.nullable) = false];
+  RewardsResponse rewards = 7 [(gogoproto.nullable) = false];
+}
+
+message DelegationDelegatorReward {
+  option (gogoproto.goproto_getters)  = false;
+  option (gogoproto.goproto_stringer) = true;
+
+  string validator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  repeated cosmos.base.v1beta1.DecCoin reward = 2
+  [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins", (gogoproto.nullable) = false];
+}
+
+message RewardsResponse {
+  repeated DelegationDelegatorReward rewards = 1 [(gogoproto.nullable) = false];
+  // total defines the sum of all the rewards.
+  repeated cosmos.base.v1beta1.DecCoin total = 2
+  [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins"];
 }
 
 message BlocksRequest {

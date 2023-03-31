@@ -4,9 +4,11 @@ import (
 	"context"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -30,17 +32,19 @@ func RunRest() {
 	}
 }
 
-func RunGrpc(client cosmosclient.Client) {
+func RunGrpc(client cosmosclient.Client, db postgres.Adapter) {
 	lis, err := net.Listen("tcp", ":12201")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
 	RegisterQueryServer(s, &server{
-		client:             client,
-		accountRetriever:   authtypes.AccountRetriever{},
-		bankQueryClient:    banktypes.NewQueryClient(client.Context()),
-		stakingQueryClient: stakingtypes.NewQueryClient(client.Context()),
+		client:                  client,
+		accountRetriever:        authtypes.AccountRetriever{},
+		bankQueryClient:         banktypes.NewQueryClient(client.Context()),
+		stakingQueryClient:      stakingtypes.NewQueryClient(client.Context()),
+		distributionQueryClient: distrtypes.NewQueryClient(client.Context()),
+		db:                      db,
 	})
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {

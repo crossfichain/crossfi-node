@@ -5,20 +5,58 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
+	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
+	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
 type server struct {
-	client             cosmosclient.Client
-	accountRetriever   client.AccountRetriever
-	bankQueryClient    banktypes.QueryClient
-	stakingQueryClient stakingtypes.QueryClient
+	client                  cosmosclient.Client
+	accountRetriever        client.AccountRetriever
+	bankQueryClient         banktypes.QueryClient
+	stakingQueryClient      stakingtypes.QueryClient
+	db                      postgres.Adapter
+	distributionQueryClient distrtypes.QueryClient
 }
 
-func (s *server) Validators(ctx context.Context, request *ValidatorsRequest) (*ValidatorsResponse, error) {
+func (s *server) Txs(ctx context.Context, request *TxsRequest) (*TxsResponse, error) {
+	var txs []TxResponse
+
+	panic("unimplemented")
+	filters := []query.Filter{postgres.NewStringSliceFilter("from", []string{})} // todo
+
+	q := query.NewEventQuery(query.AtPage(1), query.WithPageSize(100), query.WithFilters(filters...))
+
+	events, err := s.db.QueryEvents(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, event := range events {
+		hash := common.HexToHash(event.TXHash).Bytes()
+		tx, err := s.client.RPC.Tx(ctx, hash, false)
+		if err != nil {
+			return nil, err
+		}
+
+		decodedTx, err := s.client.Context().TxConfig.TxDecoder()(tx.Tx)
+		jsonTx, err := s.client.Context().TxConfig.TxJSONEncoder()(decodedTx)
+
+		txs = append(txs, TxResponse{
+			Tx:     string(jsonTx),
+			Height: tx.Height,
+			Result: tx.TxResult,
+		})
+	}
+
+	return &TxsResponse{Txs: txs}, nil
+}
+
+func (s *server) Validators(ctx context.Context, _ *ValidatorsRequest) (*ValidatorsResponse, error) {
 	resp, err := s.stakingQueryClient.Validators(ctx, &stakingtypes.QueryValidatorsRequest{})
 	if err != nil {
 		return nil, err
@@ -95,11 +133,57 @@ func (s *server) Address(ctx context.Context, request *AddressRequest) (*Address
 	}
 
 	number, sequence, err := s.accountRetriever.GetAccountNumberSequence(s.client.Context(), address)
+	if err != nil {
+		return nil, err
+	}
+
+	delegations, err := s.stakingQueryClient.DelegatorDelegations(ctx, &stakingtypes.QueryDelegatorDelegationsRequest{
+		DelegatorAddr: request.Address,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	unbondingDelegations, err := s.stakingQueryClient.DelegatorUnbondingDelegations(ctx, &stakingtypes.QueryDelegatorUnbondingDelegationsRequest{
+		DelegatorAddr: request.Address,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	redelegations, err := s.stakingQueryClient.Redelegations(ctx, &stakingtypes.QueryRedelegationsRequest{
+		DelegatorAddr: request.Address,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	rewards, err := s.distributionQueryClient.DelegationTotalRewards(ctx, &distrtypes.QueryDelegationTotalRewardsRequest{
+		DelegatorAddress: request.Address,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	rewardsResponse := RewardsResponse{
+		Total: rewards.Total,
+	}
+
+	for _, reward := range rewards.Rewards {
+		rewardsResponse.Rewards = append(rewardsResponse.Rewards, DelegationDelegatorReward{
+			ValidatorAddress: reward.ValidatorAddress,
+			Reward:           reward.Reward,
+		})
+	}
 
 	return &AddressResponse{
-		Coins:    coins,
-		Number:   number,
-		Sequence: sequence,
+		Coins:                coins,
+		Number:               number,
+		Sequence:             sequence,
+		Delegations:          delegations.DelegationResponses,
+		UnbondingDelegations: unbondingDelegations.UnbondingResponses,
+		Redelegations:        redelegations.RedelegationResponses,
+		Rewards:              rewardsResponse,
 	}, nil
 }
 

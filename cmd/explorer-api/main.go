@@ -31,7 +31,7 @@ func main() {
 		panic(err)
 	}
 
-	go explorer_api.RunGrpc(client)
+	go explorer_api.RunGrpc(client, db)
 	go explorer_api.RunRest()
 
 	if err := txcollector.Collect(ctx, db, client); err != nil {
