@@ -42,7 +42,7 @@ func MustNewIntFromString(s string) math.Int {
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
-		MintDenom: "PLEX2",
+		MintDenom: "plex2",
 		Periods: []*RewardPeriod{
 			{
 				FromHeight:     1,
