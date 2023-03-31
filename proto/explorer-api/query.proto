@@ -6,10 +6,19 @@ import "google/api/annotations.proto";
 import "tendermint/types/block.proto";
 import "tendermint/abci/types.proto";
 import "cosmos_proto/cosmos.proto";
+import "cosmos/staking/v1beta1/staking.proto";
 
 option go_package = "github.com/mineplex/mineplex-chain/explorer-api";
 
 service Query {
+  rpc Validator(ValidatorRequest) returns (ValidatorResponse) {
+    option (google.api.http).get = "/validator/{address}";
+  }
+
+  rpc Validators(ValidatorsRequest) returns (ValidatorsResponse) {
+    option (google.api.http).get = "/validators";
+  }
+
   rpc Tx(TxRequest) returns (TxResponse) {
     option (google.api.http).get = "/tx/{hash}";
   }
@@ -35,6 +44,21 @@ service Query {
   }
 }
 
+message ValidatorsRequest {
+}
+
+message ValidatorsResponse {
+  repeated cosmos.staking.v1beta1.Validator validators = 1 [(gogoproto.nullable)   = false];
+}
+
+message ValidatorRequest {
+  string address = 1;
+}
+
+message ValidatorResponse {
+  cosmos.staking.v1beta1.Validator validator = 1 [(gogoproto.nullable)   = false];
+}
+
 message TxRequest {
   string hash = 1;
 }
@@ -42,7 +66,7 @@ message TxRequest {
 message TxResponse {
   string tx = 1;
   int64 height = 2;
-  tendermint.abci.ResponseDeliverTx result = 3;
+  tendermint.abci.ResponseDeliverTx result = 3 [(gogoproto.nullable)   = false];
 }
 
 message StatusRequest {

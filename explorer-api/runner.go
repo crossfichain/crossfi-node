@@ -4,6 +4,7 @@ import (
 	"context"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"google.golang.org/grpc"
@@ -36,9 +37,10 @@ func RunGrpc(client cosmosclient.Client) {
 	}
 	s := grpc.NewServer()
 	RegisterQueryServer(s, &server{
-		client:           client,
-		accountRetriever: authtypes.AccountRetriever{},
-		bankQueryClient:  banktypes.NewQueryClient(client.Context()),
+		client:             client,
+		accountRetriever:   authtypes.AccountRetriever{},
+		bankQueryClient:    banktypes.NewQueryClient(client.Context()),
+		stakingQueryClient: stakingtypes.NewQueryClient(client.Context()),
 	})
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {

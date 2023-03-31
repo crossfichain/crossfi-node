@@ -5,15 +5,41 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 )
 
 type server struct {
-	client           cosmosclient.Client
-	accountRetriever client.AccountRetriever
-	bankQueryClient  banktypes.QueryClient
+	client             cosmosclient.Client
+	accountRetriever   client.AccountRetriever
+	bankQueryClient    banktypes.QueryClient
+	stakingQueryClient stakingtypes.QueryClient
+}
+
+func (s *server) Validators(ctx context.Context, request *ValidatorsRequest) (*ValidatorsResponse, error) {
+	resp, err := s.stakingQueryClient.Validators(ctx, &stakingtypes.QueryValidatorsRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	return &ValidatorsResponse{
+		Validators: resp.Validators,
+	}, nil
+}
+
+func (s *server) Validator(ctx context.Context, request *ValidatorRequest) (*ValidatorResponse, error) {
+	resp, err := s.stakingQueryClient.Validator(ctx, &stakingtypes.QueryValidatorRequest{
+		ValidatorAddr: request.Address,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &ValidatorResponse{
+		Validator: resp.Validator,
+	}, nil
 }
 
 func (s *server) Tx(ctx context.Context, request *TxRequest) (*TxResponse, error) {
@@ -29,7 +55,7 @@ func (s *server) Tx(ctx context.Context, request *TxRequest) (*TxResponse, error
 	return &TxResponse{
 		Tx:     string(jsonTx),
 		Height: tx.Height,
-		Result: &tx.TxResult,
+		Result: tx.TxResult,
 	}, nil
 }
 
