@@ -1,0 +1,52 @@
+syntax = "proto3";
+package mineplex.explorer_api;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "tendermint/types/block.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/mineplex/mineplex-chain/explorer-api";
+
+service Query {
+  rpc Address(AddressRequest) returns (AddressResponse) {
+    option (google.api.http).get = "/address/{address}";
+  }
+
+  rpc Block(BlockRequest) returns (tendermint.types.Block) {
+    option (google.api.http).get = "/block/{height}";
+  }
+
+  rpc Blocks(BlocksRequest) returns (BlocksResponse) {
+    option (google.api.http).get = "/blocks";
+  }
+}
+
+message AddressRequest {
+  string address = 1;
+}
+
+message AddressResponse {
+  repeated string coins = 1 [
+    (cosmos_proto.scalar)  = "cosmos.Coin",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable)   = false
+  ];
+  uint64 number = 2;
+  uint64 sequence = 3;
+}
+
+message BlocksRequest {
+  int64 from_height = 1;
+  int64 to_height = 2;
+}
+
+message BlocksResponse {
+  repeated tendermint.types.Block blocks = 1;
+}
+
+message BlockRequest {
+  int64 height = 1;
+}
+
+
