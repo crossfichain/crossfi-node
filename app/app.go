@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	myante "github.com/mineplex/mineplex-chain/app/ante"
 	"io"
 	"os"
 	"path/filepath"
@@ -697,12 +698,13 @@ func New(
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 
-	anteHandler, err := ante.NewAnteHandler(
-		ante.HandlerOptions{
+	anteHandler, err := myante.NewAnteHandler(
+		myante.HandlerOptions{
 			AccountKeeper:   app.AccountKeeper,
 			BankKeeper:      app.BankKeeper,
 			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
 			FeegrantKeeper:  app.FeeGrantKeeper,
+			StakingKeeper:   app.StakingKeeper,
 			SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 		},
 	)
