@@ -5,9 +5,15 @@ passphrase: "1234567890"
 seed:
   name: "seed"
   addr: "127.0.0.1:26656"
+  app:
+    api:
+      enable: true
   config:
     p2p:
       allow_duplicate_ip: true
+    rpc:
+      pprof_laddr: ""
+      laddr: "tcp://0.0.0.0:26657"
 genesis:
   chain_id: "mineplex-testnet-1"
   app_state:
@@ -40,6 +46,7 @@ validators:
         laddr: "tcp://0.0.0.0:36656"
       rpc:
         laddr: ""
+        pprof_laddr: ""
     app:
       grpc:
         enable: false
@@ -56,6 +63,7 @@ validators:
         laddr: "tcp://0.0.0.0:36657"
       rpc:
         laddr: ""
+        pprof_laddr: ""
     app:
       grpc:
         enable: false
@@ -72,6 +80,7 @@ validators:
         laddr: "tcp://0.0.0.0:36658"
       rpc:
         laddr: ""
+        pprof_laddr: ""
     app:
       grpc:
         enable: false
@@ -88,6 +97,7 @@ validators:
         laddr: "tcp://0.0.0.0:36659"
       rpc:
         laddr: ""
+        pprof_laddr: ""
     app:
       grpc:
         enable: false

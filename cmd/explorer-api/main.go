@@ -20,7 +20,7 @@ func main() {
 
 	// Init an adapter for a local PostgreSQL database running with the default values
 	params := map[string]string{"sslmode": "disable"}
-	db, err := postgres.NewAdapter(dbName, postgres.WithParams(params))
+	db, err := postgres.NewAdapter(dbName, postgres.WithParams(params), postgres.WithUser("root"), postgres.WithPassword("123"))
 	if err != nil {
 		panic(err)
 	}
