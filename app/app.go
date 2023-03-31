@@ -113,7 +113,7 @@ import (
 )
 
 const (
-	AccountAddressPrefix = "mine"
+	AccountAddressPrefix = "mp"
 	Name                 = "mineplex-chain"
 )
 
