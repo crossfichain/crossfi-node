@@ -12,6 +12,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	"sort"
 )
 
 type server struct {
@@ -26,15 +27,28 @@ type server struct {
 func (s *server) Txs(ctx context.Context, request *TxsRequest) (*TxsResponse, error) {
 	var txs []TxResponse
 
-	panic("unimplemented")
-	filters := []query.Filter{postgres.NewStringSliceFilter("from", []string{})} // todo
+	var events []query.Event
+	var err error
 
-	q := query.NewEventQuery(query.AtPage(1), query.WithPageSize(100), query.WithFilters(filters...))
-
-	events, err := s.db.QueryEvents(ctx, q)
+	// filter by message sender
+	events, err = s.queryEvents(ctx, events, "message.sender", request.Address)
 	if err != nil {
 		return nil, err
 	}
+
+	events, err = s.queryEvents(ctx, events, "coin_spent.spender", request.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	events, err = s.queryEvents(ctx, events, "coin_received.receiver", request.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	sort.Slice(events, func(i, j int) bool {
+		return events[i].ID > events[j].ID
+	})
 
 	for _, event := range events {
 		hash := common.HexToHash(event.TXHash).Bytes()
@@ -54,6 +68,17 @@ func (s *server) Txs(ctx context.Context, request *TxsRequest) (*TxsResponse, er
 	}
 
 	return &TxsResponse{Txs: txs}, nil
+}
+
+func (s *server) queryEvents(ctx context.Context, events []query.Event, key, value string) ([]query.Event, error) {
+	filters := []query.Filter{postgres.NewFilter(key, value)}
+	q := query.NewEventQuery(query.AtPage(1), query.WithPageSize(100), query.WithFilters(filters...))
+	evs, err := s.db.QueryEvents(ctx, q)
+	if err != nil {
+		return nil, err
+	}
+
+	return append(events, evs...), nil
 }
 
 func (s *server) Validators(ctx context.Context, _ *ValidatorsRequest) (*ValidatorsResponse, error) {
