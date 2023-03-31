@@ -35,7 +35,7 @@ func initSDKConfig() {
 }
 
 func main() {
-	initSDKConfig()
+	//initSDKConfig()
 
 	ctx := clictx.From(context.Background())
 
