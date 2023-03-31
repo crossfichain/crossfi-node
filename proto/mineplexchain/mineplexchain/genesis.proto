@@ -1,0 +1,12 @@
+syntax = "proto3";
+package mineplex.mineplexchain.mineplexchain;
+
+import "gogoproto/gogo.proto";
+import "mineplexchain/mineplexchain/params.proto";
+
+option go_package = "github.com/mineplex/mineplex-chain/x/mineplexchain/types";
+
+// GenesisState defines the mineplexchain module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+}
