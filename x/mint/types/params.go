@@ -31,8 +31,8 @@ func NewParams(mintDenom string, periods []*RewardPeriod) Params {
 }
 
 func MustNewIntFromString(s string) math.Int {
-	res, err := sdk.NewIntFromString(s)
-	if err {
+	res, success := sdk.NewIntFromString(s)
+	if !success {
 		panic("invalid string for NewIntFromString: " + s)
 	}
 
