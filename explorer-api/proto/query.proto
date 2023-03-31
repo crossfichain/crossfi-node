@@ -9,7 +9,7 @@ import "tendermint/abci/types.proto";
 import "cosmos/staking/v1beta1/staking.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/mineplex/mineplex-chain/explorer-api";
+option go_package = "explorer-api";
 
 service Query {
   rpc Validator(ValidatorRequest) returns (ValidatorResponse) {
@@ -61,7 +61,7 @@ message ValidatorRequest {
 }
 
 message ValidatorResponse {
-  cosmos.staking.v1beta1.Validator validator = 1 [(gogoproto.nullable)   = false];
+  cosmos.staking.v1beta1.Validator validator = 1 [(gogoproto.nullable) = false];
 }
 
 message TxsRequest {
@@ -95,10 +95,9 @@ message CoinsRequest {
 }
 
 message CoinsResponse {
-  repeated string coins = 1 [
-    (cosmos_proto.scalar)  = "cosmos.Coin",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
-    (gogoproto.nullable)   = false
+  repeated cosmos.base.v1beta1.Coin coins = 1 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 }
 

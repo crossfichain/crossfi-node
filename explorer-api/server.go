@@ -136,7 +136,7 @@ func (s *server) Status(ctx context.Context, _ *StatusRequest) (*StatusResponse,
 }
 
 func (s *server) Coins(ctx context.Context, _ *CoinsRequest) (*CoinsResponse, error) {
-	resp, err := s.bankQueryClient.TotalSupply(ctx, nil)
+	resp, err := s.bankQueryClient.TotalSupply(ctx, &banktypes.QueryTotalSupplyRequest{})
 	if err != nil {
 		return nil, err
 	}

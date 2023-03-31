@@ -32,9 +32,11 @@ func main() {
 	}
 
 	go explorer_api.RunGrpc(client, db)
-	go explorer_api.RunRest()
+	go explorer_api.RunRest(client)
 
 	if err := txcollector.Collect(ctx, db, client); err != nil {
 		panic(err)
 	}
+
+	select {}
 }

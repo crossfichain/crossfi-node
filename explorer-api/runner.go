@@ -2,13 +2,18 @@ package explorer_api
 
 import (
 	"context"
+	"github.com/cosmos/cosmos-sdk/server/api"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/gogo/gateway"
+	"github.com/gorilla/mux"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
+	"github.com/mineplex/mineplex-chain/app"
+	"github.com/mineplex/mineplex-chain/explorer-api/docs"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -16,18 +21,43 @@ import (
 	"net/http"
 )
 
-func RunRest() {
+func RunRest(client cosmosclient.Client) {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	mux := runtime.NewServeMux()
+
+	router := mux.NewRouter()
+
+	marshalerOption := &gateway.JSONPb{
+		EmitDefaults: true,
+		Indent:       "  ",
+		OrigName:     true,
+		AnyResolver:  client.Context().InterfaceRegistry,
+	}
+
+	grpcMux := runtime.NewServeMux(
+		// Custom marshaler option is required for gogo proto
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, marshalerOption),
+
+		// This is necessary to get error details properly
+		// marshalled in unary requests.
+		runtime.WithProtoErrorHandler(runtime.DefaultHTTPProtoErrorHandler),
+
+		// Custom header matcher for mapping request headers to
+		// GRPC metadata
+		runtime.WithIncomingHeaderMatcher(api.CustomGRPCHeaderMatcher),
+	)
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	err := RegisterQueryHandlerFromEndpoint(ctx, mux, "localhost:12201", opts)
+	err := RegisterQueryHandlerFromEndpoint(ctx, grpcMux, "localhost:12201", opts)
 	if err != nil {
 		panic(err)
 	}
+
+	docs.RegisterOpenAPIService(app.Name, router)
+	router.PathPrefix("/").Handler(grpcMux)
+
 	log.Printf("server listening at 8081")
-	if err := http.ListenAndServe(":8081", mux); err != nil {
+	if err := http.ListenAndServe(":8081", router); err != nil {
 		panic(err)
 	}
 }
