@@ -7,7 +7,7 @@ build:
 accounts:
 - name: alice
   coins:
-  - 1000000mpx
+  - 100000000000000000000mpx
 - name: bob
   coins:
   - 100000mpx
@@ -25,7 +25,7 @@ client:
   composables:
     path: vue/src/composables
   openapi:
-    path: api-docs/static/openapi.yml
+    path: docs/static/openapi.yml
 genesis:
   app_state:
     crisis:
@@ -43,7 +43,7 @@ genesis:
         unbonding_time: 1296000s
     treasury:
       params:
-        owner: mp1d0ga6s7ue244rep5z7gnmgeyf3ejzla0aw5rur
+        owner: mx1d0ga6s7ue244rep5z7gnmgeyf3ejzla0hggf0f
 validators:
 - name: alice
-  bonded: 1000000mpx
+  bonded: 100000000000000000000mpx

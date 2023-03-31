@@ -4,6 +4,7 @@ import (
 	"fmt"
 	myante "github.com/mineplex/mineplex-chain/app/ante"
 	"io"
+	"math/big"
 	"os"
 	"path/filepath"
 
@@ -112,12 +113,12 @@ import (
 	treasurymoduletypes "github.com/mineplex/mineplex-chain/x/treasury/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
-	"github.com/mineplex/mineplex-chain/api-docs"
 	appparams "github.com/mineplex/mineplex-chain/app/params"
+	"github.com/mineplex/mineplex-chain/docs"
 )
 
 const (
-	AccountAddressPrefix = "mp"
+	AccountAddressPrefix = "mx"
 	Name                 = "mineplex-chain"
 )
 
@@ -193,6 +194,8 @@ var (
 )
 
 func init() {
+	sdk.DefaultPowerReduction = sdk.NewIntFromBigInt(big.NewInt(1e18))
+
 	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)
@@ -863,7 +866,7 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register app's OpenAPI routes.
-	api_docs.RegisterOpenAPIService(Name, apiSvr.Router)
+	docs.RegisterOpenAPIService(Name, apiSvr.Router)
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.

@@ -1,10 +1,12 @@
 binary: "mineplex-chaind"
 home_dir: "./chain_data"
 keyring_backend: "file"
-passphrase: "1234567890"
 seed:
   name: "seed"
   addr: "127.0.0.1:26656"
+  client:
+    keyring-backend: file
+    broadcast-mode: block
   app:
     api:
       enable: true
@@ -15,7 +17,8 @@ seed:
       pprof_laddr: ""
       laddr: "tcp://0.0.0.0:26657"
 genesis:
-  chain_id: "mineplex-testnet-1"
+  chain_id: "mineplex-testnet-4"
+  genesis_time: "2023-03-15T00:00:00.000000Z"
   app_state:
     crisis:
       constant_fee:
@@ -29,18 +32,21 @@ genesis:
       params:
         bond_denom: mpx
         max_validators: 64
-        unbonding_time: 1296000s
+        unbonding_time: 6000s
     treasury:
       params:
-        owner: mp1d0ga6s7ue244rep5z7gnmgeyf3ejzla0aw5rur
+        owner: mx1d0ga6s7ue244rep5z7gnmgeyf3ejzla0hggf0f
 accounts:
   - name: myacc
     coins:
-      - 1000000000000000000000000mpx
-      - 1000000000000000000000000xfi
+      - 100000000000000000000000000mpx
+      - 100000000000000000000000000xfi
 validators:
   - name: validator1
-    bonded: 1000000000000000000mpx
+    bonded: 1000000000000000000000000mpx
+    client:
+      keyring-backend: file
+      broadcast-mode: block
     config:
       p2p:
         laddr: "tcp://0.0.0.0:36656"
@@ -57,7 +63,10 @@ validators:
       rosetta:
         enable: false
   - name: validator2
-    bonded: 1000000000000000000mpx
+    bonded: 1000000000000000000000000mpx
+    client:
+      keyring-backend: file
+      broadcast-mode: block
     config:
       p2p:
         laddr: "tcp://0.0.0.0:36657"
@@ -74,7 +83,10 @@ validators:
       rosetta:
         enable: false
   - name: validator3
-    bonded: 1000000000000000000mpx
+    bonded: 1000000000000000000000000mpx
+    client:
+      keyring-backend: file
+      broadcast-mode: block
     config:
       p2p:
         laddr: "tcp://0.0.0.0:36658"
@@ -91,10 +103,93 @@ validators:
       rosetta:
         enable: false
   - name: validator4
-    bonded: 1000000000000000000mpx
+    bonded: 1000000000000000000000000mpx
+    client:
+      keyring-backend: file
+      broadcast-mode: block
     config:
       p2p:
         laddr: "tcp://0.0.0.0:36659"
+      rpc:
+        laddr: ""
+        pprof_laddr: ""
+    app:
+      grpc:
+        enable: false
+      grpc-web:
+        enable: false
+      json-rpc:
+        enable: false
+      rosetta:
+        enable: false
+  - name: validator5
+    bonded: 1000000000000000000000000mpx
+    client:
+      keyring-backend: file
+      broadcast-mode: block
+    config:
+      p2p:
+        laddr: "tcp://0.0.0.0:36660"
+      rpc:
+        laddr: ""
+        pprof_laddr: ""
+    app:
+      grpc:
+        enable: false
+      grpc-web:
+        enable: false
+      json-rpc:
+        enable: false
+      rosetta:
+        enable: false
+  - name: validator6
+    bonded: 1000000000000000000000000mpx
+    client:
+      keyring-backend: file
+      broadcast-mode: block
+    config:
+      p2p:
+        laddr: "tcp://0.0.0.0:36661"
+      rpc:
+        laddr: ""
+        pprof_laddr: ""
+    app:
+      grpc:
+        enable: false
+      grpc-web:
+        enable: false
+      json-rpc:
+        enable: false
+      rosetta:
+        enable: false
+  - name: validator7
+    bonded: 1000000000000000000000000mpx
+    client:
+      keyring-backend: file
+      broadcast-mode: block
+    config:
+      p2p:
+        laddr: "tcp://0.0.0.0:36662"
+      rpc:
+        laddr: ""
+        pprof_laddr: ""
+    app:
+      grpc:
+        enable: false
+      grpc-web:
+        enable: false
+      json-rpc:
+        enable: false
+      rosetta:
+        enable: false
+  - name: validator8
+    bonded: 1000000000000000000000000mpx
+    client:
+      keyring-backend: file
+      broadcast-mode: block
+    config:
+      p2p:
+        laddr: "tcp://0.0.0.0:36663"
       rpc:
         laddr: ""
         pprof_laddr: ""

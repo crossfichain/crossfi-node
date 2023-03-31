@@ -28,7 +28,7 @@ func NewParams(owner string) Params {
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
 	// todo: set real address
-	return NewParams("mp1d0ga6s7ue244rep5z7gnmgeyf3ejzla0aw5rur")
+	return NewParams("mx1d0ga6s7ue244rep5z7gnmgeyf3ejzla0hggf0f")
 }
 
 // ParamSetPairs get the params.ParamSet
