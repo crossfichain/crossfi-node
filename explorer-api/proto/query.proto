@@ -107,11 +107,9 @@ message AddressRequest {
 }
 
 message AddressResponse {
-  repeated string coins = 1 [
-    (cosmos_proto.scalar)  = "cosmos.Coin",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
-    (gogoproto.nullable)   = false
-  ];
+  repeated cosmos.base.v1beta1.Coin coins = 1
+  [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins", (gogoproto.nullable) = false];
+
   uint64 number = 2;
   uint64 sequence = 3;
   repeated cosmos.staking.v1beta1.DelegationResponse delegations = 4 [(gogoproto.nullable) = false];
