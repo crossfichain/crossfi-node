@@ -46,27 +46,27 @@ func DefaultParams() Params {
 		Periods: []*RewardPeriod{
 			{
 				FromHeight:     1,
-				ToHeight:       25246080,
+				ToHeight:       25228800,
 				RewardPerBlock: MustNewIntFromString("5000000000000000000"),
 			},
 			{
-				FromHeight:     25246081,
-				ToHeight:       50492160,
+				FromHeight:     25228801,
+				ToHeight:       50457600,
 				RewardPerBlock: MustNewIntFromString("4000000000000000000"),
 			},
 			{
-				FromHeight:     50492161,
-				ToHeight:       75738240,
+				FromHeight:     50457601,
+				ToHeight:       75686400,
 				RewardPerBlock: MustNewIntFromString("3000000000000000000"),
 			},
 			{
-				FromHeight:     75738241,
-				ToHeight:       100984320,
+				FromHeight:     75686401,
+				ToHeight:       100915200,
 				RewardPerBlock: MustNewIntFromString("2000000000000000000"),
 			},
 			{
-				FromHeight:     100984321,
-				ToHeight:       126230400,
+				FromHeight:     100915201,
+				ToHeight:       126144000,
 				RewardPerBlock: MustNewIntFromString("1000000000000000000"),
 			},
 		},
