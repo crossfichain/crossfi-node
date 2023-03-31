@@ -13,6 +13,14 @@ service Query {
     option (google.api.http).get = "/address/{address}";
   }
 
+  rpc Coins(CoinsRequest) returns (CoinsResponse) {
+    option (google.api.http).get = "/coins";
+  }
+
+  rpc Status(StatusRequest) returns (StatusResponse) {
+    option (google.api.http).get = "/status";
+  }
+
   rpc Block(BlockRequest) returns (tendermint.types.Block) {
     option (google.api.http).get = "/block/{height}";
   }
@@ -20,6 +28,26 @@ service Query {
   rpc Blocks(BlocksRequest) returns (BlocksResponse) {
     option (google.api.http).get = "/blocks";
   }
+}
+
+message StatusRequest {
+}
+
+message StatusResponse {
+  string latest_block_hash = 1;
+  int64 latest_block_height = 2;
+  string latest_block_time = 3;
+}
+
+message CoinsRequest {
+}
+
+message CoinsResponse {
+  repeated string coins = 1 [
+    (cosmos_proto.scalar)  = "cosmos.Coin",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable)   = false
+  ];
 }
 
 message AddressRequest {

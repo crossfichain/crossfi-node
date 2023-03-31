@@ -5,6 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	"log"
@@ -19,6 +20,31 @@ import (
 type server struct {
 	client           cosmosclient.Client
 	accountRetriever client.AccountRetriever
+	bankQueryClient  banktypes.QueryClient
+}
+
+func (s *server) Status(ctx context.Context, _ *StatusRequest) (*StatusResponse, error) {
+	status, err := s.client.Status(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &StatusResponse{
+		LatestBlockHash:   status.SyncInfo.LatestBlockHash.String(),
+		LatestBlockHeight: status.SyncInfo.LatestBlockHeight,
+		LatestBlockTime:   status.SyncInfo.LatestBlockTime.String(),
+	}, nil
+}
+
+func (s *server) Coins(ctx context.Context, _ *CoinsRequest) (*CoinsResponse, error) {
+	resp, err := s.bankQueryClient.TotalSupply(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return &CoinsResponse{
+		Coins: resp.Supply,
+	}, nil
 }
 
 func (s *server) Address(ctx context.Context, request *AddressRequest) (*AddressResponse, error) {
@@ -95,6 +121,7 @@ func RunGrpc(client cosmosclient.Client) {
 	RegisterQueryServer(s, &server{
 		client:           client,
 		accountRetriever: authtypes.AccountRetriever{},
+		bankQueryClient:  banktypes.NewQueryClient(client.Context()),
 	})
 	log.Printf("server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {

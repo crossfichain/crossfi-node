@@ -32,6 +32,175 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+type StatusRequest struct {
+}
+
+func (m *StatusRequest) Reset()         { *m = StatusRequest{} }
+func (m *StatusRequest) String() string { return proto.CompactTextString(m) }
+func (*StatusRequest) ProtoMessage()    {}
+func (*StatusRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_770a7a3486d68b64, []int{0}
+}
+func (m *StatusRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *StatusRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_StatusRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *StatusRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StatusRequest.Merge(m, src)
+}
+func (m *StatusRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *StatusRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_StatusRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StatusRequest proto.InternalMessageInfo
+
+type StatusResponse struct {
+	LatestBlockHash   string `protobuf:"bytes,1,opt,name=latest_block_hash,json=latestBlockHash,proto3" json:"latest_block_hash,omitempty"`
+	LatestBlockHeight int64  `protobuf:"varint,2,opt,name=latest_block_height,json=latestBlockHeight,proto3" json:"latest_block_height,omitempty"`
+	LatestBlockTime   string `protobuf:"bytes,3,opt,name=latest_block_time,json=latestBlockTime,proto3" json:"latest_block_time,omitempty"`
+}
+
+func (m *StatusResponse) Reset()         { *m = StatusResponse{} }
+func (m *StatusResponse) String() string { return proto.CompactTextString(m) }
+func (*StatusResponse) ProtoMessage()    {}
+func (*StatusResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_770a7a3486d68b64, []int{1}
+}
+func (m *StatusResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *StatusResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_StatusResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *StatusResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StatusResponse.Merge(m, src)
+}
+func (m *StatusResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *StatusResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_StatusResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StatusResponse proto.InternalMessageInfo
+
+func (m *StatusResponse) GetLatestBlockHash() string {
+	if m != nil {
+		return m.LatestBlockHash
+	}
+	return ""
+}
+
+func (m *StatusResponse) GetLatestBlockHeight() int64 {
+	if m != nil {
+		return m.LatestBlockHeight
+	}
+	return 0
+}
+
+func (m *StatusResponse) GetLatestBlockTime() string {
+	if m != nil {
+		return m.LatestBlockTime
+	}
+	return ""
+}
+
+type CoinsRequest struct {
+}
+
+func (m *CoinsRequest) Reset()         { *m = CoinsRequest{} }
+func (m *CoinsRequest) String() string { return proto.CompactTextString(m) }
+func (*CoinsRequest) ProtoMessage()    {}
+func (*CoinsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_770a7a3486d68b64, []int{2}
+}
+func (m *CoinsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CoinsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CoinsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CoinsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CoinsRequest.Merge(m, src)
+}
+func (m *CoinsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *CoinsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CoinsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CoinsRequest proto.InternalMessageInfo
+
+type CoinsResponse struct {
+	Coins []github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,1,rep,name=coins,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"coins"`
+}
+
+func (m *CoinsResponse) Reset()         { *m = CoinsResponse{} }
+func (m *CoinsResponse) String() string { return proto.CompactTextString(m) }
+func (*CoinsResponse) ProtoMessage()    {}
+func (*CoinsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_770a7a3486d68b64, []int{3}
+}
+func (m *CoinsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CoinsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CoinsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CoinsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CoinsResponse.Merge(m, src)
+}
+func (m *CoinsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *CoinsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CoinsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CoinsResponse proto.InternalMessageInfo
+
 type AddressRequest struct {
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
@@ -40,7 +209,7 @@ func (m *AddressRequest) Reset()         { *m = AddressRequest{} }
 func (m *AddressRequest) String() string { return proto.CompactTextString(m) }
 func (*AddressRequest) ProtoMessage()    {}
 func (*AddressRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_770a7a3486d68b64, []int{0}
+	return fileDescriptor_770a7a3486d68b64, []int{4}
 }
 func (m *AddressRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -86,7 +255,7 @@ func (m *AddressResponse) Reset()         { *m = AddressResponse{} }
 func (m *AddressResponse) String() string { return proto.CompactTextString(m) }
 func (*AddressResponse) ProtoMessage()    {}
 func (*AddressResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_770a7a3486d68b64, []int{1}
+	return fileDescriptor_770a7a3486d68b64, []int{5}
 }
 func (m *AddressResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -138,7 +307,7 @@ func (m *BlocksRequest) Reset()         { *m = BlocksRequest{} }
 func (m *BlocksRequest) String() string { return proto.CompactTextString(m) }
 func (*BlocksRequest) ProtoMessage()    {}
 func (*BlocksRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_770a7a3486d68b64, []int{2}
+	return fileDescriptor_770a7a3486d68b64, []int{6}
 }
 func (m *BlocksRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -189,7 +358,7 @@ func (m *BlocksResponse) Reset()         { *m = BlocksResponse{} }
 func (m *BlocksResponse) String() string { return proto.CompactTextString(m) }
 func (*BlocksResponse) ProtoMessage()    {}
 func (*BlocksResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_770a7a3486d68b64, []int{3}
+	return fileDescriptor_770a7a3486d68b64, []int{7}
 }
 func (m *BlocksResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -233,7 +402,7 @@ func (m *BlockRequest) Reset()         { *m = BlockRequest{} }
 func (m *BlockRequest) String() string { return proto.CompactTextString(m) }
 func (*BlockRequest) ProtoMessage()    {}
 func (*BlockRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_770a7a3486d68b64, []int{4}
+	return fileDescriptor_770a7a3486d68b64, []int{8}
 }
 func (m *BlockRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -270,6 +439,10 @@ func (m *BlockRequest) GetHeight() int64 {
 }
 
 func init() {
+	proto.RegisterType((*StatusRequest)(nil), "mineplex.explorer_api.StatusRequest")
+	proto.RegisterType((*StatusResponse)(nil), "mineplex.explorer_api.StatusResponse")
+	proto.RegisterType((*CoinsRequest)(nil), "mineplex.explorer_api.CoinsRequest")
+	proto.RegisterType((*CoinsResponse)(nil), "mineplex.explorer_api.CoinsResponse")
 	proto.RegisterType((*AddressRequest)(nil), "mineplex.explorer_api.AddressRequest")
 	proto.RegisterType((*AddressResponse)(nil), "mineplex.explorer_api.AddressResponse")
 	proto.RegisterType((*BlocksRequest)(nil), "mineplex.explorer_api.BlocksRequest")
@@ -280,40 +453,47 @@ func init() {
 func init() { proto.RegisterFile("explorer-api/query.proto", fileDescriptor_770a7a3486d68b64) }
 
 var fileDescriptor_770a7a3486d68b64 = []byte{
-	// 516 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x53, 0xc1, 0x6e, 0xd3, 0x40,
-	0x10, 0x8d, 0x13, 0xe2, 0x34, 0x1b, 0x68, 0xc4, 0xaa, 0xb4, 0xc6, 0x20, 0xa7, 0x32, 0xb4, 0x44,
-	0x48, 0xf1, 0x4a, 0xe5, 0x8e, 0xd4, 0x70, 0x81, 0x03, 0x07, 0x2c, 0x4e, 0x1c, 0x88, 0x1c, 0x67,
-	0xeb, 0xac, 0x1a, 0xef, 0xb8, 0xde, 0x8d, 0xd4, 0xaa, 0xea, 0x85, 0x2f, 0x40, 0xe2, 0xc8, 0x6f,
-	0xf0, 0x0b, 0x48, 0x3d, 0x56, 0x70, 0x41, 0x1c, 0x2a, 0x94, 0xf0, 0x21, 0xc8, 0xbb, 0x6b, 0x93,
-	0x4a, 0x94, 0x9e, 0xbc, 0x33, 0xef, 0x79, 0xe6, 0xbd, 0xd9, 0x59, 0xe4, 0xd0, 0xe3, 0x6c, 0x06,
-	0x39, 0xcd, 0x07, 0x51, 0xc6, 0xc8, 0xd1, 0x9c, 0xe6, 0x27, 0x41, 0x96, 0x83, 0x04, 0x7c, 0x2f,
-	0x65, 0x9c, 0x66, 0x33, 0x7a, 0x1c, 0x94, 0x94, 0x51, 0x94, 0x31, 0x77, 0x23, 0x81, 0x04, 0x14,
-	0x83, 0x14, 0x27, 0x4d, 0x76, 0x1f, 0x26, 0x00, 0xc9, 0x8c, 0x92, 0xa2, 0x48, 0xc4, 0x39, 0xc8,
-	0x48, 0x32, 0xe0, 0xa2, 0x44, 0x25, 0xe5, 0x13, 0x9a, 0xa7, 0x8c, 0x4b, 0x22, 0x4f, 0x32, 0x2a,
-	0xc8, 0x78, 0x06, 0xf1, 0xa1, 0x41, 0xef, 0xc7, 0x20, 0x52, 0x10, 0x23, 0x5d, 0x54, 0x07, 0x1a,
-	0xf2, 0x9f, 0xa2, 0xf5, 0xfd, 0xc9, 0x24, 0xa7, 0x42, 0x84, 0xf4, 0x68, 0x4e, 0x85, 0xc4, 0x0e,
-	0x6a, 0x45, 0x3a, 0xe3, 0x58, 0xdb, 0x56, 0xbf, 0x1d, 0x96, 0xa1, 0xff, 0xd9, 0x42, 0xdd, 0x8a,
-	0x2c, 0x32, 0xe0, 0x82, 0xe2, 0xb7, 0xa8, 0x19, 0x03, 0xe3, 0x05, 0xb7, 0xd1, 0x6f, 0x0f, 0x9f,
-	0x9f, 0x5f, 0xf6, 0x6a, 0x3f, 0x2f, 0x7b, 0x4f, 0x12, 0x26, 0xa7, 0xf3, 0x71, 0x10, 0x43, 0x6a,
-	0xfa, 0x99, 0xcf, 0x40, 0x4c, 0x0e, 0xb5, 0xc2, 0xe0, 0x05, 0x30, 0xfe, 0xed, 0xcb, 0xa0, 0x63,
-	0xf4, 0x14, 0x61, 0xa8, 0x8b, 0xe1, 0x4d, 0x64, 0xf3, 0x79, 0x3a, 0xa6, 0xb9, 0x53, 0xdf, 0xb6,
-	0xfa, 0xb7, 0x42, 0x13, 0x61, 0x17, 0xad, 0x89, 0x42, 0x26, 0x8f, 0xa9, 0xd3, 0x50, 0x48, 0x15,
-	0xfb, 0xaf, 0xd1, 0x9d, 0x61, 0xe1, 0xb9, 0x32, 0xd2, 0x43, 0x9d, 0x83, 0x1c, 0xd2, 0xd1, 0x94,
-	0xb2, 0x64, 0x2a, 0x95, 0x99, 0x46, 0x88, 0x8a, 0xd4, 0x4b, 0x95, 0xc1, 0x0f, 0x50, 0x5b, 0x42,
-	0x09, 0xd7, 0x15, 0xbc, 0x26, 0x41, 0x83, 0xfe, 0x3e, 0x5a, 0x2f, 0xcb, 0x19, 0xab, 0x04, 0xd9,
-	0x6a, 0xa8, 0xda, 0x6b, 0x67, 0x6f, 0x2b, 0xf8, 0x3b, 0xf4, 0x40, 0x5b, 0x52, 0x7f, 0x84, 0x86,
-	0xe6, 0xef, 0xa2, 0xdb, 0x3a, 0x61, 0x04, 0x6d, 0x22, 0xfb, 0x8a, 0x16, 0x13, 0xed, 0x7d, 0xad,
-	0xa3, 0xe6, 0x9b, 0x62, 0x2f, 0xb0, 0x44, 0x2d, 0x33, 0x60, 0xbc, 0x13, 0xfc, 0x73, 0x3b, 0x82,
-	0xab, 0xb7, 0xe5, 0xee, 0xde, 0x44, 0xd3, 0xe2, 0x7d, 0xf7, 0xc3, 0xf7, 0xdf, 0x9f, 0xea, 0x1b,
-	0x18, 0x13, 0x73, 0x9b, 0xe4, 0xd4, 0x1c, 0xce, 0xf0, 0x7b, 0xd4, 0x54, 0x3a, 0xf1, 0xa3, 0x6b,
-	0x8a, 0xad, 0xba, 0x70, 0xaf, 0xb3, 0xed, 0x6f, 0xa9, 0x16, 0x77, 0x71, 0x57, 0xef, 0x1e, 0x39,
-	0xd5, 0xf6, 0xce, 0xf0, 0x01, 0xb2, 0xf5, 0x28, 0xf1, 0xe3, 0xff, 0x35, 0xa8, 0x3c, 0xed, 0xdc,
-	0xc0, 0x32, 0x96, 0xba, 0xaa, 0x5f, 0x1b, 0xb7, 0x74, 0x3f, 0x31, 0x7c, 0x75, 0xbe, 0xf0, 0xac,
-	0x8b, 0x85, 0x67, 0xfd, 0x5a, 0x78, 0xd6, 0xc7, 0xa5, 0x57, 0xbb, 0x58, 0x7a, 0xb5, 0x1f, 0x4b,
-	0xaf, 0xf6, 0x8e, 0xac, 0xac, 0x63, 0x59, 0xbb, 0x3a, 0x0c, 0xe2, 0x69, 0xc4, 0x38, 0x59, 0x7d,
-	0xa6, 0x63, 0x5b, 0xbd, 0x8e, 0x67, 0x7f, 0x02, 0x00, 0x00, 0xff, 0xff, 0xff, 0x50, 0x8f, 0x2a,
-	0xbd, 0x03, 0x00, 0x00,
+	// 636 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0x4f, 0x4f, 0xd4, 0x40,
+	0x14, 0xdf, 0x02, 0x5b, 0xd8, 0x07, 0xec, 0x86, 0x11, 0xa1, 0x56, 0x53, 0x48, 0x15, 0x24, 0x24,
+	0xdb, 0x49, 0xf0, 0x6e, 0x02, 0x5e, 0xf4, 0xe0, 0xc1, 0xca, 0xc9, 0x83, 0x9b, 0x6e, 0x77, 0x68,
+	0x1b, 0xb6, 0x9d, 0xd2, 0x99, 0x4d, 0x20, 0x84, 0x8b, 0x9f, 0x40, 0xe3, 0xc5, 0xc4, 0xaf, 0xe1,
+	0x87, 0xe0, 0x48, 0xf4, 0x62, 0x3c, 0x10, 0xb3, 0xeb, 0x07, 0x31, 0x9d, 0x99, 0xae, 0x6d, 0xb0,
+	0x72, 0xf2, 0xd4, 0x79, 0x7f, 0xfa, 0x9b, 0xf7, 0x7b, 0xbf, 0xf7, 0x06, 0x0c, 0x72, 0x9a, 0x0e,
+	0x69, 0x46, 0xb2, 0xae, 0x97, 0x46, 0xf8, 0x64, 0x44, 0xb2, 0x33, 0x27, 0xcd, 0x28, 0xa7, 0xe8,
+	0x6e, 0x1c, 0x25, 0x24, 0x1d, 0x92, 0x53, 0xa7, 0x48, 0xe9, 0x79, 0x69, 0x64, 0xae, 0x06, 0x34,
+	0xa0, 0x22, 0x03, 0xe7, 0x27, 0x99, 0x6c, 0x3e, 0x08, 0x28, 0x0d, 0x86, 0x04, 0xe7, 0x20, 0x5e,
+	0x92, 0x50, 0xee, 0xf1, 0x88, 0x26, 0xac, 0x88, 0x72, 0x92, 0x0c, 0x48, 0x16, 0x47, 0x09, 0xc7,
+	0xfc, 0x2c, 0x25, 0x0c, 0xf7, 0x87, 0xd4, 0x3f, 0x56, 0xd1, 0x7b, 0x3e, 0x65, 0x31, 0x65, 0x3d,
+	0x09, 0x2a, 0x0d, 0x19, 0xb2, 0x3b, 0xb0, 0xfc, 0x9a, 0x7b, 0x7c, 0xc4, 0x5c, 0x72, 0x32, 0x22,
+	0x8c, 0xdb, 0x9f, 0x34, 0x68, 0x17, 0x1e, 0x96, 0xd2, 0x84, 0x11, 0xb4, 0x0b, 0x2b, 0x43, 0x8f,
+	0x13, 0xc6, 0x7b, 0x02, 0xb4, 0x17, 0x7a, 0x2c, 0x34, 0xb4, 0x4d, 0x6d, 0xa7, 0xe5, 0x76, 0x64,
+	0xe0, 0x20, 0xf7, 0x3f, 0xf7, 0x58, 0x88, 0x1c, 0xb8, 0x53, 0xcd, 0x25, 0x51, 0x10, 0x72, 0x63,
+	0x66, 0x53, 0xdb, 0x99, 0x75, 0x57, 0xca, 0xd9, 0x22, 0x70, 0x03, 0x9b, 0x47, 0x31, 0x31, 0x66,
+	0x6f, 0x60, 0x1f, 0x46, 0x31, 0xb1, 0xdb, 0xb0, 0xf4, 0x8c, 0x46, 0xc9, 0xb4, 0x54, 0x02, 0xcb,
+	0xca, 0x56, 0x85, 0x1e, 0x42, 0xd3, 0xcf, 0x1d, 0x86, 0xb6, 0x39, 0xbb, 0xd3, 0x3a, 0x78, 0x7a,
+	0x79, 0xbd, 0xd1, 0xf8, 0x71, 0xbd, 0xf1, 0x38, 0x88, 0x78, 0x38, 0xea, 0x3b, 0x3e, 0x8d, 0x15,
+	0x79, 0xf5, 0xe9, 0xb2, 0xc1, 0xb1, 0x6c, 0x97, 0x93, 0x03, 0x7d, 0xfd, 0xd2, 0x5d, 0x54, 0xcd,
+	0xc9, 0x4d, 0x57, 0x82, 0xd9, 0xbb, 0xd0, 0xde, 0x1f, 0x0c, 0x32, 0xc2, 0x8a, 0x8b, 0x91, 0x01,
+	0xf3, 0x9e, 0xf4, 0xa8, 0x36, 0x14, 0xa6, 0xfd, 0x59, 0x83, 0xce, 0x34, 0xf9, 0x7f, 0x56, 0x85,
+	0xd6, 0x40, 0x4f, 0x46, 0x71, 0x9f, 0x64, 0xa2, 0xb7, 0x73, 0xae, 0xb2, 0x90, 0x09, 0x0b, 0x2c,
+	0x2f, 0x33, 0xf1, 0x65, 0x1f, 0xe7, 0xdc, 0xa9, 0x6d, 0xbf, 0x84, 0x65, 0xd1, 0xcd, 0x29, 0x91,
+	0x0d, 0x58, 0x3c, 0xca, 0x68, 0x5c, 0xa8, 0xa4, 0x09, 0x95, 0x20, 0x77, 0x29, 0x79, 0xee, 0x43,
+	0x8b, 0xd3, 0xaa, 0x88, 0x0b, 0x9c, 0xca, 0xa0, 0xbd, 0x0f, 0xed, 0x02, 0x4e, 0x51, 0xc5, 0xa0,
+	0x0b, 0x19, 0x25, 0xd7, 0xc5, 0xbd, 0x75, 0xe7, 0xcf, 0x5c, 0x3a, 0x92, 0x92, 0xf8, 0xc3, 0x55,
+	0x69, 0xf6, 0x36, 0x2c, 0x49, 0x87, 0x2a, 0x68, 0x0d, 0xf4, 0x4a, 0x2d, 0xca, 0xda, 0xfb, 0x30,
+	0x07, 0xcd, 0x57, 0xf9, 0xea, 0x20, 0x0e, 0xf3, 0xaa, 0xc1, 0x68, 0xcb, 0xf9, 0xeb, 0x02, 0x39,
+	0x55, 0xb5, 0xcc, 0xed, 0xdb, 0xd2, 0x64, 0xf1, 0xb6, 0xf9, 0xee, 0xdb, 0xaf, 0x8f, 0x33, 0xab,
+	0x08, 0x61, 0xa5, 0x26, 0x3e, 0x57, 0x87, 0x0b, 0xd4, 0x87, 0xa6, 0x18, 0x35, 0xf4, 0xb0, 0x06,
+	0xac, 0x3c, 0x98, 0xe6, 0xa3, 0x7f, 0x27, 0xa9, 0xfb, 0xda, 0xe2, 0xbe, 0x05, 0xa4, 0x63, 0xa9,
+	0xe8, 0x11, 0xe8, 0x72, 0xf1, 0x50, 0xdd, 0xff, 0x95, 0x4d, 0x35, 0xb7, 0x6e, 0xc9, 0x52, 0xd7,
+	0x74, 0xc4, 0x35, 0x2d, 0x34, 0x8f, 0x99, 0x44, 0x7f, 0x0b, 0x4d, 0xd1, 0xf3, 0x5a, 0x2e, 0x65,
+	0x45, 0xcc, 0x3a, 0x09, 0xed, 0x75, 0x81, 0xbb, 0x82, 0x3a, 0xf2, 0xa9, 0xc1, 0xe7, 0x52, 0xaa,
+	0x8b, 0x9c, 0x87, 0x1c, 0x8b, 0x5a, 0x1e, 0x95, 0x21, 0xac, 0xe5, 0x51, 0x9d, 0xad, 0x12, 0x0f,
+	0x39, 0x3b, 0x07, 0x2f, 0x2e, 0xc7, 0x96, 0x76, 0x35, 0xb6, 0xb4, 0x9f, 0x63, 0x4b, 0x7b, 0x3f,
+	0xb1, 0x1a, 0x57, 0x13, 0xab, 0xf1, 0x7d, 0x62, 0x35, 0xde, 0xe0, 0xd2, 0x6a, 0x15, 0xd8, 0xd3,
+	0x43, 0xd7, 0x0f, 0xbd, 0x28, 0xc1, 0xe5, 0x57, 0xb9, 0xaf, 0x8b, 0xc7, 0xf0, 0xc9, 0xef, 0x00,
+	0x00, 0x00, 0xff, 0xff, 0x22, 0x9b, 0x04, 0x09, 0xac, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -329,6 +509,8 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
 	Address(ctx context.Context, in *AddressRequest, opts ...grpc.CallOption) (*AddressResponse, error)
+	Coins(ctx context.Context, in *CoinsRequest, opts ...grpc.CallOption) (*CoinsResponse, error)
+	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 	Block(ctx context.Context, in *BlockRequest, opts ...grpc.CallOption) (*types.Block, error)
 	Blocks(ctx context.Context, in *BlocksRequest, opts ...grpc.CallOption) (*BlocksResponse, error)
 }
@@ -344,6 +526,24 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 func (c *queryClient) Address(ctx context.Context, in *AddressRequest, opts ...grpc.CallOption) (*AddressResponse, error) {
 	out := new(AddressResponse)
 	err := c.cc.Invoke(ctx, "/mineplex.explorer_api.Query/Address", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Coins(ctx context.Context, in *CoinsRequest, opts ...grpc.CallOption) (*CoinsResponse, error) {
+	out := new(CoinsResponse)
+	err := c.cc.Invoke(ctx, "/mineplex.explorer_api.Query/Coins", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
+	out := new(StatusResponse)
+	err := c.cc.Invoke(ctx, "/mineplex.explorer_api.Query/Status", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -371,6 +571,8 @@ func (c *queryClient) Blocks(ctx context.Context, in *BlocksRequest, opts ...grp
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	Address(context.Context, *AddressRequest) (*AddressResponse, error)
+	Coins(context.Context, *CoinsRequest) (*CoinsResponse, error)
+	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 	Block(context.Context, *BlockRequest) (*types.Block, error)
 	Blocks(context.Context, *BlocksRequest) (*BlocksResponse, error)
 }
@@ -381,6 +583,12 @@ type UnimplementedQueryServer struct {
 
 func (*UnimplementedQueryServer) Address(ctx context.Context, req *AddressRequest) (*AddressResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Address not implemented")
+}
+func (*UnimplementedQueryServer) Coins(ctx context.Context, req *CoinsRequest) (*CoinsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Coins not implemented")
+}
+func (*UnimplementedQueryServer) Status(ctx context.Context, req *StatusRequest) (*StatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
 }
 func (*UnimplementedQueryServer) Block(ctx context.Context, req *BlockRequest) (*types.Block, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Block not implemented")
@@ -407,6 +615,42 @@ func _Query_Address_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).Address(ctx, req.(*AddressRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Coins_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CoinsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Coins(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mineplex.explorer_api.Query/Coins",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Coins(ctx, req.(*CoinsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Status(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/mineplex.explorer_api.Query/Status",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Status(ctx, req.(*StatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -456,6 +700,14 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_Address_Handler,
 		},
 		{
+			MethodName: "Coins",
+			Handler:    _Query_Coins_Handler,
+		},
+		{
+			MethodName: "Status",
+			Handler:    _Query_Status_Handler,
+		},
+		{
 			MethodName: "Block",
 			Handler:    _Query_Block_Handler,
 		},
@@ -466,6 +718,131 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "explorer-api/query.proto",
+}
+
+func (m *StatusRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *StatusRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *StatusRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *StatusResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *StatusResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *StatusResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.LatestBlockTime) > 0 {
+		i -= len(m.LatestBlockTime)
+		copy(dAtA[i:], m.LatestBlockTime)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.LatestBlockTime)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.LatestBlockHeight != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.LatestBlockHeight))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.LatestBlockHash) > 0 {
+		i -= len(m.LatestBlockHash)
+		copy(dAtA[i:], m.LatestBlockHash)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.LatestBlockHash)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *CoinsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CoinsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CoinsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *CoinsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CoinsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CoinsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Coins) > 0 {
+		for iNdEx := len(m.Coins) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size := m.Coins[iNdEx].Size()
+				i -= size
+				if _, err := m.Coins[iNdEx].MarshalTo(dAtA[i:]); err != nil {
+					return 0, err
+				}
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *AddressRequest) Marshal() (dAtA []byte, err error) {
@@ -654,6 +1031,59 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *StatusRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *StatusResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.LatestBlockHash)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	if m.LatestBlockHeight != 0 {
+		n += 1 + sovQuery(uint64(m.LatestBlockHeight))
+	}
+	l = len(m.LatestBlockTime)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *CoinsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *CoinsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Coins) > 0 {
+		for _, e := range m.Coins {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
 func (m *AddressRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -735,6 +1165,325 @@ func sovQuery(x uint64) (n int) {
 }
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *StatusRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: StatusRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: StatusRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *StatusResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: StatusResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: StatusResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LatestBlockHash", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.LatestBlockHash = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LatestBlockHeight", wireType)
+			}
+			m.LatestBlockHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.LatestBlockHeight |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LatestBlockTime", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.LatestBlockTime = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CoinsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CoinsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CoinsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CoinsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CoinsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CoinsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Coins", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			var v github_com_cosmos_cosmos_sdk_types.Coin
+			m.Coins = append(m.Coins, v)
+			if err := m.Coins[len(m.Coins)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *AddressRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
