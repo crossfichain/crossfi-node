@@ -107,6 +107,9 @@ import (
 	mineplexchainmodule "github.com/mineplex/mineplex-chain/x/mineplexchain"
 	mineplexchainmodulekeeper "github.com/mineplex/mineplex-chain/x/mineplexchain/keeper"
 	mineplexchainmoduletypes "github.com/mineplex/mineplex-chain/x/mineplexchain/types"
+	treasurymodule "github.com/mineplex/mineplex-chain/x/treasury"
+	treasurymodulekeeper "github.com/mineplex/mineplex-chain/x/treasury/keeper"
+	treasurymoduletypes "github.com/mineplex/mineplex-chain/x/treasury/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	appparams "github.com/mineplex/mineplex-chain/app/params"
@@ -166,6 +169,7 @@ var (
 		ica.AppModuleBasic{},
 		vesting.AppModuleBasic{},
 		mineplexchainmodule.AppModuleBasic{},
+		treasurymodule.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -240,6 +244,8 @@ type App struct {
 	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
 
 	MineplexchainKeeper mineplexchainmodulekeeper.Keeper
+
+	TreasuryKeeper treasurymodulekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// mm is the module manager
@@ -285,6 +291,7 @@ func New(
 		ibctransfertypes.StoreKey, icahosttypes.StoreKey, capabilitytypes.StoreKey, group.StoreKey,
 		icacontrollertypes.StoreKey,
 		mineplexchainmoduletypes.StoreKey,
+		treasurymoduletypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -504,6 +511,15 @@ func New(
 	)
 	mineplexchainModule := mineplexchainmodule.NewAppModule(appCodec, app.MineplexchainKeeper, app.AccountKeeper, app.BankKeeper)
 
+	app.TreasuryKeeper = *treasurymodulekeeper.NewKeeper(
+		appCodec,
+		keys[treasurymoduletypes.StoreKey],
+		keys[treasurymoduletypes.MemStoreKey],
+		app.GetSubspace(treasurymoduletypes.ModuleName),
+		app.BankKeeper,
+	)
+	treasuryModule := treasurymodule.NewAppModule(appCodec, app.TreasuryKeeper, app.AccountKeeper, app.BankKeeper)
+
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
 	/**** IBC Routing ****/
@@ -570,6 +586,7 @@ func New(
 		transferModule,
 		icaModule,
 		mineplexchainModule,
+		treasuryModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -600,6 +617,7 @@ func New(
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
 		mineplexchainmoduletypes.ModuleName,
+		treasurymoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -625,6 +643,7 @@ func New(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		mineplexchainmoduletypes.ModuleName,
+		treasurymoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -655,6 +674,7 @@ func New(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		mineplexchainmoduletypes.ModuleName,
+		treasurymoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -685,6 +705,7 @@ func New(
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
 		mineplexchainModule,
+		treasuryModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 	app.sm.RegisterStoreDecoders()
@@ -891,6 +912,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(mineplexchainmoduletypes.ModuleName)
+	paramsKeeper.Subspace(treasurymoduletypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper

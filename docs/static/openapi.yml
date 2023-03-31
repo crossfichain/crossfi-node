@@ -45303,6 +45303,42 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
+  /mineplex/mineplex-chain/treasury/params:
+    get:
+      summary: Parameters queries the parameters of the module.
+      operationId: MineplexMineplexchainTreasuryParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params holds all the parameters of this module.
+                type: object
+            description: >-
+              QueryParamsResponse is response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
   /mineplex/mint/v1beta1/params:
     get:
       summary: Params returns the total set of minting parameters.
@@ -75009,6 +75045,22 @@ definitions:
     type: object
     description: Params defines the parameters for the module.
   mineplex.mineplexchain.mineplexchain.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params holds all the parameters of this module.
+        type: object
+    description: QueryParamsResponse is response type for the Query/Params RPC method.
+  mineplex.mineplexchain.treasury.MsgBurnResponse:
+    type: object
+  mineplex.mineplexchain.treasury.MsgChangeOwnerResponse:
+    type: object
+  mineplex.mineplexchain.treasury.MsgMintResponse:
+    type: object
+  mineplex.mineplexchain.treasury.Params:
+    type: object
+    description: Params defines the parameters for the module.
+  mineplex.mineplexchain.treasury.QueryParamsResponse:
     type: object
     properties:
       params:

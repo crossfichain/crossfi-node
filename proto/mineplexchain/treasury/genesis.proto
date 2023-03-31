@@ -1,0 +1,12 @@
+syntax = "proto3";
+package mineplex.mineplexchain.treasury;
+
+import "gogoproto/gogo.proto";
+import "mineplexchain/treasury/params.proto";
+
+option go_package = "github.com/mineplex/mineplex-chain/x/treasury/types";
+
+// GenesisState defines the treasury module's genesis state.
+message GenesisState {
+  Params params = 1 [(gogoproto.nullable) = false];
+}
