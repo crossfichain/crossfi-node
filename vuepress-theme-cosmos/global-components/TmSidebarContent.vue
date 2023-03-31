@@ -175,12 +175,6 @@ export default {
           color: "#5064FB",
         },
         {
-          label: "hub",
-          name: "Cosmos<br>Hub",
-          url: "https://hub.cosmos.network/",
-          color: "#BA3FD9",
-        },
-        {
           label: "ibc",
           name: "IBC<br>Go",
           url: "https://ibc.cosmos.network",

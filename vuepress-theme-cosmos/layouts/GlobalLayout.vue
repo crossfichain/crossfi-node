@@ -305,18 +305,7 @@ export default {
     };
   },
   beforeMount() {
-    const fetchTopBanner = axios.get(`${this.topBannerUrl}/index.json`)
-      .then(response => response.data)
-      .catch(() => console.log(`Error in fetching data from ${this.topBannerUrl}`))
 
-    const fetchAsideBanner = axios.get(`${this.asideBannersUrl}/index.json`)
-      .then(response => response.data)
-      .catch(() => console.log(`Error in fetching data from ${this.asideBannersUrl}`))
-
-    Promise.all([fetchTopBanner, fetchAsideBanner]).then(responses => {
-      this.topBanner = responses[0]
-      this.asideBanners = responses[1]
-    })
   },
   mounted() {
     document.addEventListener("scroll", () => {

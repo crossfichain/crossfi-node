@@ -29,7 +29,7 @@ accounts:
   - 100000xfi
 client:
   openapi:
-    path: docs/static/openapi.yml
+    path: api-docs/static/openapi.yml
 faucet:
   name: bob
   coins:
