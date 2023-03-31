@@ -1,6 +1,6 @@
 # How to launch a new testnet
 
-1. Download and install `cosmos-init`: https://...
+1. Download and install `cosmos-init`: https://github.com/danil-lashin/cosmos-init
 2. Edit `testnet-config.yml`
 3. Run `cosmos-init testnet-config.toml`
 4. Upload folders from `./chain_data` to servers.
