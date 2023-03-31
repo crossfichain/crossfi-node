@@ -5,8 +5,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
-
 	"github.com/gogo/protobuf/proto"
 
 	minttypes "github.com/mineplex/mineplex-chain/x/mint/types"
@@ -30,26 +28,6 @@ func (s *IntegrationTestSuite) TestQueryGRPC() {
 			&minttypes.QueryParamsResponse{
 				Params: minttypes.NewParams("stake", sdk.NewDecWithPrec(13, 2), sdk.NewDecWithPrec(100, 2),
 					sdk.NewDec(1), sdk.NewDecWithPrec(67, 2), (60 * 60 * 8766 / 5)),
-			},
-		},
-		{
-			"gRPC request inflation",
-			fmt.Sprintf("%s/cosmos/mint/v1beta1/inflation", baseURL),
-			map[string]string{},
-			&minttypes.QueryInflationResponse{},
-			&minttypes.QueryInflationResponse{
-				Inflation: sdk.NewDec(1),
-			},
-		},
-		{
-			"gRPC request annual provisions",
-			fmt.Sprintf("%s/cosmos/mint/v1beta1/annual_provisions", baseURL),
-			map[string]string{
-				grpctypes.GRPCBlockHeightHeader: "1",
-			},
-			&minttypes.QueryAnnualProvisionsResponse{},
-			&minttypes.QueryAnnualProvisionsResponse{
-				AnnualProvisions: sdk.NewDec(500000000),
 			},
 		},
 	}

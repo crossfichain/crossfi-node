@@ -1,6 +1,7 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	"errors"
 	"fmt"
 	"strings"
@@ -13,12 +14,8 @@ import (
 
 // Parameter store keys
 var (
-	KeyMintDenom           = []byte("MintDenom")
-	KeyInflationRateChange = []byte("InflationRateChange")
-	KeyInflationMax        = []byte("InflationMax")
-	KeyInflationMin        = []byte("InflationMin")
-	KeyGoalBonded          = []byte("GoalBonded")
-	KeyBlocksPerYear       = []byte("BlocksPerYear")
+	KeyMintDenom = []byte("MintDenom")
+	KeyPeriods   = []byte("Periods")
 )
 
 // ParamTable for minting module.
@@ -26,28 +23,53 @@ func ParamKeyTable() paramtypes.KeyTable {
 	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
-func NewParams(
-	mintDenom string, inflationRateChange, inflationMax, inflationMin, goalBonded sdk.Dec, blocksPerYear uint64,
-) Params {
+func NewParams(mintDenom string, periods []*RewardPeriod) Params {
 	return Params{
-		MintDenom:           mintDenom,
-		InflationRateChange: inflationRateChange,
-		InflationMax:        inflationMax,
-		InflationMin:        inflationMin,
-		GoalBonded:          goalBonded,
-		BlocksPerYear:       blocksPerYear,
+		MintDenom: mintDenom,
+		Periods:   periods,
 	}
+}
+
+func MustNewIntFromString(s string) math.Int {
+	res, err := sdk.NewIntFromString(s)
+	if err {
+		panic("invalid string for NewIntFromString: " + s)
+	}
+
+	return res
 }
 
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
-		MintDenom:           sdk.DefaultBondDenom,
-		InflationRateChange: sdk.NewDecWithPrec(13, 2),
-		InflationMax:        sdk.NewDecWithPrec(20, 2),
-		InflationMin:        sdk.NewDecWithPrec(7, 2),
-		GoalBonded:          sdk.NewDecWithPrec(67, 2),
-		BlocksPerYear:       uint64(60 * 60 * 8766 / 5), // assuming 5 second block times
+		MintDenom: "PLEX2",
+		Periods: []*RewardPeriod{
+			{
+				FromHeight:     1,
+				ToHeight:       25246080,
+				RewardPerBlock: MustNewIntFromString("5000000000000000000"),
+			},
+			{
+				FromHeight:     25246081,
+				ToHeight:       50492160,
+				RewardPerBlock: MustNewIntFromString("4000000000000000000"),
+			},
+			{
+				FromHeight:     50492161,
+				ToHeight:       75738240,
+				RewardPerBlock: MustNewIntFromString("3000000000000000000"),
+			},
+			{
+				FromHeight:     75738241,
+				ToHeight:       100984320,
+				RewardPerBlock: MustNewIntFromString("2000000000000000000"),
+			},
+			{
+				FromHeight:     100984321,
+				ToHeight:       126230400,
+				RewardPerBlock: MustNewIntFromString("1000000000000000000"),
+			},
+		},
 	}
 }
 
@@ -56,26 +78,8 @@ func (p Params) Validate() error {
 	if err := validateMintDenom(p.MintDenom); err != nil {
 		return err
 	}
-	if err := validateInflationRateChange(p.InflationRateChange); err != nil {
+	if err := validatePeriods(p.Periods); err != nil {
 		return err
-	}
-	if err := validateInflationMax(p.InflationMax); err != nil {
-		return err
-	}
-	if err := validateInflationMin(p.InflationMin); err != nil {
-		return err
-	}
-	if err := validateGoalBonded(p.GoalBonded); err != nil {
-		return err
-	}
-	if err := validateBlocksPerYear(p.BlocksPerYear); err != nil {
-		return err
-	}
-	if p.InflationMax.LT(p.InflationMin) {
-		return fmt.Errorf(
-			"max inflation (%s) must be greater than or equal to min inflation (%s)",
-			p.InflationMax, p.InflationMin,
-		)
 	}
 
 	return nil
@@ -91,11 +95,7 @@ func (p Params) String() string {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyMintDenom, &p.MintDenom, validateMintDenom),
-		paramtypes.NewParamSetPair(KeyInflationRateChange, &p.InflationRateChange, validateInflationRateChange),
-		paramtypes.NewParamSetPair(KeyInflationMax, &p.InflationMax, validateInflationMax),
-		paramtypes.NewParamSetPair(KeyInflationMin, &p.InflationMin, validateInflationMin),
-		paramtypes.NewParamSetPair(KeyGoalBonded, &p.GoalBonded, validateGoalBonded),
-		paramtypes.NewParamSetPair(KeyBlocksPerYear, &p.BlocksPerYear, validateBlocksPerYear),
+		paramtypes.NewParamSetPair(KeyPeriods, &p.Periods, validatePeriods),
 	}
 }
 
@@ -115,78 +115,33 @@ func validateMintDenom(i interface{}) error {
 	return nil
 }
 
-func validateInflationRateChange(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+func validatePeriods(i interface{}) error {
+	v, ok := i.([]*RewardPeriod)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v.IsNegative() {
-		return fmt.Errorf("inflation rate change cannot be negative: %s", v)
-	}
-	if v.GT(sdk.OneDec()) {
-		return fmt.Errorf("inflation rate change too large: %s", v)
-	}
+	for _, periodA := range v {
+		if periodA.RewardPerBlock.IsNegative() {
+			return fmt.Errorf("negative reward per block")
+		}
 
-	return nil
-}
+		// check that periodA and periodB are not overlapping each other
+		for _, periodB := range v {
+			if periodA == periodB {
+				continue
+			}
 
-func validateInflationMax(i interface{}) error {
-	v, ok := i.(sdk.Dec)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.IsNegative() {
-		return fmt.Errorf("max inflation cannot be negative: %s", v)
-	}
-	if v.GT(sdk.OneDec()) {
-		return fmt.Errorf("max inflation too large: %s", v)
-	}
-
-	return nil
-}
-
-func validateInflationMin(i interface{}) error {
-	v, ok := i.(sdk.Dec)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.IsNegative() {
-		return fmt.Errorf("min inflation cannot be negative: %s", v)
-	}
-	if v.GT(sdk.OneDec()) {
-		return fmt.Errorf("min inflation too large: %s", v)
-	}
-
-	return nil
-}
-
-func validateGoalBonded(i interface{}) error {
-	v, ok := i.(sdk.Dec)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.IsNegative() || v.IsZero() {
-		return fmt.Errorf("goal bonded must be positive: %s", v)
-	}
-	if v.GT(sdk.OneDec()) {
-		return fmt.Errorf("goal bonded too large: %s", v)
-	}
-
-	return nil
-}
-
-func validateBlocksPerYear(i interface{}) error {
-	v, ok := i.(uint64)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v == 0 {
-		return fmt.Errorf("blocks per year must be positive: %d", v)
+			if periodA.FromHeight < periodB.FromHeight {
+				if periodA.ToHeight > periodB.ToHeight {
+					return fmt.Errorf("reward periods are overlapping: %s and %s", periodA, periodB)
+				}
+			} else {
+				if periodB.ToHeight > (periodA.FromHeight) {
+					return fmt.Errorf("reward periods are overlapping: %s and %s", periodA, periodB)
+				}
+			}
+		}
 	}
 
 	return nil
