@@ -1,0 +1,99 @@
+binary: "mineplex-chaind"
+home_dir: "./chain_data"
+keyring_backend: "file"
+passphrase: "1234567890"
+seed:
+  name: "seed"
+  addr: "127.0.0.1:26656"
+  config:
+    p2p:
+      allow_duplicate_ip: true
+genesis:
+  chain_id: "mineplex-testnet-1"
+  app_state:
+    crisis:
+      constant_fee:
+        denom: mpx
+    gov:
+      deposit_params:
+        min_deposit:
+          - amount: "1000000000000000000"
+            denom: mpx
+    staking:
+      params:
+        bond_denom: mpx
+        max_validators: 64
+        unbonding_time: 1296000s
+    treasury:
+      params:
+        owner: mp1d0ga6s7ue244rep5z7gnmgeyf3ejzla0aw5rur
+accounts:
+  - name: myacc
+    coins:
+      - 100000000mpx
+      - 100000000xfi
+validators:
+  - name: validator1
+    bonded: 1000000000000000000mpx
+    config:
+      p2p:
+        laddr: "tcp://0.0.0.0:36656"
+      rpc:
+        laddr: ""
+    app:
+      grpc:
+        enable: false
+      grpc-web:
+        enable: false
+      json-rpc:
+        enable: false
+      rosetta:
+        enable: false
+  - name: validator2
+    bonded: 1000000000000000000mpx
+    config:
+      p2p:
+        laddr: "tcp://0.0.0.0:36657"
+      rpc:
+        laddr: ""
+    app:
+      grpc:
+        enable: false
+      grpc-web:
+        enable: false
+      json-rpc:
+        enable: false
+      rosetta:
+        enable: false
+  - name: validator3
+    bonded: 1000000000000000000mpx
+    config:
+      p2p:
+        laddr: "tcp://0.0.0.0:36658"
+      rpc:
+        laddr: ""
+    app:
+      grpc:
+        enable: false
+      grpc-web:
+        enable: false
+      json-rpc:
+        enable: false
+      rosetta:
+        enable: false
+  - name: validator4
+    bonded: 1000000000000000000mpx
+    config:
+      p2p:
+        laddr: "tcp://0.0.0.0:36659"
+      rpc:
+        laddr: ""
+    app:
+      grpc:
+        enable: false
+      grpc-web:
+        enable: false
+      json-rpc:
+        enable: false
+      rosetta:
+        enable: false
