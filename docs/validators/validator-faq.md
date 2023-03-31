@@ -11,13 +11,13 @@ This is work in progress. Mechanisms and values are susceptible to change.
 
 ## General Concepts
 
-### What is a Cosmos validator?
+### What is a validator?
 
-The [Cosmos Hub](../getting-started/what-is-gaia.md) is based on [Tendermint](https://docs.tendermint.com/v0.34/introduction/what-is-tendermint.html) that relies on a set of validators to secure the network. The role of validators is to run a full node and participate in consensus by broadcasting votes that contain cryptographic signatures signed by the validator's private key. Validators commit new blocks in the blockchain and receive revenue in exchange for their work. Validators must also participate in governance by voting on proposals. Validators are weighted according to their total stake.
+The Mineplex Chain is based on [Tendermint](https://docs.tendermint.com/v0.34/introduction/what-is-tendermint.html) that relies on a set of validators to secure the network. The role of validators is to run a full node and participate in consensus by broadcasting votes that contain cryptographic signatures signed by the validator's private key. Validators commit new blocks in the blockchain and receive revenue in exchange for their work. Validators must also participate in governance by voting on proposals. Validators are weighted according to their total stake.
 
 ### What is staking?
 
-The Cosmos Hub is a public Proof-Of-Stake (PoS) blockchain, meaning that the weight of validators is determined by the amount of staking tokens (ATOM) bonded as collateral. These ATOM tokens can be self-delegated directly by the validator or delegated to the validator by other ATOM holders.
+The Mineplex Chain is a public Proof-Of-Stake (PoS) blockchain, meaning that the weight of validators is determined by the amount of staking tokens (MPX) bonded as collateral. These MPX tokens can be self-delegated directly by the validator or delegated to the validator by other MPX holders.
 
 Any user in the system can declare their intention to become a validator by sending a `create-validator` transaction to become validator candidates.
 
@@ -33,7 +33,7 @@ You can find more details about the requirements in the [Joining Mainnet Tutoria
 
 ### What is a delegator?
 
-Delegators are ATOM holders who cannot, or do not want to, run a validator themselves. ATOM holders can delegate ATOM to a validator and obtain a part of their revenue in exchange. For details on how revenue is distributed, see [What is the incentive to stake?](#what-is-the-incentive-to-stake?) and [What are validators commission?](#what-are-validators-commission?) in this document.
+Delegators are MPX holders who cannot, or do not want to, run a validator themselves. MPX holders can delegate MPX to a validator and obtain a part of their revenue in exchange. For details on how revenue is distributed, see [What is the incentive to stake?](#what-is-the-incentive-to-stake?) and [What are validators commission?](#what-are-validators-commission?) in this document.
 
 Because delegators share revenue with their validators, they also share risks. If a validator misbehaves, each of their delegators are partially slashed in proportion to their delegated stake. This penalty is one of the reasons why delegators must perform due diligence on validators before delegating. Spreading their stake over multiple validators is another layer of protection.
 
@@ -53,9 +53,9 @@ Any participant in the network can signal that they want to become a validator b
 - **Initial commission rate**: The commission rate on block rewards and fees charged to delegators.
 - **Maximum commission:** The maximum commission rate that this validator can charge. This parameter is fixed and cannot be changed after the `create-validator` transaction is processed.
 - **Commission max change rate:** The maximum daily increase of the validator commission. This parameter is fixed cannot be changed after the `create-validator` transaction is processed.
-- **Minimum self-delegation:** Minimum amount of ATOM the validator requires to have bonded at all time. If the validator's self-delegated stake falls below this limit, their validator gets jailed and kicked out of the active validator set.
+- **Minimum self-delegation:** Minimum amount of MPX the validator requires to have bonded at all time. If the validator's self-delegated stake falls below this limit, their validator gets jailed and kicked out of the active validator set.
 
-After a validator is created, ATOM holders can delegate ATOM to them, effectively adding stake to the validator's pool. The total stake of an address is the combination of ATOM bonded by delegators and ATOM self-bonded by the validator.
+After a validator is created, MPX holders can delegate MPX to them, effectively adding stake to the validator's pool. The total stake of an address is the combination of MPX bonded by delegators and MPX self-bonded by the validator.
 
 From all validator candidates that signaled themselves, the 150 validators with the most total stake are the designated **validators**. If a validator's total stake falls below the top 150, then that validator loses its validator privileges. The validator cannot participate in consensus or generate rewards until the stake is high enough to be in the top 150. Over time, the maximum number of validators may be increased via on-chain governance proposal.
 
@@ -74,13 +74,13 @@ Testnet participation is a great way to signal to the community that you are rea
 There are two types of keys:
 
 - **Tendermint key**: A unique key that is used to sign consensus votes.
-    - It is associated with a public key `cosmosvalconspub` (To get this value, run `gaiad tendermint show-validator`)
-    - It is generated when the node is created with `gaiad init`.
-- **Application key**: This key is created from the `gaiad` binary and is used to sign transactions. Application keys are associated with a public key that is prefixed by `cosmospub` and an address that is prefixed by `cosmos`.
+    - It is associated with a public key `mpvalconspub` (To get this value, run `mineplex-chaind tendermint show-validator`)
+    - It is generated when the node is created with `mineplex-chaind init`.
+- **Application key**: This key is created from the `mineplex-chaind` binary and is used to sign transactions. Application keys are associated with a public key that is prefixed by `cosmospub` and an address that is prefixed by `cosmos`.
 
-The Tendermint key and the application key are derived from account keys that are generated by the `gaiad keys add` command.
+The Tendermint key and the application key are derived from account keys that are generated by the `mineplex-chaind keys add` command.
 
-**Note:** A validator's operator key is directly tied to an application key and uses the `cosmosvaloper` and `cosmosvaloperpub` prefixes that are reserved solely for this purpose.
+**Note:** A validator's operator key is directly tied to an application key and uses the `mpvaloper` and `mpvaloperpub` prefixes that are reserved solely for this purpose.
 
 ### What are the different states a validator can be in?
 
@@ -92,22 +92,22 @@ After a validator is created with a `create-validator` transaction, the validato
     - If the jailing is due to being offline for too long (i.e. having missed more than `95%` out of the last `10,000` blocks), the validator can send an `unjail` transaction in order to re-enter the validator set.
     - If the jailing is due to double signing, the validator cannot unjail.
 
-- `unbonded`: Validator is not in the active set, and therefore not signing blocks. The validator cannot be slashed and does not earn any reward. It is still possible to delegate ATOM to an unbonded validator. Undelegating from an `unbonded` validator is immediate, meaning that the tokens are not subject to the unbonding period.
+- `unbonded`: Validator is not in the active set, and therefore not signing blocks. The validator cannot be slashed and does not earn any reward. It is still possible to delegate MPX to an unbonded validator. Undelegating from an `unbonded` validator is immediate, meaning that the tokens are not subject to the unbonding period.
 
 ### What is self-delegation? How can I increase my self-delegation?
 
-Self-delegation is a delegation of ATOM from a validator to themselves. The delegated amount can be increased by sending a `delegate` transaction from your validator's `application` application key.
+Self-delegation is a delegation of MPX from a validator to themselves. The delegated amount can be increased by sending a `delegate` transaction from your validator's `application` application key.
 
-### Is there a minimum amount of ATOM that must be delegated to be an active (bonded) validator?
+### Is there a minimum amount of MPX that must be delegated to be an active (bonded) validator?
 
-The minimum is 1 ATOM. But the network is currently secured by much higher values. You can check the minimum required ATOM to become part of the active validator set on the [Mintscan validator page](https://www.mintscan.io/cosmos/validators).
+The minimum is 1 MPX. But the network is currently secured by much higher values. You can check the minimum required MPX to become part of the active validator set on the [Mintscan validator page](https://www.mintscan.io/cosmos/validators).
 
 ### How do delegators choose their validators?
 
 Delegators are free to choose validators according to their own subjective criteria. Selection criteria includes:
 
-- **Amount of self-delegated ATOM:** Number of ATOM a validator self-delegated to themselves. A validator with a higher amount of self-delegated ATOM indicates that the validator is sharing the risk and experienced consequences for their actions.
-- **Amount of delegated ATOM:** Total number of ATOM delegated to a validator. A high voting power shows that the community trusts this validator. Larger validators also decrease the decentralization of the network, so delegators are suggested to consider delegating to smaller validators.
+- **Amount of self-delegated MPX:** Number of MPX a validator self-delegated to themselves. A validator with a higher amount of self-delegated MPX indicates that the validator is sharing the risk and experienced consequences for their actions.
+- **Amount of delegated MPX:** Total number of MPX delegated to a validator. A high voting power shows that the community trusts this validator. Larger validators also decrease the decentralization of the network, so delegators are suggested to consider delegating to smaller validators.
 - **Commission rate:** Commission applied on revenue by validators before the revenue is distributed to their delegators.
 - **Track record:** Delegators review the track record of the validators they plan to delegate to. This track record includes past votes on proposals and historical average uptime.
 - **Community contributions:** Another (more subjective) criteria is the work that validators have contributed to the community, such as educational content, participation in the community channels, contributions to open source software, etc.
@@ -132,33 +132,33 @@ Additionally, validators are expected to be active members of the community. Val
 
 ### What does 'participate in governance' entail?
 
-Validators and delegators on the Cosmos Hub can vote on proposals to change operational parameters (such as the block gas limit), coordinate upgrades, or make a decision on any given matter.
+Validators and delegators on the Mineplex Chain can vote on proposals to change operational parameters (such as the block gas limit), coordinate upgrades, or make a decision on any given matter.
 
 Validators play a special role in the governance system. As pillars of the system, validators are required to vote on every proposal. It is especially important since delegators who do not vote inherit the vote of their validator.
 
 ### What does staking imply?
 
-Staking ATOM can be thought of as a safety deposit on validation activities. When a validator or a delegator wants to retrieve part or all of their deposit, they send an `unbonding` transaction. Then, ATOM undergoes a **3-week unbonding period** during which they are liable to being slashed for potential misbehaviors committed by the validator before the unbonding process started.
+Staking MPX can be thought of as a safety deposit on validation activities. When a validator or a delegator wants to retrieve part or all of their deposit, they send an `unbonding` transaction. Then, MPX undergoes a **3-week unbonding period** during which they are liable to being slashed for potential misbehaviors committed by the validator before the unbonding process started.
 
-Validators, and by association delegators, receive block rewards, fees, and have the right to participate in governance. If a validator misbehaves, a certain portion of their total stake is slashed. This means that every delegator that bonded ATOM to this validator gets penalized in proportion to their bonded stake. Delegators are therefore incentivized to delegate to validators that they anticipate will function safely.
+Validators, and by association delegators, receive block rewards, fees, and have the right to participate in governance. If a validator misbehaves, a certain portion of their total stake is slashed. This means that every delegator that bonded MPX to this validator gets penalized in proportion to their bonded stake. Delegators are therefore incentivized to delegate to validators that they anticipate will function safely.
 
-### Can a validator run away with their delegators' ATOM?
+### Can a validator run away with their delegators' MPX?
 
-By delegating to a validator, a user delegates voting power. The more voting power a validator have, the more weight they have in the consensus and governance processes. This does not mean that the validator has custody of their delegators' ATOM. **A validator cannot run away with its delegator's funds**.
+By delegating to a validator, a user delegates voting power. The more voting power a validator have, the more weight they have in the consensus and governance processes. This does not mean that the validator has custody of their delegators' MPX. **A validator cannot run away with its delegator's funds**.
 
 Even though delegated funds cannot be stolen by their validators, delegators' tokens can still be slashed by a small percentage if their validator suffers a [slashing event](#what-are-the-slashing-conditions), which is why we encourage due diligence when [selecting a validator](#how-do-delegators-choose-their-validators).
 
-### How often is a validator chosen to propose the next block? Does frequency increase with the quantity of bonded ATOM?
+### How often is a validator chosen to propose the next block? Does frequency increase with the quantity of bonded MPX?
 
-The validator that is selected to propose the next block is called the proposer. Each proposer is selected deterministically. The frequency of being chosen is proportional to the voting power (i.e. amount of bonded ATOM) of the validator. For example, if the total bonded stake across all validators is 100 ATOM and a validator's total stake is 10 ATOM, then this validator is the proposer ~10% of the blocks.
+The validator that is selected to propose the next block is called the proposer. Each proposer is selected deterministically. The frequency of being chosen is proportional to the voting power (i.e. amount of bonded MPX) of the validator. For example, if the total bonded stake across all validators is 100 MPX and a validator's total stake is 10 MPX, then this validator is the proposer ~10% of the blocks.
 
-### Are validators of the Cosmos Hub required to validate other zones in the Cosmos ecosystem?
+### Are validators of the Mineplex Chain required to validate other zones in the Cosmos ecosystem?
 
-This depends, currently no validators are required to validate other blockchains. But when the first version of [Interchain Security](https://blog.cosmos.network/interchain-security-is-coming-to-the-cosmos-hub-f144c45fb035) is launched on the Cosmos Hub, delegators can vote to have certain blockchains secured via Interchain Security. In those cases, validators are required to validate on these chains as well.
+This depends, currently no validators are required to validate other blockchains. But when the first version of [Interchain Security](https://blog.cosmos.network/interchain-security-is-coming-to-the-cosmos-hub-f144c45fb035) is launched on the Mineplex Chain, delegators can vote to have certain blockchains secured via Interchain Security. In those cases, validators are required to validate on these chains as well.
 
-### How can a validator safely quit validating on the Cosmos Hub?
+### How can a validator safely quit validating on the Mineplex Chain?
 
-If a validator simply shuts down their node, this would result in the validator and their delegators getting slashed for being offline. The only way to safely exit a validator node running on the Cosmos Hub is by unbonding the validator's self-delegated stake so that it falls below its minimum self-delegation limit. As a result, the validator gets jailed and kicked out of the active set of validators, without getting slashed. They can then proceed to shut down their node without risking their tokens.
+If a validator simply shuts down their node, this would result in the validator and their delegators getting slashed for being offline. The only way to safely exit a validator node running on the Mineplex Chain is by unbonding the validator's self-delegated stake so that it falls below its minimum self-delegation limit. As a result, the validator gets jailed and kicked out of the active set of validators, without getting slashed. They can then proceed to shut down their node without risking their tokens.
 
 It's highly advised to inform your delegators when doing this, as they will still be bonded to your validator after it got jailed. They will need to manually unbond and they might not have been made aware of this via their preferred wallet application.
 
@@ -168,14 +168,14 @@ It's highly advised to inform your delegators when doing this, as they will stil
 
 Each member of a validator's staking pool earns different types of revenue:
 
-- **Block rewards:** Native tokens of applications (e.g. ATOM on the Cosmos Hub) run by validators are inflated to produce block provisions. These provisions exist to incentivize ATOM holders to bond their stake. Non-bonded ATOM are diluted over time.
-- **Transaction fees:** The Cosmos Hub maintains an allow list of tokens that are accepted as fee payment. The initial fee token is the `atom`.
+- **Block rewards:** Native tokens of applications (e.g. MPX on the Mineplex Chain) run by validators are inflated to produce block provisions. These provisions exist to incentivize MPX holders to bond their stake. Non-bonded MPX are diluted over time.
+- **Transaction fees:** The Mineplex Chain maintains an allow list of tokens that are accepted as fee payment. The initial fee token is the `atom`.
 
 This total revenue is divided among validators' staking pools according to each validator's weight. Then, within each validator's staking pool the revenue is divided among delegators in proportion to each delegator's stake. A commission on delegators' revenue is applied by the validator before it is distributed.
 
 ### What is a validator commission?
 
-Revenue received by a validator's pool is split between the validator and their delegators. The validator can apply a commission on the part of the revenue that goes to their delegators. This commission is set as a percentage. Each validator is free to set their initial commission, maximum daily commission change rate, and maximum commission. The Cosmos Hub enforces the parameter that each validator sets. The maximum commission rate is fixed and cannot be changed. However, the commission rate itself can be changed after the validator is created as long as it does not exceed the maximum commission.
+Revenue received by a validator's pool is split between the validator and their delegators. The validator can apply a commission on the part of the revenue that goes to their delegators. This commission is set as a percentage. Each validator is free to set their initial commission, maximum daily commission change rate, and maximum commission. The Mineplex Chain enforces the parameter that each validator sets. The maximum commission rate is fixed and cannot be changed. However, the commission rate itself can be changed after the validator is created as long as it does not exceed the maximum commission.
 
 ### What is the incentive to run a validator?
 
@@ -185,15 +185,15 @@ Validators also play a major role in governance. If a delegator does not vote, t
 
 ### How are block rewards distributed?
 
-Block rewards are distributed proportionally to all validators relative to their voting power. This means that even though each validator gains ATOM with each reward, all validators maintain equal weight over time.
+Block rewards are distributed proportionally to all validators relative to their voting power. This means that even though each validator gains MPX with each reward, all validators maintain equal weight over time.
 
-For example, 10 validators have equal voting power and a commission rate of 1%. For this example, the reward for a block is 1000 ATOM and each validator has 20% of self-bonded ATOM. These tokens do not go directly to the proposer. Instead, the tokens are evenly spread among validators. So now each validator's pool has 100 ATOM. These 100 ATOM are distributed according to each participant's stake:
+For example, 10 validators have equal voting power and a commission rate of 1%. For this example, the reward for a block is 1000 MPX and each validator has 20% of self-bonded MPX. These tokens do not go directly to the proposer. Instead, the tokens are evenly spread among validators. So now each validator's pool has 100 MPX. These 100 MPX are distributed according to each participant's stake:
 
-- Commission: `100*80%*1% = 0.8 ATOM`
-- Validator gets: `100\*20% + Commission = 20.8 ATOM`
-- All delegators get: `100\*80% - Commission = 79.2 ATOM`
+- Commission: `100*80%*1% = 0.8 MPX`
+- Validator gets: `100\*20% + Commission = 20.8 MPX`
+- All delegators get: `100\*80% - Commission = 79.2 MPX`
 
-Then, each delegator can claim their part of the 79.2 ATOM in proportion to their stake in the validator's staking pool.
+Then, each delegator can claim their part of the 79.2 MPX in proportion to their stake in the validator's staking pool.
 
 ### How are fees distributed?
 
@@ -201,28 +201,28 @@ Fees are similarly distributed with the exception that the block proposer can ge
 
 When a validator is selected to propose the next block, the validator must include at least 2/3 precommits of the previous block. However, an incentive to include more than 2/3 precommits is a bonus. The bonus is linear: it ranges from 1% if the proposer includes 2/3rd precommits (minimum for the block to be valid) to 5% if the proposer includes 100% precommits. Of course the proposer must not wait too long or other validators may timeout and move on to the next proposer. As such, validators have to find a balance between wait-time to get the most signatures and risk of losing out on proposing the next block. This mechanism aims to incentivize non-empty block proposals, better networking between validators, and mitigates censorship.
 
-For a concrete example to illustrate the aforementioned concept, there are 10 validators with equal stake. Each validator applies a 1% commission rate and has 20% of self-delegated ATOM. Now comes a successful block that collects a total of 1025.51020408 ATOM in fees.
+For a concrete example to illustrate the aforementioned concept, there are 10 validators with equal stake. Each validator applies a 1% commission rate and has 20% of self-delegated MPX. Now comes a successful block that collects a total of 1025.51020408 MPX in fees.
 
-First, a 2% tax is applied. The corresponding ATOM go to the reserve pool. The reserve pool's funds can be allocated through governance to fund bounties and upgrades.
+First, a 2% tax is applied. The corresponding MPX go to the reserve pool. The reserve pool's funds can be allocated through governance to fund bounties and upgrades.
 
-- `2% * 1025.51020408 = 20.51020408` ATOM go to the reserve pool.
+- `2% * 1025.51020408 = 20.51020408` MPX go to the reserve pool.
 
-1005 ATOM now remain. For this example, the proposer included 100% of the signatures in its block so the proposer obtains the full bonus of 5%.
+1005 MPX now remain. For this example, the proposer included 100% of the signatures in its block so the proposer obtains the full bonus of 5%.
 
 To solve this simple equation to find the reward R for each validator:
 
 `9*R + R + R*5% = 1005 ⇔ R = 1005/10.05 = 100`
 
 - For the proposer validator:
-    - The pool obtains `R + R * 5%`: 105 ATOM
-    - Commission: `105 * 80% * 1%` = 0.84 ATOM
-    - Validator's reward: `105 * 20% + Commission` = 21.84 ATOM
-    - Delegators' rewards: `105 * 80% - Commission` = 83.16 ATOM (each delegator is able to claim its portion of these rewards in proportion to their stake)
+    - The pool obtains `R + R * 5%`: 105 MPX
+    - Commission: `105 * 80% * 1%` = 0.84 MPX
+    - Validator's reward: `105 * 20% + Commission` = 21.84 MPX
+    - Delegators' rewards: `105 * 80% - Commission` = 83.16 MPX (each delegator is able to claim its portion of these rewards in proportion to their stake)
 - For each non-proposer validator:
-    - The pool obtains R: 100 ATOM
-    - Commission: `100 * 80% * 1%` = 0.8 ATOM
-    - Validator's reward: `100 * 20% + Commission` = 20.8 ATOM
-    - Delegators' rewards: `100 * 80% - Commission` = 79.2 ATOM (each delegator is able to claim their portion of these rewards in proportion to their stake)
+    - The pool obtains R: 100 MPX
+    - Commission: `100 * 80% * 1%` = 0.8 MPX
+    - Validator's reward: `100 * 20% + Commission` = 20.8 MPX
+    - Delegators' rewards: `100 * 80% - Commission` = 79.2 MPX (each delegator is able to claim their portion of these rewards in proportion to their stake)
 
 ### What are the slashing conditions?
 
@@ -231,17 +231,17 @@ If a validator misbehaves, their delegated stake is partially slashed. Two fault
 - **Double signing:** If someone reports on chain A that a validator signed two blocks at the same height on chain A and chain B, and if chain A and chain B share a common ancestor, then this validator gets slashed by 5% on chain A.
 - **Downtime:** If a validator misses more than `95%` of the last `10,000` blocks (roughly ~19 hours), they are slashed by 0.01%.
 
-### Are validators required to self-delegate ATOM?
+### Are validators required to self-delegate MPX?
 
-Yes, they do need to self-delegate at least `1 atom`. Even though there is no obligation for validators to self-delegate more than `1 atom`, delegators want their validator to have more self-delegated ATOM in their staking pool. In other words, validators share the risk.
+Yes, they do need to self-delegate at least `1 atom`. Even though there is no obligation for validators to self-delegate more than `1 atom`, delegators want their validator to have more self-delegated MPX in their staking pool. In other words, validators share the risk.
 
-In order for delegators to have some guarantee about how much shared risk their validator has, the validator can signal a minimum amount of self-delegated ATOM. If a validator's self-delegation goes below the limit that it predefined, the validator gets jailed and kicked out of the active set of validators while its delegators remain bonded to it.
+In order for delegators to have some guarantee about how much shared risk their validator has, the validator can signal a minimum amount of self-delegated MPX. If a validator's self-delegation goes below the limit that it predefined, the validator gets jailed and kicked out of the active set of validators while its delegators remain bonded to it.
 
 Note however that it's possible that some validators decide to self-delegate via a different address for security reasons.
 
 ### How to prevent concentration of stake in the hands of a few top validators?
 
-The community is expected to behave in a smart and self-preserving way. When a mining pool in Bitcoin gets too much mining power the community usually stops contributing to that pool. The Cosmos Hub relies on the same effect. Additionally, when delegaters switch to another validator, they are not subject to the unbonding period, which removes any barrier to quickly redelegating tokens in service of improving decentralization.
+The community is expected to behave in a smart and self-preserving way. When a mining pool in Bitcoin gets too much mining power the community usually stops contributing to that pool. The Mineplex Chain relies on the same effect. Additionally, when delegaters switch to another validator, they are not subject to the unbonding period, which removes any barrier to quickly redelegating tokens in service of improving decentralization.
 
 ## Technical Requirements
 
@@ -253,7 +253,7 @@ Validators are recommended to set up [sentry nodes](https://docs.tendermint.com/
 
 ### What are software requirements?
 
-In addition to running a Cosmos Hub node, validators are expected to implement monitoring, alerting, and management solutions. There are [several tools](https://medium.com/solar-labs-team/cosmos-how-to-monitoring-your-validator-892a46298722) that you can use.
+In addition to running a Mineplex Chain node, validators are expected to implement monitoring, alerting, and management solutions. There are [several tools](https://medium.com/solar-labs-team/cosmos-how-to-monitoring-your-validator-892a46298722) that you can use.
 
 ### What are bandwidth requirements?
 
