@@ -11,8 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	keep "github.com/mineplex/mineplex-chain/x/mint/keeper"
-	"github.com/mineplex/mineplex-chain/x/mint/types"
+	keep "github.com/mineplexio/mineplex-2-node/x/mint/keeper"
+	"github.com/mineplexio/mineplex-2-node/x/mint/types"
 )
 
 type MintKeeperTestSuite struct {

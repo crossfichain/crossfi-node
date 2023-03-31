@@ -10,7 +10,7 @@ import (
 	// "github.com/cosmos/cosmos-sdk/client/flags"
 	// sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/mineplex/mineplex-chain/x/treasury/types"
+	"github.com/mineplexio/mineplex-2-node/x/treasury/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module

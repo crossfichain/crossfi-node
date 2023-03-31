@@ -5,7 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mineplex/mineplex-chain/x/treasury/types"
+	"github.com/mineplexio/mineplex-2-node/x/treasury/types"
 )
 
 func (k msgServer) Mint(goCtx context.Context, msg *types.MsgMint) (*types.MsgMintResponse, error) {

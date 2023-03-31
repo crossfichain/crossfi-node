@@ -3,7 +3,7 @@ package mineplex.mineplexchain.treasury;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/mineplex/mineplex-chain/x/treasury/types";
+option go_package = "github.com/mineplexio/mineplex-2-node/x/treasury/types";
 
 // Params defines the parameters for the module.
 message Params {

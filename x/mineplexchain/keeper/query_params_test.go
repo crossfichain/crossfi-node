@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	testkeeper "github.com/mineplex/mineplex-chain/testutil/keeper"
-	"github.com/mineplex/mineplex-chain/x/mineplexchain/types"
+	testkeeper "github.com/mineplexio/mineplex-2-node/testutil/keeper"
+	"github.com/mineplexio/mineplex-2-node/x/mineplexchain/types"
 	"github.com/stretchr/testify/require"
 )
 

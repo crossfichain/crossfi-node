@@ -5,8 +5,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mineplex/mineplex-chain/x/mint/keeper"
-	"github.com/mineplex/mineplex-chain/x/mint/types"
+	"github.com/mineplexio/mineplex-2-node/x/mint/keeper"
+	"github.com/mineplexio/mineplex-2-node/x/mint/types"
 )
 
 // BeginBlocker mints new tokens for the previous block.

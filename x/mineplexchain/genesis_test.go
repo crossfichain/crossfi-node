@@ -3,10 +3,10 @@ package mineplexchain_test
 import (
 	"testing"
 
-	keepertest "github.com/mineplex/mineplex-chain/testutil/keeper"
-	"github.com/mineplex/mineplex-chain/testutil/nullify"
-	"github.com/mineplex/mineplex-chain/x/mineplexchain"
-	"github.com/mineplex/mineplex-chain/x/mineplexchain/types"
+	keepertest "github.com/mineplexio/mineplex-2-node/testutil/keeper"
+	"github.com/mineplexio/mineplex-2-node/testutil/nullify"
+	"github.com/mineplexio/mineplex-2-node/x/mineplexchain"
+	"github.com/mineplexio/mineplex-2-node/x/mineplexchain/types"
 	"github.com/stretchr/testify/require"
 )
 

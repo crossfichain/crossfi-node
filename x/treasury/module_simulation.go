@@ -9,9 +9,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
-	"github.com/mineplex/mineplex-chain/testutil/sample"
-	treasurysimulation "github.com/mineplex/mineplex-chain/x/treasury/simulation"
-	"github.com/mineplex/mineplex-chain/x/treasury/types"
+	"github.com/mineplexio/mineplex-2-node/testutil/sample"
+	treasurysimulation "github.com/mineplexio/mineplex-2-node/x/treasury/simulation"
+	"github.com/mineplexio/mineplex-2-node/x/treasury/types"
 )
 
 // avoid unused import issue

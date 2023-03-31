@@ -16,10 +16,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/mineplex/mineplex-chain/x/mint/client/cli"
-	"github.com/mineplex/mineplex-chain/x/mint/keeper"
-	"github.com/mineplex/mineplex-chain/x/mint/simulation"
-	"github.com/mineplex/mineplex-chain/x/mint/types"
+	"github.com/mineplexio/mineplex-2-node/x/mint/client/cli"
+	"github.com/mineplexio/mineplex-2-node/x/mint/keeper"
+	"github.com/mineplexio/mineplex-2-node/x/mint/simulation"
+	"github.com/mineplexio/mineplex-2-node/x/mint/types"
 )
 
 var (

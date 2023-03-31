@@ -2,7 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mineplex/mineplex-chain/x/mineplexchain/types"
+	"github.com/mineplexio/mineplex-2-node/x/mineplexchain/types"
 )
 
 // GetParams get all parameters as types.Params

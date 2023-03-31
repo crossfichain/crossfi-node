@@ -8,7 +8,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	// "github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/mineplex/mineplex-chain/x/mineplexchain/types"
+	"github.com/mineplexio/mineplex-2-node/x/mineplexchain/types"
 )
 
 var (

@@ -45267,7 +45267,7 @@ paths:
                         }
       tags:
         - Query
-  /mineplex/mineplex-chain/mineplexchain/params:
+  /mineplexio/mineplex-2-node/mineplexchain/params:
     get:
       summary: Parameters queries the parameters of the module.
       operationId: MineplexMineplexchainMineplexchainParams
@@ -45303,7 +45303,7 @@ paths:
                   additionalProperties: {}
       tags:
         - Query
-  /mineplex/mineplex-chain/treasury/params:
+  /mineplexio/mineplex-2-node/treasury/params:
     get:
       summary: Parameters queries the parameters of the module.
       operationId: MineplexMineplexchainTreasuryParams

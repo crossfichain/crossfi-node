@@ -3,8 +3,8 @@ package keeper_test
 import (
 	"testing"
 
-	testkeeper "github.com/mineplex/mineplex-chain/testutil/keeper"
-	"github.com/mineplex/mineplex-chain/x/treasury/types"
+	testkeeper "github.com/mineplexio/mineplex-2-node/testutil/keeper"
+	"github.com/mineplexio/mineplex-2-node/x/treasury/types"
 	"github.com/stretchr/testify/require"
 )
 

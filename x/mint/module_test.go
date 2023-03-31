@@ -12,7 +12,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/simapp"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/mineplex/mineplex-chain/x/mint/types"
+	"github.com/mineplexio/mineplex-2-node/x/mint/types"
 )
 
 func TestItCreatesModuleAccountOnInitBlock(t *testing.T) {

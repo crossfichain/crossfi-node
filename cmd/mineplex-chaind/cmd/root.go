@@ -35,8 +35,8 @@ import (
 	dbm "github.com/tendermint/tm-db"
 	// this line is used by starport scaffolding # root/moduleImport
 
-	"github.com/mineplex/mineplex-chain/app"
-	appparams "github.com/mineplex/mineplex-chain/app/params"
+	"github.com/mineplexio/mineplex-2-node/app"
+	appparams "github.com/mineplexio/mineplex-2-node/app/params"
 )
 
 // NewRootCmd creates a new root command for a Cosmos SDK application

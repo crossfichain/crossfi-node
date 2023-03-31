@@ -6,8 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	"github.com/mineplex/mineplex-chain/app"
-	"github.com/mineplex/mineplex-chain/cmd/mineplex-chaind/cmd"
+	"github.com/mineplexio/mineplex-2-node/app"
+	"github.com/mineplexio/mineplex-2-node/cmd/mineplex-chaind/cmd"
 )
 
 func main() {

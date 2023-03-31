@@ -2,8 +2,8 @@ package treasury
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mineplex/mineplex-chain/x/treasury/keeper"
-	"github.com/mineplex/mineplex-chain/x/treasury/types"
+	"github.com/mineplexio/mineplex-2-node/x/treasury/keeper"
+	"github.com/mineplexio/mineplex-2-node/x/treasury/types"
 )
 
 // InitGenesis initializes the module's state from a provided genesis state.

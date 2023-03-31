@@ -2,7 +2,7 @@ package cmd
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mineplex/mineplex-chain/app"
+	"github.com/mineplexio/mineplex-2-node/app"
 )
 
 func initSDKConfig() {

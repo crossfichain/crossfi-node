@@ -2,7 +2,7 @@ package app
 
 import (
 	"fmt"
-	myante "github.com/mineplex/mineplex-chain/app/ante"
+	myante "github.com/mineplexio/mineplex-2-node/app/ante"
 	"io"
 	"math/big"
 	"os"
@@ -95,9 +95,9 @@ import (
 	ibcporttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
-	"github.com/mineplex/mineplex-chain/x/mint"
-	mintkeeper "github.com/mineplex/mineplex-chain/x/mint/keeper"
-	minttypes "github.com/mineplex/mineplex-chain/x/mint/types"
+	"github.com/mineplexio/mineplex-2-node/x/mint"
+	mintkeeper "github.com/mineplexio/mineplex-2-node/x/mint/keeper"
+	minttypes "github.com/mineplexio/mineplex-2-node/x/mint/types"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -105,16 +105,16 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	mineplexchainmodule "github.com/mineplex/mineplex-chain/x/mineplexchain"
-	mineplexchainmodulekeeper "github.com/mineplex/mineplex-chain/x/mineplexchain/keeper"
-	mineplexchainmoduletypes "github.com/mineplex/mineplex-chain/x/mineplexchain/types"
-	treasurymodule "github.com/mineplex/mineplex-chain/x/treasury"
-	treasurymodulekeeper "github.com/mineplex/mineplex-chain/x/treasury/keeper"
-	treasurymoduletypes "github.com/mineplex/mineplex-chain/x/treasury/types"
+	mineplexchainmodule "github.com/mineplexio/mineplex-2-node/x/mineplexchain"
+	mineplexchainmodulekeeper "github.com/mineplexio/mineplex-2-node/x/mineplexchain/keeper"
+	mineplexchainmoduletypes "github.com/mineplexio/mineplex-2-node/x/mineplexchain/types"
+	treasurymodule "github.com/mineplexio/mineplex-2-node/x/treasury"
+	treasurymodulekeeper "github.com/mineplexio/mineplex-2-node/x/treasury/keeper"
+	treasurymoduletypes "github.com/mineplexio/mineplex-2-node/x/treasury/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
-	appparams "github.com/mineplex/mineplex-chain/app/params"
-	"github.com/mineplex/mineplex-chain/docs"
+	appparams "github.com/mineplexio/mineplex-2-node/app/params"
+	"github.com/mineplexio/mineplex-2-node/docs"
 )
 
 const (

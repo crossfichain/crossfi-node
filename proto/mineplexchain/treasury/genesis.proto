@@ -4,7 +4,7 @@ package mineplex.mineplexchain.treasury;
 import "gogoproto/gogo.proto";
 import "mineplexchain/treasury/params.proto";
 
-option go_package = "github.com/mineplex/mineplex-chain/x/treasury/types";
+option go_package = "github.com/mineplexio/mineplex-2-node/x/treasury/types";
 
 // GenesisState defines the treasury module's genesis state.
 message GenesisState {

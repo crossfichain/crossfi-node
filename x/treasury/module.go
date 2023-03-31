@@ -16,9 +16,9 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/mineplex/mineplex-chain/x/treasury/client/cli"
-	"github.com/mineplex/mineplex-chain/x/treasury/keeper"
-	"github.com/mineplex/mineplex-chain/x/treasury/types"
+	"github.com/mineplexio/mineplex-2-node/x/treasury/client/cli"
+	"github.com/mineplexio/mineplex-2-node/x/treasury/keeper"
+	"github.com/mineplexio/mineplex-2-node/x/treasury/types"
 )
 
 var (

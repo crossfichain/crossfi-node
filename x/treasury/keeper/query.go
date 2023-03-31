@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/mineplex/mineplex-chain/x/treasury/types"
+	"github.com/mineplexio/mineplex-2-node/x/treasury/types"
 )
 
 var _ types.QueryServer = Keeper{}

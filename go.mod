@@ -1,4 +1,4 @@
-module github.com/mineplex/mineplex-chain
+module github.com/mineplexio/mineplex-2-node
 
 go 1.18
 

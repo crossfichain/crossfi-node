@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/mineplex/mineplex-chain/x/mint/types"
+	"github.com/mineplexio/mineplex-2-node/x/mint/types"
 )
 
 // NewQuerier returns a minting Querier handler.
