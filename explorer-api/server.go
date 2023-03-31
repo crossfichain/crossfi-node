@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -11,7 +12,6 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/query"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	"sort"
 )
 
@@ -20,6 +20,7 @@ type server struct {
 	accountRetriever        client.AccountRetriever
 	bankQueryClient         banktypes.QueryClient
 	stakingQueryClient      stakingtypes.QueryClient
+	txQueryClient           txtypes.ServiceClient
 	db                      postgres.Adapter
 	distributionQueryClient distrtypes.QueryClient
 }
@@ -216,27 +217,24 @@ func (s *server) Blocks(ctx context.Context, request *BlocksRequest) (*BlocksRes
 	response := &BlocksResponse{}
 
 	for i := request.FromHeight; i < request.ToHeight; i++ {
-		resp, err := s.client.RPC.Block(ctx, &i)
+		resp, err := s.txQueryClient.GetBlockWithTxs(ctx, &txtypes.GetBlockWithTxsRequest{Height: i})
 		if err != nil {
 			return nil, err
 		}
 
-		block, err := resp.Block.ToProto()
-		if err != nil {
-			return nil, err
-		}
-
-		response.Blocks = append(response.Blocks, block)
+		response.Blocks = append(response.Blocks, resp)
 	}
 
 	return response, nil
 }
 
-func (s *server) Block(ctx context.Context, request *BlockRequest) (*tmproto.Block, error) {
-	resp, err := s.client.RPC.Block(ctx, &request.Height)
+func (s *server) Block(ctx context.Context, request *BlockRequest) (*txtypes.GetBlockWithTxsResponse, error) {
+	resp, err := s.txQueryClient.GetBlockWithTxs(ctx, &txtypes.GetBlockWithTxsRequest{
+		Height: request.Height,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.Block.ToProto()
+	return resp, nil
 }

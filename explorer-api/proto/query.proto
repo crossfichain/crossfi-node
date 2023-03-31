@@ -8,6 +8,7 @@ import "tendermint/types/block.proto";
 import "tendermint/abci/types.proto";
 import "cosmos/staking/v1beta1/staking.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/tx/v1beta1/service.proto";
 
 option go_package = "explorer-api";
 
@@ -40,7 +41,7 @@ service Query {
     option (google.api.http).get = "/status";
   }
 
-  rpc Block(BlockRequest) returns (tendermint.types.Block) {
+  rpc Block(BlockRequest) returns (cosmos.tx.v1beta1.GetBlockWithTxsResponse) {
     option (google.api.http).get = "/block/{height}";
   }
 
@@ -142,11 +143,12 @@ message BlocksRequest {
 }
 
 message BlocksResponse {
-  repeated tendermint.types.Block blocks = 1;
+  repeated cosmos.tx.v1beta1.GetBlockWithTxsResponse blocks = 1;
 }
 
 message BlockRequest {
   int64 height = 1;
 }
+
 
 

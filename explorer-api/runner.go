@@ -3,6 +3,7 @@ package explorer_api
 import (
 	"context"
 	"github.com/cosmos/cosmos-sdk/server/api"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -74,6 +75,7 @@ func RunGrpc(client cosmosclient.Client, db postgres.Adapter) {
 		bankQueryClient:         banktypes.NewQueryClient(client.Context()),
 		stakingQueryClient:      stakingtypes.NewQueryClient(client.Context()),
 		distributionQueryClient: distrtypes.NewQueryClient(client.Context()),
+		txQueryClient:           txtypes.NewServiceClient(client.Context()),
 		db:                      db,
 	})
 	log.Printf("server listening at %v", lis.Addr())
