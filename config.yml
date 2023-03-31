@@ -1,6 +1,7 @@
 version: 1
 build:
   main: cmd/mineplex-chaind
+  binary: "mineplex-chaind"
   proto:
     path: ""
     third_party_paths: []
