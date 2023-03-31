@@ -36,8 +36,8 @@ genesis:
 accounts:
   - name: myacc
     coins:
-      - 100000000mpx
-      - 100000000xfi
+      - 1000000000000000000000000mpx
+      - 1000000000000000000000000xfi
 validators:
   - name: validator1
     bonded: 1000000000000000000mpx
