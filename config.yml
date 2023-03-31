@@ -5,16 +5,16 @@ genesis:
   app_state:
     staking:
       params:
-        bond_denom: "mine2"
+        bond_denom: "mpx"
         unbonding_time: "1296000s"
         max_validators: 64
     crisis:
       constant_fee:
-        denom: "mine2"
+        denom: "mpx"
     gov:
       deposit_params:
         min_deposit:
-        - denom: "mine2"
+        - denom: "mpx"
           amount: "1000000000000000000"
     treasury:
       params:
@@ -22,19 +22,19 @@ genesis:
 accounts:
 - name: alice
   coins:
-  - 1000000mine2
+  - 1000000mpx
 - name: bob
   coins:
-  - 100000mine2
-  - 100000plex2
+  - 100000mpx
+  - 100000xfi
 client:
   openapi:
     path: docs/static/openapi.yml
 faucet:
   name: bob
   coins:
-  - 100000mine2
-  - 100000plex2
+  - 100000mpx
+  - 100000xfi
 validators:
 - name: alice
-  bonded: 1000000mine2
+  bonded: 1000000mpx
