@@ -7,6 +7,7 @@ import (
 	"github.com/ignite/cli/ignite/pkg/cosmostxcollector/adapter/postgres"
 	explorer_api "github.com/mineplex/mineplex-chain/explorer-api"
 	"github.com/mineplex/mineplex-chain/txcollector"
+	"os"
 )
 
 // todo: read from config
@@ -20,7 +21,7 @@ func main() {
 
 	// Init an adapter for a local PostgreSQL database running with the default values
 	params := map[string]string{"sslmode": "disable"}
-	db, err := postgres.NewAdapter(dbName, postgres.WithParams(params), postgres.WithUser("root"), postgres.WithPassword("123"))
+	db, err := postgres.NewAdapter(dbName, postgres.WithParams(params), postgres.WithUser(os.Getenv("PG_USER")), postgres.WithPassword(os.Getenv("PG_PASSWORD")))
 	if err != nil {
 		panic(err)
 	}
