@@ -112,8 +112,8 @@ import (
 	treasurymoduletypes "github.com/mineplex/mineplex-chain/x/treasury/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
+	"github.com/mineplex/mineplex-chain/api-docs"
 	appparams "github.com/mineplex/mineplex-chain/app/params"
-	"github.com/mineplex/mineplex-chain/docs"
 )
 
 const (
@@ -863,7 +863,7 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 	ModuleBasics.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register app's OpenAPI routes.
-	docs.RegisterOpenAPIService(Name, apiSvr.Router)
+	api_docs.RegisterOpenAPIService(Name, apiSvr.Router)
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
