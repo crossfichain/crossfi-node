@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	apiFile   = "/static/apidocs.swagger.json"
+	apiFile   = "/static/query.swagger.json"
 	indexFile = "template/index.tpl"
 )
 
