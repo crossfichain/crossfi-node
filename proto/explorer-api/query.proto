@@ -4,11 +4,16 @@ package mineplex.explorer_api;
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "tendermint/types/block.proto";
+import "tendermint/abci/types.proto";
 import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/mineplex/mineplex-chain/explorer-api";
 
 service Query {
+  rpc Tx(TxRequest) returns (TxResponse) {
+    option (google.api.http).get = "/tx/{hash}";
+  }
+
   rpc Address(AddressRequest) returns (AddressResponse) {
     option (google.api.http).get = "/address/{address}";
   }
@@ -28,6 +33,16 @@ service Query {
   rpc Blocks(BlocksRequest) returns (BlocksResponse) {
     option (google.api.http).get = "/blocks";
   }
+}
+
+message TxRequest {
+  string hash = 1;
+}
+
+message TxResponse {
+  string tx = 1;
+  int64 height = 2;
+  tendermint.abci.ResponseDeliverTx result = 3;
 }
 
 message StatusRequest {

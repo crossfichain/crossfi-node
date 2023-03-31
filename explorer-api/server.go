@@ -4,23 +4,33 @@ import (
 	"context"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	"log"
-	"net"
-	"net/http"
-
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 type server struct {
 	client           cosmosclient.Client
 	accountRetriever client.AccountRetriever
 	bankQueryClient  banktypes.QueryClient
+}
+
+func (s *server) Tx(ctx context.Context, request *TxRequest) (*TxResponse, error) {
+	hash := common.HexToHash(request.Hash).Bytes()
+	tx, err := s.client.RPC.Tx(ctx, hash, false)
+	if err != nil {
+		return nil, err
+	}
+
+	decodedTx, err := s.client.Context().TxConfig.TxDecoder()(tx.Tx)
+	jsonTx, err := s.client.Context().TxConfig.TxJSONEncoder()(decodedTx)
+
+	return &TxResponse{
+		Tx:     string(jsonTx),
+		Height: tx.Height,
+		Result: &tx.TxResult,
+	}, nil
 }
 
 func (s *server) Status(ctx context.Context, _ *StatusRequest) (*StatusResponse, error) {
@@ -94,37 +104,4 @@ func (s *server) Block(ctx context.Context, request *BlockRequest) (*tmproto.Blo
 	}
 
 	return resp.Block.ToProto()
-}
-
-func RunRest() {
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-	mux := runtime.NewServeMux()
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
-	err := RegisterQueryHandlerFromEndpoint(ctx, mux, "localhost:12201", opts)
-	if err != nil {
-		panic(err)
-	}
-	log.Printf("server listening at 8081")
-	if err := http.ListenAndServe(":8081", mux); err != nil {
-		panic(err)
-	}
-}
-
-func RunGrpc(client cosmosclient.Client) {
-	lis, err := net.Listen("tcp", ":12201")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	s := grpc.NewServer()
-	RegisterQueryServer(s, &server{
-		client:           client,
-		accountRetriever: authtypes.AccountRetriever{},
-		bankQueryClient:  banktypes.NewQueryClient(client.Context()),
-	})
-	log.Printf("server listening at %v", lis.Addr())
-	if err := s.Serve(lis); err != nil {
-		panic(err)
-	}
 }
