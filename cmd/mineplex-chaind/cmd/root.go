@@ -35,15 +35,15 @@ import (
 	dbm "github.com/tendermint/tm-db"
 	// this line is used by starport scaffolding # root/moduleImport
 
+	appparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/mineplexio/mineplex-2-node/app"
-	appparams "github.com/mineplexio/mineplex-2-node/app/params"
 )
 
 // NewRootCmd creates a new root command for a Cosmos SDK application
 func NewRootCmd() (*cobra.Command, appparams.EncodingConfig) {
 	encodingConfig := app.MakeEncodingConfig()
 	initClientCtx := client.Context{}.
-		WithCodec(encodingConfig.Marshaler).
+		WithCodec(encodingConfig.Codec).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
 		WithTxConfig(encodingConfig.TxConfig).
 		WithLegacyAmino(encodingConfig.Amino).

@@ -6,7 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 
-	"github.com/mineplexio/mineplex-2-node/app/params"
+	"github.com/cosmos/cosmos-sdk/simapp/params"
 )
 
 // makeEncodingConfig creates an EncodingConfig for an amino based test configuration.
@@ -18,7 +18,7 @@ func makeEncodingConfig() params.EncodingConfig {
 
 	return params.EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
-		Marshaler:         marshaler,
+		Codec:             marshaler,
 		TxConfig:          txCfg,
 		Amino:             amino,
 	}

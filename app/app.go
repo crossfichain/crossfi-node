@@ -1,8 +1,14 @@
 package app
 
 import (
-	"fmt"
-	myante "github.com/mineplexio/mineplex-2-node/app/ante"
+	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
+	ethante "github.com/evmos/evmos/v12/app/ante/evm"
+	"github.com/evmos/evmos/v12/ethereum/eip712"
+	evmkeeper "github.com/evmos/evmos/v12/x/evm/keeper"
+	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
+
+	evmostypes "github.com/evmos/evmos/v12/types"
 	"io"
 	"math/big"
 	"os"
@@ -23,7 +29,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -95,6 +100,7 @@ import (
 	ibcporttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
+	"github.com/evmos/evmos/v12/app/ante"
 	"github.com/mineplexio/mineplex-2-node/x/mint"
 	mintkeeper "github.com/mineplexio/mineplex-2-node/x/mint/keeper"
 	minttypes "github.com/mineplexio/mineplex-2-node/x/mint/types"
@@ -113,8 +119,14 @@ import (
 	treasurymoduletypes "github.com/mineplexio/mineplex-2-node/x/treasury/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
-	appparams "github.com/mineplexio/mineplex-2-node/app/params"
+	appparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/mineplexio/mineplex-2-node/docs"
+
+	"github.com/evmos/evmos/v12/x/evm"
+	"github.com/evmos/evmos/v12/x/feemarket"
+
+	srvflags "github.com/evmos/evmos/v12/server/flags"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 const (
@@ -171,6 +183,11 @@ var (
 		vesting.AppModuleBasic{},
 		mineplexchainmodule.AppModuleBasic{},
 		treasurymodule.AppModuleBasic{},
+
+		// ethermint
+		evm.AppModuleBasic{},
+		feemarket.AppModuleBasic{},
+
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -185,6 +202,10 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		treasurymoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner},
+
+		// evm
+		evmtypes.ModuleName: {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 )
@@ -242,6 +263,10 @@ type App struct {
 	FeeGrantKeeper   feegrantkeeper.Keeper
 	GroupKeeper      groupkeeper.Keeper
 
+	// ethermint
+	EvmKeeper       *evmkeeper.Keeper
+	FeeMarketKeeper feemarketkeeper.Keeper
+
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
@@ -273,9 +298,11 @@ func New(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
-	appCodec := encodingConfig.Marshaler
+	appCodec := encodingConfig.Codec
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
+
+	eip712.SetEncodingConfig(encodingConfig)
 
 	bApp := baseapp.NewBaseApp(
 		Name,
@@ -296,9 +323,11 @@ func New(
 		icacontrollertypes.StoreKey,
 		mineplexchainmoduletypes.StoreKey,
 		treasurymoduletypes.StoreKey,
+
+		evmtypes.StoreKey, feemarkettypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
-	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
 	app := &App{
@@ -429,6 +458,21 @@ func New(
 		homePath,
 		app.BaseApp,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
+
+	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
+		appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		keys[feemarkettypes.StoreKey],
+		tkeys[feemarkettypes.TransientKey],
+		app.GetSubspace(feemarkettypes.ModuleName),
+	)
+
+	app.EvmKeeper = evmkeeper.NewKeeper(
+		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
+		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
 
 	// ... other modules keepers
@@ -591,6 +635,10 @@ func New(
 		icaModule,
 		mineplexchainModule,
 		treasuryModule,
+
+		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
+		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
+
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -602,6 +650,8 @@ func New(
 		// upgrades should be run first
 		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
+		feemarkettypes.ModuleName,
+		evmtypes.ModuleName,
 		minttypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
@@ -629,6 +679,8 @@ func New(
 		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
+		evmtypes.ModuleName,
+		feemarkettypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibchost.ModuleName,
 		icatypes.ModuleName,
@@ -669,6 +721,12 @@ func New(
 		genutiltypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibchost.ModuleName,
+		// Ethermint modules
+		// evm module denomination is used by the revenue module, in AnteHandle
+		evmtypes.ModuleName,
+		// NOTE: feemarket module needs to be initialized before genutil module:
+		// gentx transactions use MinGasPriceDecorator.AnteHandle
+		feemarkettypes.ModuleName,
 		icatypes.ModuleName,
 		evidencetypes.ModuleName,
 		authz.ModuleName,
@@ -723,21 +781,11 @@ func New(
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 
-	anteHandler, err := myante.NewAnteHandler(
-		myante.HandlerOptions{
-			AccountKeeper:   app.AccountKeeper,
-			BankKeeper:      app.BankKeeper,
-			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-			FeegrantKeeper:  app.FeeGrantKeeper,
-			StakingKeeper:   app.StakingKeeper,
-			SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
-		},
-	)
-	if err != nil {
-		panic(fmt.Errorf("failed to create AnteHandler: %w", err))
-	}
+	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 
-	app.SetAnteHandler(anteHandler)
+	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
+	app.setPostHandler()
+
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
@@ -753,6 +801,45 @@ func New(
 	// this line is used by starport scaffolding # stargate/app/beforeInitReturn
 
 	return app
+}
+
+func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
+	// todo: add filter delegations handler
+	options := ante.HandlerOptions{
+		Cdc:                    app.appCodec,
+		AccountKeeper:          app.AccountKeeper,
+		BankKeeper:             app.BankKeeper,
+		ExtensionOptionChecker: evmostypes.HasDynamicFeeExtensionOption,
+		EvmKeeper:              app.EvmKeeper,
+		StakingKeeper:          app.StakingKeeper,
+		FeegrantKeeper:         app.FeeGrantKeeper,
+		DistributionKeeper:     app.DistrKeeper,
+		IBCKeeper:              app.IBCKeeper,
+		FeeMarketKeeper:        app.FeeMarketKeeper,
+		SignModeHandler:        txConfig.SignModeHandler(),
+		SigGasConsumer:         ante.SigVerificationGasConsumer,
+		MaxTxGasWanted:         maxGasWanted,
+		TxFeeChecker:           ethante.NewDynamicFeeChecker(app.EvmKeeper),
+	}
+
+	if err := options.Validate(); err != nil {
+		panic(err)
+	}
+
+	anteHandler := ante.NewAnteHandler(options)
+
+	app.SetAnteHandler(anteHandler)
+}
+
+func (app *App) setPostHandler() {
+	postHandler, err := posthandler.NewPostHandler(
+		posthandler.HandlerOptions{},
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	app.SetPostHandler(postHandler)
 }
 
 // Name returns the name of the App
