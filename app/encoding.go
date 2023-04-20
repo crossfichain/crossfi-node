@@ -3,8 +3,12 @@ package app
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/std"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
+	cryptocodec "github.com/evmos/evmos/v12/crypto/codec"
+	evmostypes "github.com/evmos/evmos/v12/types"
 
 	"github.com/cosmos/cosmos-sdk/simapp/params"
 )
@@ -27,9 +31,23 @@ func makeEncodingConfig() params.EncodingConfig {
 // MakeEncodingConfig creates an EncodingConfig for testing
 func MakeEncodingConfig() params.EncodingConfig {
 	encodingConfig := makeEncodingConfig()
-	std.RegisterLegacyAminoCodec(encodingConfig.Amino)
-	std.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+
+	RegisterLegacyAminoCodec(encodingConfig.Amino)
+	RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	ModuleBasics.RegisterLegacyAminoCodec(encodingConfig.Amino)
 	ModuleBasics.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	return encodingConfig
+}
+
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	sdk.RegisterLegacyAminoCodec(cdc)
+	cryptocodec.RegisterCrypto(cdc)
+	codec.RegisterEvidences(cdc)
+}
+
+// RegisterInterfaces registers Interfaces from types, crypto, and SDK std.
+func RegisterInterfaces(interfaceRegistry codectypes.InterfaceRegistry) {
+	std.RegisterInterfaces(interfaceRegistry)
+	cryptocodec.RegisterInterfaces(interfaceRegistry)
+	evmostypes.RegisterInterfaces(interfaceRegistry)
 }

@@ -12,7 +12,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/server"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
@@ -37,6 +36,9 @@ import (
 
 	appparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/mineplexio/mineplex-2-node/app"
+
+	evmosclient "github.com/evmos/evmos/v12/client"
+	evmoskr "github.com/evmos/evmos/v12/crypto/keyring"
 )
 
 // NewRootCmd creates a new root command for a Cosmos SDK application
@@ -50,6 +52,7 @@ func NewRootCmd() (*cobra.Command, appparams.EncodingConfig) {
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithHomeDir(app.DefaultNodeHome).
+		WithKeyringOptions(evmoskr.Option()).
 		WithViper("")
 
 	rootCmd := &cobra.Command{
@@ -139,7 +142,7 @@ func initRootCmd(
 		rpc.StatusCommand(),
 		queryCommand(),
 		txCommand(),
-		keys.Commands(app.DefaultNodeHome),
+		evmosclient.KeyCommands(app.DefaultNodeHome),
 	)
 }
 
