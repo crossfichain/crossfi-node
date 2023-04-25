@@ -5,7 +5,14 @@ key_algo: "eth_secp256k1"
 genesis:
   chain_id: "mineplex-testnet-6"
   genesis_time: "2023-03-29T13:30:00.000000Z"
+  consensus_params:
+    block:
+      max_gas: "20000000"
   app_state:
+    evm:
+      params:
+        evm_denom:
+          mpx
     crisis:
       constant_fee:
         denom: mpx
@@ -34,5 +41,5 @@ validators:
   - name: validator1
     bonded: 1000000000000000000000000mpx
     client:
-      keyring-backend: file
+      keyring-backend: test
       broadcast-mode: block
