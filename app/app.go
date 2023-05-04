@@ -225,6 +225,8 @@ func init() {
 	}
 
 	DefaultNodeHome = filepath.Join(userHomeDir, "."+Name)
+	evmtypes.DefaultEVMDenom = "mpx"
+	feemarkettypes.DefaultMinGasPrice = sdk.NewDec(10000000000000)
 }
 
 // App extends an ABCI application, but with most of its parameters exported.
@@ -1026,7 +1028,7 @@ func (app *App) setupUpgradeHandlers() {
 		v2.UpgradeName,
 		v2.CreateUpgradeHandler(
 			app.mm, app.configurator,
-			*app.EvmKeeper, app.FeeMarketKeeper,
+			*app.EvmKeeper, app.FeeMarketKeeper, app.ParamsKeeper,
 		),
 	)
 
