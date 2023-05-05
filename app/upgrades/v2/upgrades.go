@@ -24,11 +24,21 @@ func CreateUpgradeHandler(
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
 
+		logger.Debug("running module migrations ...")
+		vm, err := mm.RunMigrations(ctx, configurator, vm)
+		if err != nil {
+			return nil, err
+		}
+
 		if err := ek.SetParams(ctx, evmtypes.DefaultParams()); err != nil {
 			return nil, err
 		}
 
-		if err := fk.SetParams(ctx, feemarkettypes.DefaultParams()); err != nil {
+		fmparams := feemarkettypes.DefaultParams()
+		fmparams.BaseFee = sdk.NewInt(10000000000000)
+		fmparams.MinGasPrice = sdk.NewDecFromInt(fmparams.BaseFee)
+
+		if err := fk.SetParams(ctx, fmparams); err != nil {
 			return nil, err
 		}
 
@@ -42,7 +52,6 @@ func CreateUpgradeHandler(
 		currentBlockParams.MaxGas = 20000000
 		paramsSubspace.Set(ctx, baseapp.ParamStoreKeyBlockParams, currentBlockParams)
 
-		logger.Debug("running module migrations ...")
-		return mm.RunMigrations(ctx, configurator, vm)
+		return vm, nil
 	}
 }
