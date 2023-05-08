@@ -1,11 +1,11 @@
 module github.com/mineplexio/mineplex-2-node
 
-go 1.18
+go 1.19
 
 require (
 	cosmossdk.io/math v1.0.0
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
-	github.com/cosmos/cosmos-sdk v0.46.11
+	github.com/cosmos/cosmos-sdk v0.46.12
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/ibc-go/v6 v6.1.0
 	github.com/evmos/evmos/v12 v12.1.2
