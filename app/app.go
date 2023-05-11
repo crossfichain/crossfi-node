@@ -225,7 +225,7 @@ func init() {
 	}
 
 	DefaultNodeHome = filepath.Join(userHomeDir, "."+Name)
-	evmtypes.DefaultEVMDenom = "mpx"
+	evmtypes.DefaultEVMDenom = "xfi"
 	feemarkettypes.DefaultMinGasPrice = sdk.NewDec(10000000000000)
 }
 
