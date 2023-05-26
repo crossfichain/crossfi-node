@@ -1,6 +1,6 @@
 module github.com/mineplexio/mineplex-2-node
 
-go 1.19
+go 1.20
 
 require (
 	cosmossdk.io/math v1.0.0
