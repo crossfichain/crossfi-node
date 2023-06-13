@@ -1,0 +1,338 @@
+syntax = "proto3";
+package gravity.v1;
+
+import "gravity/v1/genesis.proto";
+import "gravity/v1/types.proto";
+import "gravity/v1/msgs.proto";
+import "gravity/v1/pool.proto";
+import "gravity/v1/batch.proto";
+import "gravity/v1/attestation.proto";
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/mineplexio/mineplex-2-node/x/gravity/types";
+
+// Query defines the gRPC querier service
+service Query {
+  // Deployments queries deployments
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/gravity/v1beta/params";
+  }
+  rpc CurrentValset(QueryCurrentValsetRequest) returns (QueryCurrentValsetResponse) {
+    option (google.api.http).get = "/gravity/v1beta/valset/current";
+  }
+  rpc ValsetRequest(QueryValsetRequestRequest) returns (QueryValsetRequestResponse) {
+    option (google.api.http).get = "/gravity/v1beta/valset";
+  }
+  rpc ValsetConfirm(QueryValsetConfirmRequest) returns (QueryValsetConfirmResponse) {
+    option (google.api.http).get = "/gravity/v1beta/valset/confirm";
+  }
+  rpc ValsetConfirmsByNonce(QueryValsetConfirmsByNonceRequest) returns (QueryValsetConfirmsByNonceResponse) {
+    option (google.api.http).get = "/gravity/v1beta/confirms/{nonce}";
+  }
+  rpc LastValsetRequests(QueryLastValsetRequestsRequest) returns (QueryLastValsetRequestsResponse) {
+    option (google.api.http).get = "/gravity/v1beta/valset/requests";
+  }
+  rpc LastPendingValsetRequestByAddr(QueryLastPendingValsetRequestByAddrRequest)
+      returns (QueryLastPendingValsetRequestByAddrResponse) {
+    option (google.api.http).get = "/gravity/v1beta/valset/last";
+  }
+  rpc LastPendingBatchRequestByAddr(QueryLastPendingBatchRequestByAddrRequest)
+      returns (QueryLastPendingBatchRequestByAddrResponse) {
+    option (google.api.http).get = "/gravity/v1beta/batch/last_pending_request_by_addr";
+  }
+  rpc LastPendingLogicCallByAddr(QueryLastPendingLogicCallByAddrRequest)
+      returns (QueryLastPendingLogicCallByAddrResponse) {
+    option (google.api.http).get = "/gravity/v1beta/logic/{address}";
+  }
+  rpc LastEventNonceByAddr(QueryLastEventNonceByAddrRequest) returns (QueryLastEventNonceByAddrResponse) {
+    option (google.api.http).get = "/gravity/v1beta/oracle/eventnonce/{address}";
+  }
+  rpc BatchFees(QueryBatchFeeRequest) returns (QueryBatchFeeResponse) {
+    option (google.api.http).get = "/gravity/v1beta/batchfees";
+  }
+  rpc OutgoingTxBatches(QueryOutgoingTxBatchesRequest) returns (QueryOutgoingTxBatchesResponse) {
+    option (google.api.http).get = "/gravity/v1beta/batch/outgoingtx";
+  }
+  rpc OutgoingLogicCalls(QueryOutgoingLogicCallsRequest) returns (QueryOutgoingLogicCallsResponse) {
+    option (google.api.http).get = "/gravity/v1beta/batch/outgoinglogic";
+  }
+  rpc BatchRequestByNonce(QueryBatchRequestByNonceRequest) returns (QueryBatchRequestByNonceResponse) {
+    option (google.api.http).get = "/gravity/v1beta/batch/request_by_nonce";
+  }
+  rpc BatchConfirms(QueryBatchConfirmsRequest) returns (QueryBatchConfirmsResponse) {
+    option (google.api.http).get = "/gravity/v1beta/batch/confirms";
+  }
+  rpc LogicConfirms(QueryLogicConfirmsRequest) returns (QueryLogicConfirmsResponse) {
+    option (google.api.http).get = "/gravity/v1beta/logic/confirms";
+  }
+  rpc ERC20ToDenom(QueryERC20ToDenomRequest) returns (QueryERC20ToDenomResponse) {
+    option (google.api.http).get = "/gravity/v1beta/cosmos_originated/erc20_to_denom";
+  }
+  rpc DenomToERC20(QueryDenomToERC20Request) returns (QueryDenomToERC20Response) {
+    option (google.api.http).get = "/gravity/v1beta/cosmos_originated/denom_to_erc20";
+  }
+  rpc GetLastObservedEthBlock(QueryLastObservedEthBlockRequest) returns (QueryLastObservedEthBlockResponse) {
+    option (google.api.http).get = "/gravity/v1beta/query_last_observed_eth_block";
+  }
+  rpc GetLastObservedEthNonce(QueryLastObservedEthNonceRequest) returns (QueryLastObservedEthNonceResponse) {
+    option (google.api.http).get = "/gravity/v1beta/query_last_observed_eth_nonce";
+  }
+  rpc GetAttestations(QueryAttestationsRequest) returns (QueryAttestationsResponse) {
+    option (google.api.http).get = "/gravity/v1beta/query_attestations";
+  }
+  rpc GetDelegateKeyByValidator(QueryDelegateKeysByValidatorAddress)
+      returns (QueryDelegateKeysByValidatorAddressResponse) {
+    option (google.api.http).get = "/gravity/v1beta/query_delegate_keys_by_validator";
+  }
+  rpc GetDelegateKeyByEth(QueryDelegateKeysByEthAddress) returns (QueryDelegateKeysByEthAddressResponse) {
+    option (google.api.http).get = "/gravity/v1beta/query_delegate_keys_by_eth";
+  }
+  rpc GetDelegateKeyByOrchestrator(QueryDelegateKeysByOrchestratorAddress)
+      returns (QueryDelegateKeysByOrchestratorAddressResponse) {
+    option (google.api.http).get = "/gravity/v1beta/query_delegate_keys_by_orchestrator";
+  }
+  rpc GetPendingSendToEth(QueryPendingSendToEth) returns (QueryPendingSendToEthResponse) {
+    option (google.api.http).get = "/gravity/v1beta/query_pending_send_to_eth";
+  }
+}
+
+message QueryParamsRequest {
+  string chain_id = 1;
+}
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryCurrentValsetRequest {
+  string chain_id = 1;
+}
+message QueryCurrentValsetResponse {
+  Valset valset = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryValsetRequestRequest {
+  string chain_id = 1;
+  uint64 nonce = 2;
+}
+message QueryValsetRequestResponse {
+  Valset valset = 1;
+}
+
+message QueryValsetConfirmRequest {
+  string chain_id = 1;
+  uint64 nonce    = 2;
+  string address  = 3;
+}
+message QueryValsetConfirmResponse {
+  MsgValsetConfirm confirm = 1;
+}
+
+message QueryValsetConfirmsByNonceRequest {
+  string chain_id = 1;
+  uint64 nonce    = 2;
+}
+message QueryValsetConfirmsByNonceResponse {
+  repeated MsgValsetConfirm confirms = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryLastValsetRequestsRequest {
+  string chain_id = 1;
+}
+message QueryLastValsetRequestsResponse {
+  repeated Valset valsets = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryLastPendingValsetRequestByAddrRequest {
+  string chain_id = 1;
+  string address  = 2;
+}
+message QueryLastPendingValsetRequestByAddrResponse {
+  repeated Valset valsets = 1 [(gogoproto.nullable) = false];
+}
+message QueryBatchFeeRequest {
+  string chain_id = 1;
+}
+message QueryBatchFeeResponse {
+  repeated BatchFees batch_fees = 1 [(gogoproto.nullable) = false];
+}
+message QueryLastPendingBatchRequestByAddrRequest {
+  string chain_id = 1;
+  string address  = 2;
+}
+message QueryLastPendingBatchRequestByAddrResponse {
+  repeated OutgoingTxBatch batch = 1 [(gogoproto.nullable) = false];
+}
+message QueryLastPendingLogicCallByAddrRequest {
+  string chain_id = 1;
+  string address  = 2;
+}
+message QueryLastPendingLogicCallByAddrResponse {
+  repeated OutgoingLogicCall call = 1 [(gogoproto.nullable) = false];
+}
+message QueryOutgoingTxBatchesRequest {
+  string chain_id = 1;
+}
+message QueryOutgoingTxBatchesResponse {
+  repeated OutgoingTxBatch batches = 1 [(gogoproto.nullable) = false];
+}
+message QueryOutgoingLogicCallsRequest {
+  string chain_id = 1;
+}
+message QueryOutgoingLogicCallsResponse {
+  repeated OutgoingLogicCall calls = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryBatchRequestByNonceRequest {
+  string chain_id = 1;
+  uint64 nonce            = 2;
+  string contract_address = 3;
+}
+message QueryBatchRequestByNonceResponse {
+  OutgoingTxBatch batch = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryBatchConfirmsRequest {
+  string chain_id = 1;
+  uint64 nonce            = 2;
+  string contract_address = 3;
+}
+message QueryBatchConfirmsResponse {
+  repeated MsgConfirmBatch confirms = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryLogicConfirmsRequest {
+  string chain_id = 1;
+  bytes  invalidation_id    = 2;
+  uint64 invalidation_nonce = 3;
+}
+message QueryLogicConfirmsResponse {
+  repeated MsgConfirmLogicCall confirms = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryLastEventNonceByAddrRequest {
+  string chain_id = 1;
+  string address = 2;
+}
+message QueryLastEventNonceByAddrResponse {
+  uint64 event_nonce = 1;
+}
+
+message QueryERC20ToDenomRequest {
+  string chain_id = 1;
+  string erc20 = 2;
+}
+message QueryERC20ToDenomResponse {
+  string denom             = 1;
+  bool   cosmos_originated = 2;
+}
+
+message QueryDenomToERC20Request {
+  string chain_id = 1;
+  string denom = 2;
+}
+message QueryDenomToERC20Response {
+  string erc20             = 1;
+  bool   cosmos_originated = 2;
+}
+
+// QueryLastObservedEthBlockRequest defines the request for getting the height of the
+// last applied Ethereum Event on the bridge. This is expected to lag the actual
+// Ethereum block height significantly due to 1. Ethereum Finality and
+//  2. Consensus mirroring the state on Ethereum
+message QueryLastObservedEthBlockRequest{
+  string chain_id = 1;
+  // indicates whether to search for store data using the old Gravity v1 key "LastObservedEthereumBlockHeightKey"
+  // Note that queries before the Mercury upgrade at height 1282013 must set this to true
+  bool use_v1_key = 2;
+}
+message QueryLastObservedEthBlockResponse{
+  string chain_id = 1;
+  // a response of 0 indicates that no Ethereum events have been observed, and thus
+  // the bridge is inactive
+  uint64 block = 2;
+}
+
+// QueryLastObservedEthNonceRequest defines the request for getting the event nonce
+// of the last applied Ethereum Event on the bridge.
+// Note that this is likely to lag the last executed event a little
+// due to 1. Ethereum Finality and 2. Consensus mirroring the Ethereum state
+message QueryLastObservedEthNonceRequest{
+  string chain_id = 1;
+  // indicates whether to search for store data using the old Gravity v1 key "LastObservedEventNonceKey"
+  // Note that queries before the Mercury upgrade at height 1282013 must set this to true
+  bool use_v1_key = 2;
+}
+message QueryLastObservedEthNonceResponse{
+  // a response of 0 indicates that no Ethereum events have been observed, and thus
+  // the bridge is inactive
+  uint64 nonce = 1;
+}
+
+// QueryAttestationsRequest defines the request structure for getting recent
+// attestations with optional query parameters. By default, a limited set of
+// recent attestations will be returned, defined by 'limit'. These attestations
+// can be ordered ascending or descending by nonce, that defaults to ascending.
+// Filtering criteria may also be provided, including nonce, claim type, and
+// height. Note, that an attestation will be returned if it matches ANY of the
+// filter query parameters provided.
+message QueryAttestationsRequest {
+  string chain_id = 1;
+  // limit defines how many attestations to limit in the response.
+  uint64 limit = 2;
+  // order_by provides ordering of atteststions by nonce in the response. Either
+  // 'asc' or 'desc' can be provided. If no value is provided, it defaults to
+  // 'asc'.
+  string order_by = 3;
+  // claim_type allows filtering attestations by Ethereum claim type.
+  string claim_type = 4;
+  // nonce allows filtering attestations by Ethereum claim nonce.
+  uint64 nonce = 5;
+  // height allows filtering attestations by Ethereum claim height.
+  uint64 height = 6;
+  // indicates whether to search for store data using the old Gravity v1 key "OracleAttestationKey"
+  // Note that queries before the Mercury upgrade at height 1282013 must set this to true
+  bool use_v1_key = 7;
+}
+
+message QueryAttestationsResponse {
+  string chain_id = 1;
+  repeated Attestation attestations = 2 [(gogoproto.nullable) = false];
+}
+
+message QueryDelegateKeysByValidatorAddress {
+  string chain_id = 1;
+  string validator_address = 2;
+}
+message QueryDelegateKeysByValidatorAddressResponse {
+  string eth_address          = 1;
+  string orchestrator_address = 2;
+}
+
+message QueryDelegateKeysByEthAddress {
+  string chain_id = 1;
+  string eth_address = 2;
+}
+message QueryDelegateKeysByEthAddressResponse {
+  string validator_address    = 1;
+  string orchestrator_address = 2;
+}
+
+message QueryDelegateKeysByOrchestratorAddress {
+  string chain_id = 1;
+  string orchestrator_address = 2;
+}
+message QueryDelegateKeysByOrchestratorAddressResponse {
+  string validator_address = 1;
+  string eth_address       = 2;
+}
+
+message QueryPendingSendToEth {
+  string chain_id = 1;
+  string sender_address = 2;
+}
+message QueryPendingSendToEthResponse {
+  repeated OutgoingTransferTx transfers_in_batches = 1 [(gogoproto.nullable) = false];
+  repeated OutgoingTransferTx unbatched_transfers  = 2 [(gogoproto.nullable) = false];
+}
+
