@@ -1284,8 +1284,8 @@ github.com/miguelmota/go-ethereum-hdwallet v0.1.1 h1:zdXGlHao7idpCBjEGTXThVAtMKs
 github.com/mimoo/StrobeGo v0.0.0-20181016162300-f8f6d4d2b643/go.mod h1:43+3pMjjKimDBf5Kr4ZFNGbLql1zKkbImw+fZbw3geM=
 github.com/mimoo/StrobeGo v0.0.0-20210601165009-122bf33a46e0 h1:QRUSJEgZn2Snx0EmT/QLXibWjSUDjKWvXIT19NBVp94=
 github.com/mimoo/StrobeGo v0.0.0-20210601165009-122bf33a46e0/go.mod h1:43+3pMjjKimDBf5Kr4ZFNGbLql1zKkbImw+fZbw3geM=
-github.com/mineplexio-org/evmos/v12 v12.0.0-20230530063952-c289a27257a3 h1:i7qu/nOuPj+P4Pa+48d/G8AvpLwVT6yDM2mzf9DDvYk=
-github.com/mineplexio-org/evmos/v12 v12.0.0-20230530063952-c289a27257a3/go.mod h1:WCYn3iWPRo2RIYyoQsbJ2vOuW7UAhMROm7ciz/Ai6cs=
+github.com/mineplexio-org/evmos/v12 v12.0.0-20230616060754-f27f836b55db h1:tsbrLnRhCAHlBio10/WS0Iq7I7Eqi2l3agW54Pnuz20=
+github.com/mineplexio-org/evmos/v12 v12.0.0-20230616060754-f27f836b55db/go.mod h1:WCYn3iWPRo2RIYyoQsbJ2vOuW7UAhMROm7ciz/Ai6cs=
 github.com/minio/highwayhash v1.0.2 h1:Aak5U0nElisjDCfPSG79Tgzkn2gl66NxOMspRrKnA/g=
 github.com/minio/highwayhash v1.0.2/go.mod h1:BQskDq+xkJ12lmlUUi7U0M5Swg3EWR+dLTk+kldvVxY=
 github.com/mitchellh/cli v1.0.0 h1:iGBIsUe3+HZ/AD/Vd7DErOt5sU9fa8Uj7A2s1aggv1Y=
