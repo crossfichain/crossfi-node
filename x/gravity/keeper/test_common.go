@@ -78,7 +78,7 @@ var (
 		mint.AppModuleBasic{},
 		distribution.AppModuleBasic{},
 		gov.NewAppModuleBasic(
-			paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.ProposalHandler, upgradeclient.CancelProposalHandler,
+			paramsclient.ProposalHandler, distrclient.ProposalHandler, upgradeclient.LegacyProposalHandler, upgradeclient.LegacyCancelProposalHandler,
 		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
