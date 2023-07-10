@@ -36,9 +36,9 @@ func (k Keeper) GetCosmosOriginatedERC20(ctx sdk.Context, denom string) (*types.
 
 // IterateCosmosOriginatedERC20s iterates through every erc20 under DenomToERC20Key, passing it to the given callback.
 // cb should return true to stop iteration, false to continue
-func (k Keeper) IterateCosmosOriginatedERC20s(ctx sdk.Context, cb func(key []byte, erc20 *types.EthAddress) (stop bool)) {
+func (k Keeper) IterateCosmosOriginatedERC20s(ctx sdk.Context, chainID types.ChainID, cb func(key []byte, erc20 *types.EthAddress) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
-	prefixStore := prefix.NewStore(store, types.DenomToERC20Key)
+	prefixStore := prefix.NewStore(store, types.AppendBytes(types.DenomToERC20Key, chainID.Bytes()))
 	iter := prefixStore.Iterator(nil, nil)
 
 	defer iter.Close()
@@ -122,8 +122,8 @@ func (k Keeper) ERC20ToDenomLookup(ctx sdk.Context, tokenContract types.EthAddre
 }
 
 // IterateERC20ToDenom iterates over erc20 to denom relations
-func (k Keeper) IterateERC20ToDenom(ctx sdk.Context, cb func([]byte, *types.ERC20ToDenom) bool) {
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.ERC20ToDenomKey)
+func (k Keeper) IterateERC20ToDenom(ctx sdk.Context, chainID types.ChainID, cb func([]byte, *types.ERC20ToDenom) bool) {
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.AppendBytes(types.ERC20ToDenomKey, chainID.Bytes()))
 	iter := prefixStore.Iterator(nil, nil)
 	defer iter.Close()
 

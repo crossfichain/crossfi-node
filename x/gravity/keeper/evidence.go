@@ -102,8 +102,8 @@ func (k Keeper) GetPastEthSignatureCheckpoint(ctx sdk.Context, checkpoint []byte
 	}
 }
 
-func (k Keeper) IteratePastEthSignatureCheckpoints(ctx sdk.Context, cb func(key []byte, value []byte) (stop bool)) {
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.PastEthSignatureCheckpointKey)
+func (k Keeper) IteratePastEthSignatureCheckpoints(ctx sdk.Context, chainID types.ChainID, cb func(key []byte, value []byte) (stop bool)) {
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.AppendBytes(types.PastEthSignatureCheckpointKey, chainID.Bytes()))
 	iter := prefixStore.Iterator(nil, nil)
 	defer iter.Close()
 

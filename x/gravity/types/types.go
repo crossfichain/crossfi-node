@@ -11,6 +11,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 )
 
+type ChainID string
+
+func (c ChainID) Bytes() []byte {
+	return []byte(c)
+}
+
 // UInt64FromBytesUnsafe create uint from binary big endian representation
 // Note: This is unsafe because the function will panic if provided over 8 bytes
 func UInt64FromBytesUnsafe(s []byte) uint64 {

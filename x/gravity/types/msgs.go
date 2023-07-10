@@ -415,22 +415,6 @@ func (msg *MsgSendToCosmosClaim) ClaimHash() ([]byte, error) {
 	return tmhash.Sum([]byte(path)), nil
 }
 
-func (msg *MsgExecuteIbcAutoForwards) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Executor); err != nil {
-		return sdkerrors.Wrap(err, "Unable to parse executor as a valid bech32 address")
-	}
-	return nil
-}
-
-func (msg *MsgExecuteIbcAutoForwards) GetSigners() []sdk.AccAddress {
-	msg.ProtoMessage()
-	acc, err := sdk.AccAddressFromBech32(msg.Executor)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{acc}
-}
-
 func (msg *MsgBatchSendToEthClaim) SetOrchestrator(orchestrator sdk.AccAddress) {
 	msg.Orchestrator = orchestrator.String()
 }

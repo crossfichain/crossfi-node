@@ -53,8 +53,8 @@ func (k Keeper) DeleteOutgoingLogicCall(ctx sdk.Context, invalidationID []byte, 
 }
 
 // IterateOutgoingLogicCalls iterates over outgoing logic calls
-func (k Keeper) IterateOutgoingLogicCalls(ctx sdk.Context, cb func([]byte, types.OutgoingLogicCall) bool) {
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyOutgoingLogicCall)
+func (k Keeper) IterateOutgoingLogicCalls(ctx sdk.Context, chainID types.ChainID, cb func([]byte, types.OutgoingLogicCall) bool) {
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.AppendBytes(types.KeyOutgoingLogicCall, chainID.Bytes()))
 	iter := prefixStore.Iterator(nil, nil)
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
@@ -161,8 +161,8 @@ func (k Keeper) IterateLogicConfirmsByInvalidationIDAndNonce(
 // IterateLogicConfirmsByInvalidationIDAndNonce iterates over all logic confirms in the store applying the given
 // callback on each discovered confirm.
 // cb should return true to stop iteration, false to continue
-func (k Keeper) IterateLogicConfirms(ctx sdk.Context, cb func(key []byte, confirm *types.MsgConfirmLogicCall) (stop bool)) {
-	prefix := types.KeyOutgoingLogicConfirm
+func (k Keeper) IterateLogicConfirms(ctx sdk.Context, chainID types.ChainID, cb func(key []byte, confirm *types.MsgConfirmLogicCall) (stop bool)) {
+	prefix := types.AppendBytes(types.KeyOutgoingLogicConfirm, chainID.Bytes())
 	k.iterateLogicConfirmsByPrefix(ctx, prefix, cb)
 }
 

@@ -22,6 +22,7 @@ const OutgoingTxBatchSize = 100
 // - emit an event
 func (k Keeper) BuildOutgoingTXBatch(
 	ctx sdk.Context,
+	chainID types.ChainID,
 	contract types.EthAddress,
 	maxElements uint) (*types.InternalOutgoingTxBatch, error) {
 	if maxElements == 0 {
@@ -57,7 +58,7 @@ func (k Keeper) BuildOutgoingTXBatch(
 		return nil, sdkerrors.Wrap(types.ErrInvalid, "no transactions of this type to batch")
 	}
 
-	nextID := k.autoIncrementID(ctx, types.KeyLastOutgoingBatchID)
+	nextID := k.autoIncrementID(ctx, types.AppendBytes(types.KeyLastOutgoingBatchID, chainID.Bytes()))
 	batch, err := types.NewInternalOutgingTxBatch(nextID, k.getBatchTimeoutHeight(ctx), selectedTxs, contract, 0)
 	if err != nil {
 		panic(sdkerrors.Wrap(err, "unable to create batch"))
@@ -265,8 +266,8 @@ func (k Keeper) CancelOutgoingTXBatch(ctx sdk.Context, tokenContract types.EthAd
 }
 
 // IterateOutgoingTxBatches iterates through all outgoing batches in DESC order.
-func (k Keeper) IterateOutgoingTxBatches(ctx sdk.Context, cb func(key []byte, batch types.InternalOutgoingTxBatch) bool) {
-	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.OutgoingTXBatchKey)
+func (k Keeper) IterateOutgoingTxBatches(ctx sdk.Context, chainID types.ChainID, cb func(key []byte, batch types.InternalOutgoingTxBatch) bool) {
+	prefixStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.AppendBytes(types.OutgoingTXBatchKey, chainID.Bytes()))
 	iter := prefixStore.ReverseIterator(nil, nil)
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
@@ -319,28 +320,28 @@ func (k Keeper) GetLastOutgoingBatchByTokenType(ctx sdk.Context, token types.Eth
 }
 
 // HasLastSlashedBatchBlock returns true if the last slashed batch block has been set in the store
-func (k Keeper) HasLastSlashedBatchBlock(ctx sdk.Context) bool {
+func (k Keeper) HasLastSlashedBatchBlock(ctx sdk.Context, chainID types.ChainID) bool {
 	store := ctx.KVStore(k.storeKey)
-	return store.Has(types.LastSlashedBatchBlock)
+	return store.Has(types.AppendBytes(types.LastSlashedBatchBlock, chainID.Bytes()))
 }
 
 // SetLastSlashedBatchBlock sets the latest slashed Batch block height this is done by
 // block height instead of nonce because batches could have individual nonces for each token type
 // this function will panic if a lower last slashed block is set, this protects against programmer error
-func (k Keeper) SetLastSlashedBatchBlock(ctx sdk.Context, blockHeight uint64) {
+func (k Keeper) SetLastSlashedBatchBlock(ctx sdk.Context, chainID types.ChainID, blockHeight uint64) {
 
-	if k.HasLastSlashedBatchBlock(ctx) && k.GetLastSlashedBatchBlock(ctx) > blockHeight {
+	if k.HasLastSlashedBatchBlock(ctx, chainID) && k.GetLastSlashedBatchBlock(ctx, chainID) > blockHeight {
 		panic("Attempted to decrement LastSlashedBatchBlock")
 	}
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.LastSlashedBatchBlock, types.UInt64Bytes(blockHeight))
+	store.Set(types.AppendBytes(types.LastSlashedBatchBlock, chainID.Bytes()), types.UInt64Bytes(blockHeight))
 }
 
 // GetLastSlashedBatchBlock returns the latest slashed Batch block
-func (k Keeper) GetLastSlashedBatchBlock(ctx sdk.Context) uint64 {
+func (k Keeper) GetLastSlashedBatchBlock(ctx sdk.Context, chainID types.ChainID) uint64 {
 	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.LastSlashedBatchBlock)
+	bytes := store.Get(types.AppendBytes(types.LastSlashedBatchBlock, chainID.Bytes()))
 
 	if len(bytes) == 0 {
 		panic("Last slashed batch block not initialized from genesis")
@@ -349,8 +350,8 @@ func (k Keeper) GetLastSlashedBatchBlock(ctx sdk.Context) uint64 {
 }
 
 // GetUnSlashedBatches returns all the unslashed batches in state
-func (k Keeper) GetUnSlashedBatches(ctx sdk.Context, maxHeight uint64) (out []types.InternalOutgoingTxBatch) {
-	lastSlashedBatchBlock := k.GetLastSlashedBatchBlock(ctx)
+func (k Keeper) GetUnSlashedBatches(ctx sdk.Context, chainID types.ChainID, maxHeight uint64) (out []types.InternalOutgoingTxBatch) {
+	lastSlashedBatchBlock := k.GetLastSlashedBatchBlock(ctx, chainID)
 	batches := k.GetOutgoingTxBatches(ctx)
 	for _, batch := range batches {
 		if batch.CosmosBlockCreated > lastSlashedBatchBlock && batch.CosmosBlockCreated < maxHeight {

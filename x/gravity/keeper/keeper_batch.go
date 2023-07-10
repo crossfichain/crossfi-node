@@ -100,9 +100,9 @@ func (k Keeper) GetBatchConfirmByNonceAndTokenContract(ctx sdk.Context, nonce ui
 }
 
 // IterateBatchConfirms iterates through all batch confirmations
-func (k Keeper) IterateBatchConfirms(ctx sdk.Context, cb func([]byte, types.MsgConfirmBatch) (stop bool)) {
+func (k Keeper) IterateBatchConfirms(ctx sdk.Context, chainID types.ChainID, cb func([]byte, types.MsgConfirmBatch) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
-	prefixStore := prefix.NewStore(store, types.BatchConfirmKey)
+	prefixStore := prefix.NewStore(store, types.AppendBytes(types.BatchConfirmKey, chainID.Bytes()))
 	iter := prefixStore.Iterator(nil, nil)
 
 	defer iter.Close()

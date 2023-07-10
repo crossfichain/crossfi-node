@@ -240,9 +240,9 @@ func (k Keeper) GetAttestationMapping(ctx sdk.Context) (attestationMapping map[u
 // IterateAttestations iterates through all attestations executing a given callback on each discovered attestation
 // If reverse is true, attestations will be returned in descending order by key (aka by event nonce and then claim hash)
 // cb should return true to stop iteration, false to continue
-func (k Keeper) IterateAttestations(ctx sdk.Context, reverse bool, cb func(key []byte, att types.Attestation) (stop bool)) {
+func (k Keeper) IterateAttestations(ctx sdk.Context, chainID types.ChainID, reverse bool, cb func(key []byte, att types.Attestation) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
-	keyPrefix := types.OracleAttestationKey
+	keyPrefix := types.AppendBytes(types.OracleAttestationKey, chainID.Bytes())
 
 	var iter storetypes.Iterator
 	if reverse {
@@ -323,9 +323,9 @@ func (k Keeper) GetMostRecentAttestations(ctx sdk.Context, limit uint64) []types
 }
 
 // GetLastObservedEventNonce returns the latest observed event nonce
-func (k Keeper) GetLastObservedEventNonce(ctx sdk.Context) uint64 {
+func (k Keeper) GetLastObservedEventNonce(ctx sdk.Context, chainID types.ChainID) uint64 {
 	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.LastObservedEventNonceKey)
+	bytes := store.Get(types.AppendBytes(types.LastObservedEventNonceKey, chainID.Bytes()))
 
 	if len(bytes) == 0 {
 		return 0
@@ -338,9 +338,9 @@ func (k Keeper) GetLastObservedEventNonce(ctx sdk.Context) uint64 {
 
 // GetLastObservedEthereumBlockHeight height gets the block height to of the last observed attestation from
 // the store
-func (k Keeper) GetLastObservedEthereumBlockHeight(ctx sdk.Context) types.LastObservedEthereumBlockHeight {
+func (k Keeper) GetLastObservedEthereumBlockHeight(ctx sdk.Context, chainID types.ChainID) types.LastObservedEthereumBlockHeight {
 	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.LastObservedEthereumBlockHeightKey)
+	bytes := store.Get(types.AppendBytes(types.LastObservedEthereumBlockHeightKey, chainID.Bytes()))
 
 	if len(bytes) == 0 {
 		return types.LastObservedEthereumBlockHeight{
@@ -357,9 +357,9 @@ func (k Keeper) GetLastObservedEthereumBlockHeight(ctx sdk.Context) types.LastOb
 }
 
 // SetLastObservedEthereumBlockHeight sets the block height in the store.
-func (k Keeper) SetLastObservedEthereumBlockHeight(ctx sdk.Context, ethereumHeight uint64) {
+func (k Keeper) SetLastObservedEthereumBlockHeight(ctx sdk.Context, chainID types.ChainID, ethereumHeight uint64) {
 	store := ctx.KVStore(k.storeKey)
-	previous := k.GetLastObservedEthereumBlockHeight(ctx)
+	previous := k.GetLastObservedEthereumBlockHeight(ctx, chainID)
 	if previous.EthereumBlockHeight > ethereumHeight {
 		panic("Attempt to roll back Ethereum block height!")
 	}
@@ -367,16 +367,16 @@ func (k Keeper) SetLastObservedEthereumBlockHeight(ctx sdk.Context, ethereumHeig
 		EthereumBlockHeight: ethereumHeight,
 		CosmosBlockHeight:   uint64(ctx.BlockHeight()),
 	}
-	store.Set(types.LastObservedEthereumBlockHeightKey, k.cdc.MustMarshal(&height))
+	store.Set(types.AppendBytes(types.LastObservedEthereumBlockHeightKey, chainID.Bytes()), k.cdc.MustMarshal(&height))
 }
 
 // GetLastObservedValset retrieves the last observed validator set from the store
 // WARNING: This value is not an up to date validator set on Ethereum, it is a validator set
 // that AT ONE POINT was the one in the Gravity bridge on Ethereum. If you assume that it's up
 // to date you may break the bridge
-func (k Keeper) GetLastObservedValset(ctx sdk.Context) *types.Valset {
+func (k Keeper) GetLastObservedValset(ctx sdk.Context, chainID types.ChainID) *types.Valset {
 	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.LastObservedValsetKey)
+	bytes := store.Get(types.AppendBytes(types.LastObservedValsetKey, chainID.Bytes()))
 
 	if len(bytes) == 0 {
 		return nil
@@ -393,38 +393,38 @@ func (k Keeper) GetLastObservedValset(ctx sdk.Context) *types.Valset {
 }
 
 // SetLastObservedValset updates the last observed validator set in the store
-func (k Keeper) SetLastObservedValset(ctx sdk.Context, valset types.Valset) {
+func (k Keeper) SetLastObservedValset(ctx sdk.Context, chainID types.ChainID, valset types.Valset) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.LastObservedValsetKey, k.cdc.MustMarshal(&valset))
+	store.Set(types.AppendBytes(types.LastObservedValsetKey, chainID.Bytes()), k.cdc.MustMarshal(&valset))
 }
 
 // setLastObservedEventNonce sets the latest observed event nonce
-func (k Keeper) setLastObservedEventNonce(ctx sdk.Context, nonce uint64) {
+func (k Keeper) setLastObservedEventNonce(ctx sdk.Context, chainID types.ChainID, nonce uint64) {
 	store := ctx.KVStore(k.storeKey)
-	last := k.GetLastObservedEventNonce(ctx)
+	last := k.GetLastObservedEventNonce(ctx, chainID)
 	// event nonce must increase, unless it's zero at which point allow zero to be set
 	// as many times as needed (genesis test setup etc)
 	zeroCase := last == 0 && nonce == 0
 	if last >= nonce && !zeroCase {
 		panic("Event nonce going backwards or replay!")
 	}
-	store.Set(types.LastObservedEventNonceKey, types.UInt64Bytes(nonce))
+	store.Set(types.AppendBytes(types.LastObservedEventNonceKey, chainID.Bytes()), types.UInt64Bytes(nonce))
 }
 
 // GetLastEventNonceByValidator returns the latest event nonce for a given validator
-func (k Keeper) GetLastEventNonceByValidator(ctx sdk.Context, validator sdk.ValAddress) uint64 {
+func (k Keeper) GetLastEventNonceByValidator(ctx sdk.Context, chainID types.ChainID, validator sdk.ValAddress) uint64 {
 	if err := sdk.VerifyAddressFormat(validator); err != nil {
 		panic(sdkerrors.Wrap(err, "invalid validator address"))
 	}
 	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.GetLastEventNonceByValidatorKey(validator))
+	bytes := store.Get(types.GetLastEventNonceByValidatorKey(chainID, validator))
 
 	if len(bytes) == 0 {
 		// in the case that we have no existing value this is the first
 		// time a validator is submitting a claim. Since we don't want to force
 		// them to replay the entire history of all events ever we can't start
 		// at zero
-		lastEventNonce := k.GetLastObservedEventNonce(ctx)
+		lastEventNonce := k.GetLastObservedEventNonce(ctx, chainID)
 		if lastEventNonce >= 1 {
 			return lastEventNonce - 1
 		} else {
@@ -435,18 +435,18 @@ func (k Keeper) GetLastEventNonceByValidator(ctx sdk.Context, validator sdk.ValA
 }
 
 // SetLastEventNonceByValidator sets the latest event nonce for a give validator
-func (k Keeper) SetLastEventNonceByValidator(ctx sdk.Context, validator sdk.ValAddress, nonce uint64) {
+func (k Keeper) SetLastEventNonceByValidator(ctx sdk.Context, chainID types.ChainID, validator sdk.ValAddress, nonce uint64) {
 	if err := sdk.VerifyAddressFormat(validator); err != nil {
 		panic(sdkerrors.Wrap(err, "invalid validator address"))
 	}
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.GetLastEventNonceByValidatorKey(validator), types.UInt64Bytes(nonce))
+	store.Set(types.GetLastEventNonceByValidatorKey(chainID, validator), types.UInt64Bytes(nonce))
 }
 
 // IterateValidatorLastEventNonces iterates through all batch confirmations
-func (k Keeper) IterateValidatorLastEventNonces(ctx sdk.Context, cb func(key []byte, nonce uint64) (stop bool)) {
+func (k Keeper) IterateValidatorLastEventNonces(ctx sdk.Context, chainID types.ChainID, cb func(key []byte, nonce uint64) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
-	prefixStore := prefix.NewStore(store, types.LastEventNonceByValidatorKey)
+	prefixStore := prefix.NewStore(store, types.AppendBytes(types.LastEventNonceByValidatorKey, chainID.Bytes()))
 	iter := prefixStore.Iterator(nil, nil)
 
 	defer iter.Close()

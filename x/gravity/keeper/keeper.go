@@ -360,26 +360,26 @@ func (k Keeper) IterateValidatorsByOrchestratorAddress(ctx sdk.Context, cb func(
 
 // SetLastSlashedLogicCallBlock returns true if the last slashed logic call block
 // has been set in the store
-func (k Keeper) HasLastSlashedLogicCallBlock(ctx sdk.Context) bool {
+func (k Keeper) HasLastSlashedLogicCallBlock(ctx sdk.Context, chainID types.ChainID) bool {
 	store := ctx.KVStore(k.storeKey)
-	return store.Has(types.LastSlashedLogicCallBlock)
+	return store.Has(types.AppendBytes(types.LastSlashedLogicCallBlock, chainID.Bytes()))
 }
 
 // SetLastSlashedLogicCallBlock sets the latest slashed logic call block height
-func (k Keeper) SetLastSlashedLogicCallBlock(ctx sdk.Context, blockHeight uint64) {
+func (k Keeper) SetLastSlashedLogicCallBlock(ctx sdk.Context, chainID types.ChainID, blockHeight uint64) {
 
-	if k.HasLastSlashedLogicCallBlock(ctx) && k.GetLastSlashedLogicCallBlock(ctx) > blockHeight {
+	if k.HasLastSlashedLogicCallBlock(ctx, chainID) && k.GetLastSlashedLogicCallBlock(ctx, chainID) > blockHeight {
 		panic("Attempted to decrement LastSlashedBatchBlock")
 	}
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.LastSlashedLogicCallBlock, types.UInt64Bytes(blockHeight))
+	store.Set(types.AppendBytes(types.LastSlashedLogicCallBlock, chainID.Bytes()), types.UInt64Bytes(blockHeight))
 }
 
 // GetLastSlashedLogicCallBlock returns the latest slashed logic call block
-func (k Keeper) GetLastSlashedLogicCallBlock(ctx sdk.Context) uint64 {
+func (k Keeper) GetLastSlashedLogicCallBlock(ctx sdk.Context, chainID types.ChainID) uint64 {
 	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.LastSlashedLogicCallBlock)
+	bytes := store.Get(types.AppendBytes(types.LastSlashedLogicCallBlock, chainID.Bytes()))
 
 	if len(bytes) == 0 {
 		panic("Last slashed logic call block not initialized in genesis")
