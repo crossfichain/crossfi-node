@@ -36,7 +36,7 @@ func (k Keeper) AddToOutgoingPool(
 	// If the coin is a gravity voucher, burn the coins. If not, check if there is a deployed ERC20 contract representing it.
 	// If there is, lock the coins.
 
-	_, tokenContract, err := k.DenomToERC20Lookup(ctx, totalAmount.Denom)
+	_, tokenContract, err := k.DenomToERC20Lookup(ctx, chainID, totalAmount.Denom)
 	if err != nil {
 		return 0, err
 	}
@@ -74,7 +74,7 @@ func (k Keeper) AddToOutgoingPool(
 	}
 
 	// add a second index with the fee
-	err = k.addUnbatchedTX(ctx, outgoing)
+	err = k.addUnbatchedTX(ctx, chainID, outgoing)
 	if err != nil {
 		panic(err)
 	}
@@ -96,12 +96,12 @@ func (k Keeper) AddToOutgoingPool(
 // - checks that the provided tx actually exists
 // - deletes the unbatched tx from the pool
 // - issues the tokens back to the sender
-func (k Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, sender sdk.AccAddress) error {
+func (k Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, chainID types.ChainID, txId uint64, sender sdk.AccAddress) error {
 	if ctx.IsZero() || txId < 1 || sdk.VerifyAddressFormat(sender) != nil {
 		return sdkerrors.Wrap(types.ErrInvalid, "arguments")
 	}
 	// check that we actually have a tx with that id and what it's details are
-	tx, err := k.GetUnbatchedTxById(ctx, txId)
+	tx, err := k.GetUnbatchedTxById(ctx, chainID, txId)
 	if err != nil {
 		return sdkerrors.Wrapf(err, "unknown transaction with id %d from sender %s", txId, sender.String())
 	}
@@ -119,18 +119,18 @@ func (k Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, se
 	}
 
 	// delete this tx from the pool
-	err = k.removeUnbatchedTX(ctx, *tx.Erc20Fee, txId)
+	err = k.removeUnbatchedTX(ctx, chainID, *tx.Erc20Fee, txId)
 	if err != nil {
 		return sdkerrors.Wrapf(types.ErrInvalid, "txId %d not in unbatched index! Must be in a batch!", txId)
 	}
 	// Make sure the tx was removed
-	oldTx, oldTxErr := k.GetUnbatchedTxByFeeAndId(ctx, *tx.Erc20Fee, tx.Id)
+	oldTx, oldTxErr := k.GetUnbatchedTxByFeeAndId(ctx, chainID, *tx.Erc20Fee, tx.Id)
 	if oldTx != nil || oldTxErr == nil {
 		return sdkerrors.Wrapf(types.ErrInvalid, "tx with id %d was not fully removed from the pool, a duplicate must exist", txId)
 	}
 
 	// Calculate refund
-	_, denom := k.ERC20ToDenomLookup(ctx, tx.Erc20Token.Contract)
+	_, denom := k.ERC20ToDenomLookup(ctx, chainID, tx.Erc20Token.Contract)
 	totalToRefund := sdk.NewCoin(denom, tx.Erc20Token.Amount)
 	totalToRefund.Amount = totalToRefund.Amount.Add(tx.Erc20Fee.Amount)
 	totalToRefundCoins := sdk.NewCoins(totalToRefund)
@@ -152,9 +152,9 @@ func (k Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, txId uint64, se
 
 // addUnbatchedTx creates a new transaction in the pool
 // WARNING: Do not make this function public
-func (k Keeper) addUnbatchedTX(ctx sdk.Context, val *types.InternalOutgoingTransferTx) error {
+func (k Keeper) addUnbatchedTX(ctx sdk.Context, chainID types.ChainID, val *types.InternalOutgoingTransferTx) error {
 	store := ctx.KVStore(k.storeKey)
-	idxKey := types.GetOutgoingTxPoolKey(*val.Erc20Fee, val.Id)
+	idxKey := types.GetOutgoingTxPoolKey(chainID, *val.Erc20Fee, val.Id)
 	if store.Has(idxKey) {
 		return sdkerrors.Wrap(types.ErrDuplicate, "transaction already in pool")
 	}
@@ -172,9 +172,9 @@ func (k Keeper) addUnbatchedTX(ctx sdk.Context, val *types.InternalOutgoingTrans
 
 // removeUnbatchedTXIndex removes the tx from the pool
 // WARNING: Do not make this function public
-func (k Keeper) removeUnbatchedTX(ctx sdk.Context, fee types.InternalERC20Token, txID uint64) error {
+func (k Keeper) removeUnbatchedTX(ctx sdk.Context, chainID types.ChainID, fee types.InternalERC20Token, txID uint64) error {
 	store := ctx.KVStore(k.storeKey)
-	idxKey := types.GetOutgoingTxPoolKey(fee, txID)
+	idxKey := types.GetOutgoingTxPoolKey(chainID, fee, txID)
 	if !store.Has(idxKey) {
 		return sdkerrors.Wrap(types.ErrUnknown, "pool transaction")
 	}
@@ -187,9 +187,9 @@ func (k Keeper) removeUnbatchedTX(ctx sdk.Context, fee types.InternalERC20Token,
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // GetUnbatchedTxByFeeAndId grabs a tx from the pool given its fee and txID
-func (k Keeper) GetUnbatchedTxByFeeAndId(ctx sdk.Context, fee types.InternalERC20Token, txID uint64) (*types.InternalOutgoingTransferTx, error) {
+func (k Keeper) GetUnbatchedTxByFeeAndId(ctx sdk.Context, chainID types.ChainID, fee types.InternalERC20Token, txID uint64) (*types.InternalOutgoingTransferTx, error) {
 	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetOutgoingTxPoolKey(fee, txID))
+	bz := store.Get(types.GetOutgoingTxPoolKey(chainID, fee, txID))
 	if bz == nil {
 		return nil, sdkerrors.Wrap(types.ErrUnknown, "pool transaction")
 	}
@@ -227,7 +227,7 @@ func (k Keeper) GetUnbatchedTxById(ctx sdk.Context, chainID types.ChainID, txID 
 // GetUnbatchedTransactionsByContract grabs all unbatched transactions from the tx pool for the given contract
 // unbatched transactions are sorted by fee amount in DESC order
 func (k Keeper) GetUnbatchedTransactionsByContract(ctx sdk.Context, chainID types.ChainID, contractAddress types.EthAddress) []*types.InternalOutgoingTransferTx {
-	return k.collectUnbatchedTransactions(ctx, chainID, types.GetOutgoingTxPoolContractPrefix(contractAddress))
+	return k.collectUnbatchedTransactions(ctx, chainID, types.GetOutgoingTxPoolContractPrefix(chainID, contractAddress))
 }
 
 // GetUnbatchedTransactions grabs all transactions from the tx pool, useful for queries or genesis save/load
@@ -248,7 +248,7 @@ func (k Keeper) collectUnbatchedTransactions(ctx sdk.Context, chainID types.Chai
 // executing the given callback on each discovered Tx. Return true in cb to stop iteration, false to continue.
 // unbatched transactions are sorted by fee amount in DESC order
 func (k Keeper) IterateUnbatchedTransactionsByContract(ctx sdk.Context, chainID types.ChainID, contractAddress types.EthAddress, cb func(key []byte, tx *types.InternalOutgoingTransferTx) bool) {
-	k.filterAndIterateUnbatchedTransactions(ctx, chainID, types.GetOutgoingTxPoolContractPrefix(contractAddress), cb)
+	k.filterAndIterateUnbatchedTransactions(ctx, chainID, types.GetOutgoingTxPoolContractPrefix(chainID, contractAddress), cb)
 }
 
 // IterateUnbatchedTransactions iterates through all unbatched transactions in DESC order, executing the given callback

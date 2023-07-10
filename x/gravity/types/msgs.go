@@ -321,6 +321,7 @@ type EthereumClaim interface {
 	ClaimHash() ([]byte, error)
 	// Sets the orchestrator value on the claim
 	SetOrchestrator(sdk.AccAddress)
+	ChainID() ChainID
 }
 
 // nolint: exhaustruct
@@ -338,6 +339,11 @@ func (msg *MsgSendToCosmosClaim) SetOrchestrator(orchestrator sdk.AccAddress) {
 // GetType returns the type of the claim
 func (msg *MsgSendToCosmosClaim) GetType() ClaimType {
 	return CLAIM_TYPE_SEND_TO_COSMOS
+}
+
+// ChainID returns the chain id of the claim
+func (msg *MsgSendToCosmosClaim) ChainID() ChainID {
+	return ChainID(msg.ChainId)
 }
 
 // ValidateBasic performs stateless checks
@@ -423,6 +429,10 @@ func (msg *MsgBatchSendToEthClaim) GetType() ClaimType {
 	return CLAIM_TYPE_BATCH_SEND_TO_ETH
 }
 
+func (msg *MsgBatchSendToEthClaim) ChainID() ChainID {
+	return ChainID(msg.ChainId)
+}
+
 // ValidateBasic performs stateless checks
 func (e *MsgBatchSendToEthClaim) ValidateBasic() error {
 	if e.EventNonce == 0 {
@@ -495,6 +505,10 @@ func (e *MsgERC20DeployedClaim) GetType() ClaimType {
 	return CLAIM_TYPE_ERC20_DEPLOYED
 }
 
+func (msg *MsgERC20DeployedClaim) ChainID() ChainID {
+	return ChainID(msg.ChainId)
+}
+
 // ValidateBasic performs stateless checks
 func (e *MsgERC20DeployedClaim) ValidateBasic() error {
 	if err := ValidateEthAddress(e.TokenContract); err != nil {
@@ -565,6 +579,10 @@ func (e *MsgLogicCallExecutedClaim) GetType() ClaimType {
 	return CLAIM_TYPE_LOGIC_CALL_EXECUTED
 }
 
+func (msg *MsgLogicCallExecutedClaim) ChainID() ChainID {
+	return ChainID(msg.ChainId)
+}
+
 // ValidateBasic performs stateless checks
 func (e *MsgLogicCallExecutedClaim) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(e.Orchestrator); err != nil {
@@ -629,6 +647,10 @@ func (e *MsgValsetUpdatedClaim) SetOrchestrator(orchestrator sdk.AccAddress) {
 // GetType returns the type of the claim
 func (e *MsgValsetUpdatedClaim) GetType() ClaimType {
 	return CLAIM_TYPE_VALSET_UPDATED
+}
+
+func (msg *MsgValsetUpdatedClaim) ChainID() ChainID {
+	return ChainID(msg.ChainId)
 }
 
 // ValidateBasic performs stateless checks

@@ -85,7 +85,9 @@ func (k msgServer) SetOrchestratorAddress(c context.Context, msg *types.MsgSetOr
 // ValsetConfirm handles MsgValsetConfirm
 func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm) (*types.MsgValsetConfirmResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	valset := k.GetValset(ctx, msg.Nonce) // A valset request was previously created
+	chainId := types.ChainID(msg.ChainId) // todo: validate
+
+	valset := k.GetValset(ctx, chainId, msg.Nonce) // A valset request was previously created
 	if valset == nil {
 		return nil, sdkerrors.Wrap(types.ErrInvalid, "couldn't find valset")
 	}
@@ -102,10 +104,10 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 	}
 
 	// persist signature
-	if k.GetValsetConfirm(ctx, msg.Nonce, orchaddr) != nil {
+	if k.GetValsetConfirm(ctx, chainId, msg.Nonce, orchaddr) != nil {
 		return nil, sdkerrors.Wrap(types.ErrDuplicate, "signature duplicate")
 	}
-	key := k.SetValsetConfirm(ctx, *msg)
+	key := k.SetValsetConfirm(ctx, chainId, *msg)
 
 	return &types.MsgValsetConfirmResponse{}, ctx.EventManager().EmitTypedEvent(
 		&types.EventValsetConfirmKey{
@@ -118,6 +120,8 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 // SendToEth handles MsgSendToEth
 func (k msgServer) SendToEth(c context.Context, msg *types.MsgSendToEth) (*types.MsgSendToEthResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
+	chainId := types.ChainID(msg.ChainId) // todo: validate
+
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "invalid sender")
@@ -128,7 +132,7 @@ func (k msgServer) SendToEth(c context.Context, msg *types.MsgSendToEth) (*types
 		return nil, sdkerrors.Wrap(err, "invalid eth dest")
 	}
 
-	_, erc20, err := k.DenomToERC20Lookup(ctx, msg.Amount.Denom)
+	_, erc20, err := k.DenomToERC20Lookup(ctx, chainId, msg.Amount.Denom)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "invalid denom")
 	}
@@ -142,7 +146,7 @@ func (k msgServer) SendToEth(c context.Context, msg *types.MsgSendToEth) (*types
 		return nil, sdkerrors.Wrapf(err, "Could not deduct chainFee %v from account %v", msg.ChainFee.String(), msg.Sender)
 	}
 
-	txID, err := k.AddToOutgoingPool(ctx, sender, *dest, msg.Amount, msg.BridgeFee)
+	txID, err := k.AddToOutgoingPool(ctx, chainId, sender, *dest, msg.Amount, msg.BridgeFee)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "Could not add to outgoing pool")
 	}
@@ -197,6 +201,7 @@ func (k msgServer) checkAndDeductSendToEthFees(ctx sdk.Context, sender sdk.AccAd
 		// Report the fee collection to the event log
 		return ctx.EventManager().EmitTypedEvent(
 			&types.EventSendToEthFeeCollected{
+				ChainId:    "", // todo
 				Sender:     sender.String(),
 				SendAmount: sendAmount.String(),
 				FeeAmount:  chainFee.String(),
@@ -210,21 +215,23 @@ func (k msgServer) checkAndDeductSendToEthFees(ctx sdk.Context, sender sdk.AccAd
 // RequestBatch handles MsgRequestBatch
 func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (*types.MsgRequestBatchResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
+	chainId := types.ChainID(msg.ChainId) // todo: validate
 
 	// Check if the denom is a gravity coin, if not, check if there is a deployed ERC20 representing it.
 	// If not, error out
-	_, tokenContract, err := k.DenomToERC20Lookup(ctx, msg.Denom)
+	_, tokenContract, err := k.DenomToERC20Lookup(ctx, chainId, msg.Denom)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "Could not look up erc 20 denominator")
 	}
 
-	batch, err := k.BuildOutgoingTXBatch(ctx, *tokenContract, OutgoingTxBatchSize)
+	batch, err := k.BuildOutgoingTXBatch(ctx, chainId, *tokenContract, OutgoingTxBatchSize)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "Could not build outgoing tx batch")
 	}
 
 	return &types.MsgRequestBatchResponse{}, ctx.EventManager().EmitTypedEvent(
 		&types.EventBatchCreated{
+			ChainId:    chainId.String(),
 			Message:    msg.Type(),
 			BatchNonce: fmt.Sprint(batch.BatchNonce),
 		},
@@ -242,9 +249,10 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 		return nil, sdkerrors.Wrap(types.ErrInvalid, "eth address invalid")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
+	chainId := types.ChainID(msg.ChainId) // todo: validate
 
 	// fetch the outgoing batch given the nonce
-	batch := k.GetOutgoingTXBatch(ctx, *contract, msg.Nonce)
+	batch := k.GetOutgoingTXBatch(ctx, chainId, *contract, msg.Nonce)
 	if batch == nil {
 		return nil, sdkerrors.Wrap(types.ErrInvalid, "couldn't find batch")
 	}
@@ -349,7 +357,7 @@ func (k msgServer) claimHandlerCommon(ctx sdk.Context, msgAny *codectypes.Any, m
 		&types.EventClaim{
 			Message:       string(msg.GetType()),
 			ClaimHash:     string(hash),
-			AttestationId: string(types.GetAttestationKey(msg.GetEventNonce(), hash)),
+			AttestationId: string(types.GetAttestationKey(msg.ChainID(), msg.GetEventNonce(), hash)),
 		},
 	)
 }
@@ -420,21 +428,6 @@ func (k msgServer) SendToCosmosClaim(c context.Context, msg *types.MsgSendToCosm
 	return &types.MsgSendToCosmosClaimResponse{}, nil
 }
 
-// ExecuteIbcAutoForwards moves pending IBC Auto-Forwards to their respective chains by calling ibc-transfer's Transfer
-// function with all the relevant information
-// Note: this endpoint and the related queue are necessary due to a Tendermint bug where events created in EndBlocker
-// do not appear. We process SendToCosmos observations in EndBlocker but are therefore unable to auto-forward these txs
-// in the same block. This endpoint triggers the creation of those ibc-transfer events which relayers watch for.
-func (k msgServer) ExecuteIbcAutoForwards(c context.Context, msg *types.MsgExecuteIbcAutoForwards) (*types.MsgExecuteIbcAutoForwardsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
-
-	if err := k.ProcessPendingIbcAutoForwards(ctx, msg.GetForwardsToClear()); err != nil {
-		return nil, err
-	}
-
-	return &types.MsgExecuteIbcAutoForwardsResponse{}, nil
-}
-
 // WithdrawClaim handles MsgBatchSendToEthClaim
 // TODO it is possible to submit an old msgWithdrawClaim (old defined as covering an event nonce that has already been
 // executed aka 'observed' and had it's slashing window expire) that will never be cleaned up in the endblocker. This
@@ -474,7 +467,7 @@ func additionalPatchChecks(ctx sdk.Context, k msgServer, msg *types.MsgBatchSend
 	}
 
 	// Replicate the following but without using a gas meter:
-	b := k.GetOutgoingTXBatch(ctx, *contractAddress, msg.BatchNonce)
+	b := k.GetOutgoingTXBatch(ctx, msg.ChainID(), *contractAddress, msg.BatchNonce)
 	if b == nil {
 		// Batch deleted, just add the vote to the stored attestation
 		return

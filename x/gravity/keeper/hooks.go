@@ -31,7 +31,6 @@ func (h Hooks) AfterValidatorBeginUnbonding(ctx sdk.Context, _ sdk.ConsAddress, 
 	// in the endblocker therefore we call the keeper function ourselves there.
 
 	h.k.SetLastUnBondingBlockHeight(ctx, uint64(ctx.BlockHeight()))
-
 }
 
 func (h Hooks) BeforeDelegationCreated(_ sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {

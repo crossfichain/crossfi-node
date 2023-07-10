@@ -15,7 +15,7 @@ import (
 /////////////////////
 
 // GetOutgoingLogicCall gets an outgoing logic call
-func (k Keeper) GetOutgoingLogicCall(ctx sdk.Context, invalidationID []byte, invalidationNonce uint64) *types.OutgoingLogicCall {
+func (k Keeper) GetOutgoingLogicCall(ctx sdk.Context, chainID types.ChainID, invalidationID []byte, invalidationNonce uint64) *types.OutgoingLogicCall {
 	store := ctx.KVStore(k.storeKey)
 	call := types.OutgoingLogicCall{
 		Transfers:            []types.ERC20Token{},
@@ -27,7 +27,7 @@ func (k Keeper) GetOutgoingLogicCall(ctx sdk.Context, invalidationID []byte, inv
 		InvalidationNonce:    invalidationNonce,
 		CosmosBlockCreated:   0,
 	}
-	k.cdc.MustUnmarshal(store.Get(types.GetOutgoingLogicCallKey(invalidationID, invalidationNonce)), &call)
+	k.cdc.MustUnmarshal(store.Get(types.GetOutgoingLogicCallKey(chainID, invalidationID, invalidationNonce)), &call)
 	return &call
 }
 

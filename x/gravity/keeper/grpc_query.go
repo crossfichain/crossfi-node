@@ -4,8 +4,6 @@ import (
 	"context"
 	"strings"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -29,7 +27,7 @@ func (k Keeper) Params(c context.Context, req *types.QueryParamsRequest) (*types
 func (k Keeper) CurrentValset(
 	c context.Context,
 	req *types.QueryCurrentValsetRequest) (*types.QueryCurrentValsetResponse, error) {
-	vs, err := k.GetCurrentValset(sdk.UnwrapSDKContext(c))
+	vs, err := k.GetCurrentValset(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId))
 	if err != nil {
 		// nolint: exhaustruct
 		return &types.QueryCurrentValsetResponse{}, err
@@ -41,7 +39,7 @@ func (k Keeper) CurrentValset(
 func (k Keeper) ValsetRequest(
 	c context.Context,
 	req *types.QueryValsetRequestRequest) (*types.QueryValsetRequestResponse, error) {
-	return &types.QueryValsetRequestResponse{Valset: k.GetValset(sdk.UnwrapSDKContext(c), req.Nonce)}, nil
+	return &types.QueryValsetRequestResponse{Valset: k.GetValset(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), req.Nonce)}, nil
 }
 
 // ValsetConfirm queries the ValsetConfirm of the gravity module
@@ -52,14 +50,14 @@ func (k Keeper) ValsetConfirm(
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "address invalid")
 	}
-	return &types.QueryValsetConfirmResponse{Confirm: k.GetValsetConfirm(sdk.UnwrapSDKContext(c), req.Nonce, addr)}, nil
+	return &types.QueryValsetConfirmResponse{Confirm: k.GetValsetConfirm(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), req.Nonce, addr)}, nil
 }
 
 // ValsetConfirmsByNonce queries the ValsetConfirmsByNonce of the gravity module
 func (k Keeper) ValsetConfirmsByNonce(
 	c context.Context,
 	req *types.QueryValsetConfirmsByNonceRequest) (*types.QueryValsetConfirmsByNonceResponse, error) {
-	confirms := k.GetValsetConfirms(sdk.UnwrapSDKContext(c), req.Nonce)
+	confirms := k.GetValsetConfirms(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), req.Nonce)
 
 	return &types.QueryValsetConfirmsByNonceResponse{Confirms: confirms}, nil
 }
@@ -70,7 +68,7 @@ const maxValsetRequestsReturned = 5
 func (k Keeper) LastValsetRequests(
 	c context.Context,
 	req *types.QueryLastValsetRequestsRequest) (*types.QueryLastValsetRequestsResponse, error) {
-	valReq := k.GetValsets(sdk.UnwrapSDKContext(c))
+	valReq := k.GetValsets(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId))
 	valReqLen := len(valReq)
 	retLen := 0
 	if valReqLen < maxValsetRequestsReturned {
@@ -91,9 +89,9 @@ func (k Keeper) LastPendingValsetRequestByAddr(
 	}
 
 	var pendingValsetReq []types.Valset
-	k.IterateValsets(sdk.UnwrapSDKContext(c), func(_ []byte, val *types.Valset) bool {
+	k.IterateValsets(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), func(_ []byte, val *types.Valset) bool {
 		// foundConfirm is true if the operatorAddr has signed the valset we are currently looking at
-		foundConfirm := k.GetValsetConfirm(sdk.UnwrapSDKContext(c), val.Nonce, addr) != nil
+		foundConfirm := k.GetValsetConfirm(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), val.Nonce, addr) != nil
 		// if this valset has NOT been signed by operatorAddr, store it in pendingValsetReq
 		// and exit the loop
 		if !foundConfirm {
@@ -114,7 +112,7 @@ func (k Keeper) LastPendingValsetRequestByAddr(
 func (k Keeper) BatchFees(
 	c context.Context,
 	req *types.QueryBatchFeeRequest) (*types.QueryBatchFeeResponse, error) {
-	return &types.QueryBatchFeeResponse{BatchFees: k.GetAllBatchFees(sdk.UnwrapSDKContext(c), OutgoingTxBatchSize)}, nil
+	return &types.QueryBatchFeeResponse{BatchFees: k.GetAllBatchFees(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), OutgoingTxBatchSize)}, nil
 }
 
 // LastPendingBatchRequestByAddr queries the LastPendingBatchRequestByAddr of
@@ -131,7 +129,7 @@ func (k Keeper) LastPendingBatchRequestByAddr(
 	var pendingBatchReq types.InternalOutgoingTxBatches
 
 	found := false
-	k.IterateOutgoingTxBatches(sdk.UnwrapSDKContext(c), func(_ []byte, batch types.InternalOutgoingTxBatch) bool {
+	k.IterateOutgoingTxBatches(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), func(_ []byte, batch types.InternalOutgoingTxBatch) bool {
 		foundConfirm := k.GetBatchConfirm(sdk.UnwrapSDKContext(c), batch.BatchNonce, batch.TokenContract, addr) != nil
 		if !foundConfirm {
 			pendingBatchReq = append(pendingBatchReq, batch)
@@ -161,7 +159,7 @@ func (k Keeper) LastPendingLogicCallByAddr(
 
 	var pendingLogicReq []types.OutgoingLogicCall
 	found := false
-	k.IterateOutgoingLogicCalls(sdk.UnwrapSDKContext(c), func(_ []byte, logic types.OutgoingLogicCall) bool {
+	k.IterateOutgoingLogicCalls(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), func(_ []byte, logic types.OutgoingLogicCall) bool {
 		foundConfirm := k.GetLogicCallConfirm(sdk.UnwrapSDKContext(c),
 			logic.InvalidationId, logic.InvalidationNonce, addr) != nil
 		if !foundConfirm {
@@ -186,7 +184,7 @@ func (k Keeper) OutgoingTxBatches(
 	c context.Context,
 	req *types.QueryOutgoingTxBatchesRequest) (*types.QueryOutgoingTxBatchesResponse, error) {
 	var batches []types.OutgoingTxBatch
-	k.IterateOutgoingTxBatches(sdk.UnwrapSDKContext(c), func(_ []byte, batch types.InternalOutgoingTxBatch) bool {
+	k.IterateOutgoingTxBatches(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), func(_ []byte, batch types.InternalOutgoingTxBatch) bool {
 		batches = append(batches, batch.ToExternal())
 		return len(batches) == MaxResults
 	})
@@ -198,7 +196,7 @@ func (k Keeper) OutgoingLogicCalls(
 	c context.Context,
 	req *types.QueryOutgoingLogicCallsRequest) (*types.QueryOutgoingLogicCallsResponse, error) {
 	var calls []types.OutgoingLogicCall
-	k.IterateOutgoingLogicCalls(sdk.UnwrapSDKContext(c), func(_ []byte, call types.OutgoingLogicCall) bool {
+	k.IterateOutgoingLogicCalls(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), func(_ []byte, call types.OutgoingLogicCall) bool {
 		calls = append(calls, call)
 		return len(calls) == MaxResults
 	})
@@ -215,7 +213,7 @@ func (k Keeper) BatchRequestByNonce(
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, err.Error())
 	}
 
-	foundBatch := k.GetOutgoingTXBatch(sdk.UnwrapSDKContext(c), *addr, req.Nonce)
+	foundBatch := k.GetOutgoingTXBatch(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), *addr, req.Nonce)
 	if foundBatch == nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot find tx batch")
 	}
@@ -267,7 +265,7 @@ func (k Keeper) LastEventNonceByAddr(
 	if err := sdk.VerifyAddressFormat(validator.GetOperator()); err != nil {
 		return nil, sdkerrors.Wrap(err, "invalid validator address")
 	}
-	lastEventNonce := k.GetLastEventNonceByValidator(ctx, validator.GetOperator())
+	lastEventNonce := k.GetLastEventNonceByValidator(ctx, types.ChainID(req.ChainId), validator.GetOperator())
 	ret.EventNonce = lastEventNonce
 	return &ret, nil
 }
@@ -277,7 +275,7 @@ func (k Keeper) DenomToERC20(
 	c context.Context,
 	req *types.QueryDenomToERC20Request) (*types.QueryDenomToERC20Response, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	cosmosOriginated, erc20, err := k.DenomToERC20Lookup(ctx, req.Denom)
+	cosmosOriginated, erc20, err := k.DenomToERC20Lookup(ctx, types.ChainID(req.ChainId), req.Denom)
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "invalid denom (%v) queried", req.Denom)
 	}
@@ -297,7 +295,7 @@ func (k Keeper) ERC20ToDenom(
 	if err != nil {
 		return nil, sdkerrors.Wrapf(err, "invalid Erc20 in request: %s", req.Erc20)
 	}
-	cosmosOriginated, name := k.ERC20ToDenomLookup(ctx, *ethAddr)
+	cosmosOriginated, name := k.ERC20ToDenomLookup(ctx, types.ChainID(req.ChainId), *ethAddr)
 	var ret types.QueryERC20ToDenomResponse
 	ret.Denom = name
 	ret.CosmosOriginated = cosmosOriginated
@@ -313,34 +311,13 @@ func (k Keeper) GetLastObservedEthBlock(
 	ctx := sdk.UnwrapSDKContext(c)
 
 	// Use the old locator pre-Mercury, when the keys changed to hashed strings
-	var locator func(ctx sdk.Context) types.LastObservedEthereumBlockHeight
-	if req.UseV1Key {
-		locator = k.GetOldLastObservedEthereumBlockHeight
-	} else {
-		locator = k.GetLastObservedEthereumBlockHeight
-	}
+	var locator func(ctx sdk.Context, chainID types.ChainID) types.LastObservedEthereumBlockHeight
 
-	ethHeight := locator(ctx)
+	locator = k.GetLastObservedEthereumBlockHeight
+
+	ethHeight := locator(ctx, types.ChainID(req.ChainId))
 
 	return &types.QueryLastObservedEthBlockResponse{Block: ethHeight.EthereumBlockHeight}, nil
-}
-
-func (k Keeper) GetOldLastObservedEthereumBlockHeight(ctx sdk.Context) types.LastObservedEthereumBlockHeight {
-	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get([]byte(v1.LastObservedEthereumBlockHeightKey))
-
-	if len(bytes) == 0 {
-		return types.LastObservedEthereumBlockHeight{
-			CosmosBlockHeight:   0,
-			EthereumBlockHeight: 0,
-		}
-	}
-	height := types.LastObservedEthereumBlockHeight{
-		CosmosBlockHeight:   0,
-		EthereumBlockHeight: 0,
-	}
-	k.cdc.MustUnmarshal(bytes, &height)
-	return height
 }
 
 // GetLastObservedEthNonce queries the LastObservedEventNonce
@@ -351,25 +328,13 @@ func (k Keeper) GetLastObservedEthNonce(
 	ctx := sdk.UnwrapSDKContext(c)
 
 	// Use the old locator pre-Mercury, when the keys changed to hashed strings
-	var locator func(ctx sdk.Context) uint64
-	if req.UseV1Key {
-		locator = k.GetOldLastObservedEventNonce
-	} else {
-		locator = k.GetLastObservedEventNonce
-	}
-	nonce := locator(ctx)
+	var locator func(ctx sdk.Context, chainID types.ChainID) uint64
+
+	locator = k.GetLastObservedEventNonce
+
+	nonce := locator(ctx, types.ChainID(req.ChainId))
 
 	return &types.QueryLastObservedEthNonceResponse{Nonce: nonce}, nil
-}
-
-func (k Keeper) GetOldLastObservedEventNonce(ctx sdk.Context) uint64 {
-	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get([]byte(v1.LastObservedEventNonceKey))
-
-	if len(bytes) == 0 {
-		return 0
-	}
-	return types.UInt64FromBytesUnsafe(bytes)
 }
 
 // GetAttestations queries the attestation map
@@ -380,12 +345,9 @@ func (k Keeper) GetAttestations(
 	ctx := sdk.UnwrapSDKContext(c)
 
 	// Use the old iterator pre-Mercury, when the keys changed to hashed strings
-	var iterator func(ctx sdk.Context, reverse bool, cb func([]byte, types.Attestation) bool)
-	if req.UseV1Key {
-		iterator = k.IterateOldAttestations
-	} else {
-		iterator = k.IterateAttestations
-	}
+	var iterator func(ctx sdk.Context, chainID types.ChainID, reverse bool, cb func([]byte, types.Attestation) bool)
+
+	iterator = k.IterateAttestations
 
 	limit := req.Limit
 	if limit == 0 || limit > QUERY_ATTESTATIONS_LIMIT {
@@ -401,7 +363,7 @@ func (k Keeper) GetAttestations(
 	reverse := strings.EqualFold(req.OrderBy, "desc")
 	filter := req.Height > 0 || req.Nonce > 0 || req.ClaimType != ""
 
-	iterator(ctx, reverse, func(_ []byte, att types.Attestation) (abort bool) {
+	iterator(ctx, types.ChainID(req.ChainId), reverse, func(_ []byte, att types.Attestation) (abort bool) {
 		claim, err := k.UnpackAttestationClaim(&att)
 		if err != nil {
 			iterErr = sdkerrors.Wrap(sdkerrors.ErrUnpackAny, "failed to unmarshal Ethereum claim")
@@ -443,41 +405,6 @@ func (k Keeper) GetAttestations(
 	}
 
 	return &types.QueryAttestationsResponse{Attestations: attestations}, nil
-}
-
-// This is the pre-Mercury Attestation iterator, which used an old prefix
-func (k Keeper) IterateOldAttestations(ctx sdk.Context, reverse bool, cb func([]byte, types.Attestation) bool) {
-	store := ctx.KVStore(k.storeKey)
-	prefix := v1.OracleAttestationKey
-
-	var iter storetypes.Iterator
-	if reverse {
-		iter = store.ReverseIterator(prefixRange([]byte(prefix)))
-	} else {
-		iter = store.Iterator(prefixRange([]byte(prefix)))
-	}
-	defer iter.Close()
-
-	for ; iter.Valid(); iter.Next() {
-		att := types.Attestation{
-			Observed: false,
-			Votes:    []string{},
-			Height:   0,
-			Claim: &codectypes.Any{
-				TypeUrl:              "",
-				Value:                []byte{},
-				XXX_NoUnkeyedLiteral: struct{}{},
-				XXX_unrecognized:     []byte{},
-				XXX_sizecache:        0,
-			},
-		}
-		k.cdc.MustUnmarshal(iter.Value(), &att)
-
-		// cb returns true to stop early
-		if cb(iter.Key(), att) {
-			return
-		}
-	}
 }
 
 func (k Keeper) GetDelegateKeyByValidator(
@@ -550,8 +477,8 @@ func (k Keeper) GetPendingSendToEth(
 	c context.Context,
 	req *types.QueryPendingSendToEth) (*types.QueryPendingSendToEthResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	batches := k.GetOutgoingTxBatches(ctx)
-	unbatchedTxs := k.GetUnbatchedTransactions(ctx)
+	batches := k.GetOutgoingTxBatches(ctx, types.ChainID(req.ChainId))
+	unbatchedTxs := k.GetUnbatchedTransactions(ctx, types.ChainID(req.ChainId))
 	senderAddress := req.GetSenderAddress()
 	res := types.QueryPendingSendToEthResponse{
 		TransfersInBatches: []types.OutgoingTransferTx{},
@@ -571,13 +498,4 @@ func (k Keeper) GetPendingSendToEth(
 	}
 
 	return &res, nil
-}
-
-func (k Keeper) GetPendingIbcAutoForwards(
-	c context.Context,
-	req *types.QueryPendingIbcAutoForwards,
-) (*types.QueryPendingIbcAutoForwardsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
-	pendingForwards := k.PendingIbcAutoForwards(ctx, req.Limit)
-	return &types.QueryPendingIbcAutoForwardsResponse{PendingIbcAutoForwards: pendingForwards}, nil
 }

@@ -21,7 +21,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 
 		// Valsets
 		case QueryCurrentValset:
-			return queryCurrentValset(ctx, keeper)
+			return queryCurrentValset(ctx, keeper, types.ChainID(path[1]))
 		case QueryGravityID:
 			return queryGravityID(ctx, keeper)
 		default:
@@ -30,8 +30,8 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 	}
 }
 
-func queryCurrentValset(ctx sdk.Context, keeper Keeper) ([]byte, error) {
-	valset, err := keeper.GetCurrentValset(ctx)
+func queryCurrentValset(ctx sdk.Context, keeper Keeper, chainID types.ChainID) ([]byte, error) {
+	valset, err := keeper.GetCurrentValset(ctx, chainID)
 	if err != nil {
 		return nil, err
 	}

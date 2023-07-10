@@ -37,7 +37,7 @@ func (k Keeper) SetValsetRequest(ctx sdk.Context, chainID types.ChainID) types.V
 	// the validators Ethereum keys so that we know not to slash them if someone
 	// attempts to submit the signature of this validator set as evidence of bad behavior
 	checkpoint := valset.GetCheckpoint(k.GetGravityID(ctx))
-	k.SetPastEthSignatureCheckpoint(ctx, checkpoint)
+	k.SetPastEthSignatureCheckpoint(ctx, chainID, checkpoint)
 
 	if err := ctx.EventManager().EmitTypedEvent(
 		&types.EventMultisigUpdateRequest{
@@ -302,7 +302,7 @@ func (k Keeper) GetCurrentValset(ctx sdk.Context, chainID types.ChainID) (types.
 		rewardAmount = sdk.NewIntFromUint64(0)
 
 	} else {
-		rewardToken, rewardAmount = k.RewardToERC20Lookup(ctx, reward)
+		rewardToken, rewardAmount = k.RewardToERC20Lookup(ctx, chainID, reward)
 	}
 
 	// increment the nonce, since this potential future valset should be after the current valset

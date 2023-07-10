@@ -197,8 +197,8 @@ func (i *InternalERC20Token) Add(o *InternalERC20Token) (*InternalERC20Token, er
 }
 
 // GravityDenomToERC20 converts a gravity cosmos denom to an EthAddress
-func GravityDenomToERC20(denom string) (*EthAddress, error) {
-	fullPrefix := GravityDenomPrefix + GravityDenomSeparator
+func GravityDenomToERC20(chainID ChainID, denom string) (*EthAddress, error) {
+	fullPrefix := GravityDenomPrefix + chainID.String() + GravityDenomSeparator
 	if !strings.HasPrefix(denom, fullPrefix) {
 		return nil, fmt.Errorf("denom prefix(%s) not equal to expected(%s)", denom, fullPrefix)
 	}
