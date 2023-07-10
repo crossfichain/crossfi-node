@@ -304,9 +304,9 @@ func ValidateStore(ctx sdk.Context, chainID types.ChainID, k Keeper) error {
 	// SequenceKeyPrefix HAS BEEN REMOVED
 
 	// KeyLastTXPoolID (type checked when fetching)
-	_ = k.getID(ctx, types.KeyLastTXPoolID)
+	_ = k.getID(ctx, types.AppendBytes(types.KeyLastTXPoolID, chainID.Bytes()))
 	// KeyLastOutgoingBatchID (type checked when fetching)
-	_ = k.getID(ctx, types.KeyLastOutgoingBatchID)
+	_ = k.getID(ctx, types.AppendBytes(types.KeyLastOutgoingBatchID, chainID.Bytes()))
 	// KeyOrchestratorAddress
 	k.IterateValidatorsByOrchestratorAddress(ctx, func(key []byte, addr sdk.ValAddress) (stop bool) {
 		bech := addr.String()
