@@ -484,3 +484,9 @@ func (a AttestationHandler) sendCoinToLocalAddress(
 
 	return err // returns nil if no error
 }
+
+func (a AttestationHandler) sendCoinToCosmosAccount(
+	ctx sdk.Context, claim types.MsgSendToCosmosClaim, receiver sdk.AccAddress, coin sdk.Coin,
+) (ibcForwardQueued bool, err error) {
+	return false, a.sendCoinToLocalAddress(ctx, claim, receiver, coin)
+}

@@ -190,7 +190,7 @@ func TestModuleBalanceBatchedTxs(t *testing.T) {
 }
 
 func checkInvariant(t *testing.T, ctx sdk.Context, k Keeper, succeed bool) {
-	res, ok := ModuleBalanceInvariant(k)(ctx)
+	res, ok := ModuleBalanceInvariant(k, "")(ctx)
 	if succeed {
 		require.False(t, ok, "Invariant should have returned false")
 		require.Empty(t, res, "Invariant should have returned no message")
