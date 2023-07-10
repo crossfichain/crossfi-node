@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"sort"
 
 	gethcommon "github.com/ethereum/go-ethereum/common"
@@ -31,7 +32,7 @@ var _ types.DistributionKeeper = (*distrkeeper.Keeper)(nil)
 // Keeper maintains the link to storage and exposes getter/setter methods for the various parts of the state machine
 type Keeper struct {
 	// NOTE: If you add anything to this struct, add a nil check to ValidateMembers below!
-	storeKey   sdk.StoreKey // Unexposed key to access store from sdk.Context
+	storeKey   storetypes.StoreKey // Unexposed key to access store from sdk.Context
 	paramSpace paramtypes.Subspace
 
 	// NOTE: If you add anything to this struct, add a nil check to ValidateMembers below!
@@ -68,7 +69,7 @@ func (k Keeper) ValidateMembers() {
 
 // NewKeeper returns a new instance of the gravity keeper
 func NewKeeper(
-	storeKey sdk.StoreKey,
+	storeKey storetypes.StoreKey,
 	paramSpace paramtypes.Subspace,
 	cdc codec.BinaryCodec,
 	bankKeeper *bankkeeper.BaseKeeper,
@@ -388,8 +389,8 @@ func (k Keeper) GetLastSlashedLogicCallBlock(ctx sdk.Context, chainID types.Chai
 }
 
 // GetUnSlashedLogicCalls returns all the unslashed logic calls in state
-func (k Keeper) GetUnSlashedLogicCalls(ctx sdk.Context, maxHeight uint64) (out []types.OutgoingLogicCall) {
-	lastSlashedLogicCallBlock := k.GetLastSlashedLogicCallBlock(ctx)
+func (k Keeper) GetUnSlashedLogicCalls(ctx sdk.Context, chainID types.ChainID, maxHeight uint64) (out []types.OutgoingLogicCall) {
+	lastSlashedLogicCallBlock := k.GetLastSlashedLogicCallBlock(ctx, chainID)
 	calls := k.GetOutgoingLogicCalls(ctx)
 	for _, call := range calls {
 		if call.CosmosBlockCreated > lastSlashedLogicCallBlock {

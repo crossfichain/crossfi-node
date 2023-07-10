@@ -141,6 +141,8 @@ message Params {
   // from Ethereum to the bridge
   repeated string ethereum_blacklist = 19;
   uint64 min_chain_fee_basis_points = 20;
+
+  repeated string chain_ids = 21;
 }
 
 // GenesisState struct, containing all persistant data required by the Gravity module
