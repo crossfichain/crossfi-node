@@ -2,7 +2,7 @@ syntax = "proto3";
 package gravity.v1;
 
 import "gogoproto/gogo.proto";
-import "gravity/v1/types.proto";
+import "gravity/v1/gravity.proto";
 import "gravity/v1/msgs.proto";
 import "gravity/v1/batch.proto";
 import "gravity/v1/attestation.proto";
@@ -147,7 +147,12 @@ message Params {
 
 // GenesisState struct, containing all persistant data required by the Gravity module
 message GenesisState {
-  Params                             params              = 1;
+  Params params = 1;
+  repeated GravityChain chains = 2;
+}
+
+message GravityChain {
+  string chain_id = 1;
   GravityNonces                      gravity_nonces      = 2 [(gogoproto.nullable) = false];
   repeated Valset                    valsets             = 3 [(gogoproto.nullable) = false];
   repeated MsgValsetConfirm          valset_confirms     = 4 [(gogoproto.nullable) = false];
@@ -159,7 +164,6 @@ message GenesisState {
   repeated MsgSetOrchestratorAddress delegate_keys       = 10 [(gogoproto.nullable) = false];
   repeated ERC20ToDenom              erc20_to_denoms     = 11 [(gogoproto.nullable) = false];
   repeated OutgoingTransferTx        unbatched_transfers = 12 [(gogoproto.nullable) = false];
-  repeated PendingIbcAutoForward     pending_ibc_auto_forwards = 13 [(gogoproto.nullable) = false];
 }
 
 // GravityCounters contains the many noces and counters required to maintain the bridge state in the genesis
