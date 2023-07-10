@@ -21,7 +21,6 @@ var (
 	_ sdk.Msg = &MsgConfirmLogicCall{}
 	_ sdk.Msg = &MsgLogicCallExecutedClaim{}
 	_ sdk.Msg = &MsgSendToCosmosClaim{}
-	_ sdk.Msg = &MsgExecuteIbcAutoForwards{}
 	_ sdk.Msg = &MsgBatchSendToEthClaim{}
 	_ sdk.Msg = &MsgValsetUpdatedClaim{}
 	_ sdk.Msg = &MsgSubmitBadSignatureEvidence{}
