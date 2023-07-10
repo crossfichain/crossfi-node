@@ -5,10 +5,10 @@ package types
 
 import (
 	fmt "fmt"
+	types "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
-	anypb "google.golang.org/protobuf/types/known/anypb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -89,7 +89,7 @@ type Attestation struct {
 	Observed bool       `protobuf:"varint,1,opt,name=observed,proto3" json:"observed,omitempty"`
 	Votes    []string   `protobuf:"bytes,2,rep,name=votes,proto3" json:"votes,omitempty"`
 	Height   uint64     `protobuf:"varint,3,opt,name=height,proto3" json:"height,omitempty"`
-	Claim    *anypb.Any `protobuf:"bytes,4,opt,name=claim,proto3" json:"claim,omitempty"`
+	Claim    *types.Any `protobuf:"bytes,4,opt,name=claim,proto3" json:"claim,omitempty"`
 }
 
 func (m *Attestation) Reset()         { *m = Attestation{} }
@@ -146,7 +146,7 @@ func (m *Attestation) GetHeight() uint64 {
 	return 0
 }
 
-func (m *Attestation) GetClaim() *anypb.Any {
+func (m *Attestation) GetClaim() *types.Any {
 	if m != nil {
 		return m.Claim
 	}
@@ -1499,7 +1499,7 @@ func (m *Attestation) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Claim == nil {
-				m.Claim = &anypb.Any{}
+				m.Claim = &types.Any{}
 			}
 			if err := m.Claim.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err

@@ -7,6 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-proto"
+	types1 "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
@@ -16,7 +17,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	anypb "google.golang.org/protobuf/types/known/anypb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -1526,10 +1526,10 @@ var xxx_messageInfo_MsgCancelSendToEthResponse proto.InternalMessageInfo
 // existed on the Cosmos chain.
 // Subject contains the batch, valset, or logic call.
 type MsgSubmitBadSignatureEvidence struct {
-	ChainId   string     `protobuf:"bytes,1,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
-	Subject   *anypb.Any `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
-	Signature string     `protobuf:"bytes,3,opt,name=signature,proto3" json:"signature,omitempty"`
-	Sender    string     `protobuf:"bytes,4,opt,name=sender,proto3" json:"sender,omitempty"`
+	ChainId   string      `protobuf:"bytes,1,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
+	Subject   *types1.Any `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
+	Signature string      `protobuf:"bytes,3,opt,name=signature,proto3" json:"signature,omitempty"`
+	Sender    string      `protobuf:"bytes,4,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
 func (m *MsgSubmitBadSignatureEvidence) Reset()         { *m = MsgSubmitBadSignatureEvidence{} }
@@ -1572,7 +1572,7 @@ func (m *MsgSubmitBadSignatureEvidence) GetChainId() string {
 	return ""
 }
 
-func (m *MsgSubmitBadSignatureEvidence) GetSubject() *anypb.Any {
+func (m *MsgSubmitBadSignatureEvidence) GetSubject() *types1.Any {
 	if m != nil {
 		return m.Subject
 	}
@@ -9019,7 +9019,7 @@ func (m *MsgSubmitBadSignatureEvidence) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Subject == nil {
-				m.Subject = &anypb.Any{}
+				m.Subject = &types1.Any{}
 			}
 			if err := m.Subject.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
