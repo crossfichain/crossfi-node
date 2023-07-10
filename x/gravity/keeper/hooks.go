@@ -2,6 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/mineplexio/mineplex-2-node/x/gravity/types"
 )
 
 // Wrapper struct
@@ -30,7 +31,10 @@ func (h Hooks) AfterValidatorBeginUnbonding(ctx sdk.Context, _ sdk.ConsAddress, 
 	// this hook IS called for jailing or unbonding triggered by users but it IS NOT called for jailing triggered
 	// in the endblocker therefore we call the keeper function ourselves there.
 
-	h.k.SetLastUnBondingBlockHeight(ctx, uint64(ctx.BlockHeight()))
+	params := h.k.GetParams(ctx)
+	for _, c := range params.ChainIds {
+		h.k.SetLastUnBondingBlockHeight(ctx, types.ChainID(c), uint64(ctx.BlockHeight()))
+	}
 }
 
 func (h Hooks) BeforeDelegationCreated(_ sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {

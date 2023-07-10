@@ -192,13 +192,13 @@ func (k Keeper) pickUnbatchedTxs(
 			// very inefficient, IsOnBlacklist is O(blacklist-length) and should be made faster
 			if !k.IsOnBlacklist(ctx, *tx.DestAddress) {
 				selectedTxs = append(selectedTxs, tx)
-				err = k.removeUnbatchedTX(ctx, *tx.Erc20Fee, tx.Id)
+				err = k.removeUnbatchedTX(ctx, chainID, *tx.Erc20Fee, tx.Id)
 				if err != nil {
 					panic("Failed to remote tx from unbatched queue")
 				}
 
 				// double check that no duplicates exist in the index
-				oldTx, oldTxErr := k.GetUnbatchedTxByFeeAndId(ctx, *tx.Erc20Fee, tx.Id)
+				oldTx, oldTxErr := k.GetUnbatchedTxByFeeAndId(ctx, chainID, *tx.Erc20Fee, tx.Id)
 				if oldTx != nil || oldTxErr == nil {
 					panic("picked a duplicate transaction from the pool, duplicates should never exist!")
 				}
@@ -244,7 +244,7 @@ func (k Keeper) CancelOutgoingTXBatch(ctx sdk.Context, chainID types.ChainID, to
 		return types.ErrUnknown
 	}
 	for _, tx := range batch.Transactions {
-		err := k.addUnbatchedTX(ctx, tx)
+		err := k.addUnbatchedTX(ctx, chainID, tx)
 		if err != nil {
 			panic(sdkerrors.Wrapf(err, "unable to add batched transaction back into pool %v", tx))
 		}

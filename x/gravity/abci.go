@@ -178,10 +178,10 @@ func cleanupTimedOutBatches(ctx sdk.Context, chainID types.ChainID, k keeper.Kee
 // AND any deposit or withdraw has occurred to update the Ethereum block height.
 func cleanupTimedOutLogicCalls(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper) {
 	ethereumHeight := k.GetLastObservedEthereumBlockHeight(ctx, chainID).EthereumBlockHeight
-	calls := k.GetOutgoingLogicCalls(ctx)
+	calls := k.GetOutgoingLogicCalls(ctx, chainID)
 	for _, call := range calls {
 		if call.Timeout < ethereumHeight {
-			err := k.CancelOutgoingLogicCall(ctx, call.InvalidationId, call.InvalidationNonce)
+			err := k.CancelOutgoingLogicCall(ctx, chainID, call.InvalidationId, call.InvalidationNonce)
 			if err != nil {
 				panic("Failed to cancel outgoing logic call!")
 			}
@@ -425,8 +425,8 @@ func batchSlashing(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, para
 // prepLogicCallConfirms loads all confirmations into a hashmap indexed by validatorAddr
 // reducing the lookup time dramatically and separating out the task of looking up
 // the orchestrator for each validator
-func prepLogicCallConfirms(ctx sdk.Context, k keeper.Keeper, call types.OutgoingLogicCall) map[string]*types.MsgConfirmLogicCall {
-	confirms := k.GetLogicConfirmsByInvalidationIdAndNonce(ctx, call.InvalidationId, call.InvalidationNonce)
+func prepLogicCallConfirms(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, call types.OutgoingLogicCall) map[string]*types.MsgConfirmLogicCall {
+	confirms := k.GetLogicConfirmsByInvalidationIdAndNonce(ctx, chainID, call.InvalidationId, call.InvalidationNonce)
 	// bytes are incomparable in go, so we convert the sdk.ValAddr bytes to a string (note this is NOT bech32)
 	ret := make(map[string]*types.MsgConfirmLogicCall)
 	for _, confirm := range confirms {
@@ -466,7 +466,7 @@ func logicCallSlashing(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, 
 	for _, call := range unslashedLogicCalls {
 
 		// SLASH BONDED VALIDTORS who didn't attest batch requests
-		confirms := prepLogicCallConfirms(ctx, k, call)
+		confirms := prepLogicCallConfirms(ctx, chainID, k, call)
 		for _, val := range currentBondedSet {
 			// Don't slash validators who joined after batch is created
 			consAddr, err := val.GetConsAddr()

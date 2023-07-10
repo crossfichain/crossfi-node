@@ -391,7 +391,7 @@ func (k Keeper) GetLastSlashedLogicCallBlock(ctx sdk.Context, chainID types.Chai
 // GetUnSlashedLogicCalls returns all the unslashed logic calls in state
 func (k Keeper) GetUnSlashedLogicCalls(ctx sdk.Context, chainID types.ChainID, maxHeight uint64) (out []types.OutgoingLogicCall) {
 	lastSlashedLogicCallBlock := k.GetLastSlashedLogicCallBlock(ctx, chainID)
-	calls := k.GetOutgoingLogicCalls(ctx)
+	calls := k.GetOutgoingLogicCalls(ctx, chainID)
 	for _, call := range calls {
 		if call.CosmosBlockCreated > lastSlashedLogicCallBlock {
 			out = append(out, call)

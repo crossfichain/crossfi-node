@@ -130,7 +130,7 @@ func (k Keeper) LastPendingBatchRequestByAddr(
 
 	found := false
 	k.IterateOutgoingTxBatches(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), func(_ []byte, batch types.InternalOutgoingTxBatch) bool {
-		foundConfirm := k.GetBatchConfirm(sdk.UnwrapSDKContext(c), batch.BatchNonce, batch.TokenContract, addr) != nil
+		foundConfirm := k.GetBatchConfirm(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), batch.BatchNonce, batch.TokenContract, addr) != nil
 		if !foundConfirm {
 			pendingBatchReq = append(pendingBatchReq, batch)
 			found = true
@@ -160,7 +160,7 @@ func (k Keeper) LastPendingLogicCallByAddr(
 	var pendingLogicReq []types.OutgoingLogicCall
 	found := false
 	k.IterateOutgoingLogicCalls(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), func(_ []byte, logic types.OutgoingLogicCall) bool {
-		foundConfirm := k.GetLogicCallConfirm(sdk.UnwrapSDKContext(c),
+		foundConfirm := k.GetLogicCallConfirm(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId),
 			logic.InvalidationId, logic.InvalidationNonce, addr) != nil
 		if !foundConfirm {
 			pendingLogicReq = append(pendingLogicReq, logic)
@@ -230,7 +230,7 @@ func (k Keeper) BatchConfirms(
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "invalid contract address in request")
 	}
-	k.IterateBatchConfirmByNonceAndTokenContract(sdk.UnwrapSDKContext(c),
+	k.IterateBatchConfirmByNonceAndTokenContract(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId),
 		req.Nonce, *contract, func(_ []byte, c types.MsgConfirmBatch) bool {
 			confirms = append(confirms, c)
 			return false
@@ -242,7 +242,7 @@ func (k Keeper) BatchConfirms(
 func (k Keeper) LogicConfirms(
 	c context.Context,
 	req *types.QueryLogicConfirmsRequest) (*types.QueryLogicConfirmsResponse, error) {
-	confirms := k.GetLogicConfirmsByInvalidationIdAndNonce(sdk.UnwrapSDKContext(c), req.InvalidationId, req.InvalidationNonce)
+	confirms := k.GetLogicConfirmsByInvalidationIdAndNonce(sdk.UnwrapSDKContext(c), types.ChainID(req.ChainId), req.InvalidationId, req.InvalidationNonce)
 
 	return &types.QueryLogicConfirmsResponse{Confirms: confirms}, nil
 }
