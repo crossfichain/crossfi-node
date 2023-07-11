@@ -10,6 +10,7 @@ import (
 	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 	v2 "github.com/mineplexio/mineplex-2-node/app/upgrades/v2"
+	v3 "github.com/mineplexio/mineplex-2-node/app/upgrades/v3"
 	"github.com/mineplexio/mineplex-2-node/x/gravity"
 	"io"
 	"math/big"
@@ -1060,6 +1061,13 @@ func (app *App) setupUpgradeHandlers() {
 		),
 	)
 
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v3.UpgradeName,
+		v3.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1080,6 +1088,12 @@ func (app *App) setupUpgradeHandlers() {
 			Added: []string{
 				evmtypes.ModuleName,
 				feemarkettypes.ModuleName,
+			},
+		}
+	case v3.UpgradeName:
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{
+				gravitytypes.ModuleName,
 			},
 		}
 	}
