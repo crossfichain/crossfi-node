@@ -10,6 +10,7 @@ import (
 	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 	v2 "github.com/mineplexio/mineplex-2-node/app/upgrades/v2"
+	"github.com/mineplexio/mineplex-2-node/x/gravity"
 	"io"
 	"math/big"
 	"os"
@@ -118,6 +119,10 @@ import (
 	treasurymodule "github.com/mineplexio/mineplex-2-node/x/treasury"
 	treasurymodulekeeper "github.com/mineplexio/mineplex-2-node/x/treasury/keeper"
 	treasurymoduletypes "github.com/mineplexio/mineplex-2-node/x/treasury/types"
+
+	gravitykeeper "github.com/mineplexio/mineplex-2-node/x/gravity/keeper"
+	gravitytypes "github.com/mineplexio/mineplex-2-node/x/gravity/types"
+
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	appparams "github.com/cosmos/cosmos-sdk/simapp/params"
@@ -189,6 +194,8 @@ var (
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
 
+		gravity.AppModuleBasic{},
+
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -207,6 +214,7 @@ var (
 		// evm
 		evmtypes.ModuleName: {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 
+		gravitytypes.ModuleName: {authtypes.Minter, authtypes.Burner},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 )
@@ -278,6 +286,9 @@ type App struct {
 	MineplexchainKeeper mineplexchainmodulekeeper.Keeper
 
 	TreasuryKeeper treasurymodulekeeper.Keeper
+
+	GravityKeeper gravitykeeper.Keeper
+
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// mm is the module manager
@@ -328,6 +339,8 @@ func New(
 		treasurymoduletypes.StoreKey,
 
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
+
+		gravitytypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
@@ -385,13 +398,14 @@ func New(
 		app.AccountKeeper,
 	)
 
-	app.BankKeeper = bankkeeper.NewBaseKeeper(
+	bankKeeper := bankkeeper.NewBaseKeeper(
 		appCodec,
 		keys[banktypes.StoreKey],
 		app.AccountKeeper,
 		app.GetSubspace(banktypes.ModuleName),
 		app.BlockedModuleAccountAddrs(),
 	)
+	app.BankKeeper = bankKeeper
 
 	app.StakingKeeper = stakingkeeper.NewKeeper(
 		appCodec,
@@ -571,6 +585,12 @@ func New(
 	)
 	treasuryModule := treasurymodule.NewAppModule(appCodec, app.TreasuryKeeper, app.AccountKeeper, app.BankKeeper)
 
+	app.GravityKeeper = gravitykeeper.NewKeeper(keys[gravitytypes.StoreKey],
+		app.GetSubspace(gravitytypes.ModuleName), appCodec, &bankKeeper,
+		&app.StakingKeeper, &app.SlashingKeeper, &app.DistrKeeper, &app.AccountKeeper,
+	)
+	gravityModule := gravity.NewAppModule(app.GravityKeeper, app.BankKeeper)
+
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
 	/**** IBC Routing ****/
@@ -642,6 +662,8 @@ func New(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 
+		gravityModule,
+
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -675,6 +697,7 @@ func New(
 		vestingtypes.ModuleName,
 		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
+		gravitytypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -703,6 +726,7 @@ func New(
 		vestingtypes.ModuleName,
 		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
+		gravitytypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -740,6 +764,7 @@ func New(
 		vestingtypes.ModuleName,
 		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
+		gravitytypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -771,6 +796,7 @@ func New(
 		transferModule,
 		mineplexchainModule,
 		treasuryModule,
+		gravityModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 	app.sm.RegisterStoreDecoders()
@@ -1012,6 +1038,8 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	paramsKeeper.Subspace(evmtypes.ModuleName)
+
+	paramsKeeper.Subspace(gravitytypes.ModuleName)
 
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
