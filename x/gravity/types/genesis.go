@@ -127,19 +127,22 @@ func (s GenesisState) ValidateBasic() error {
 // nolint: exhaustruct
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
-		Params:                 DefaultParams(),
-		GravityNonces:          GravityNonces{},
-		Valsets:                []Valset{},
-		ValsetConfirms:         []MsgValsetConfirm{},
-		Batches:                []OutgoingTxBatch{},
-		BatchConfirms:          []MsgConfirmBatch{},
-		LogicCalls:             []OutgoingLogicCall{},
-		LogicCallConfirms:      []MsgConfirmLogicCall{},
-		Attestations:           []Attestation{},
-		DelegateKeys:           []MsgSetOrchestratorAddress{},
-		Erc20ToDenoms:          []ERC20ToDenom{},
-		UnbatchedTransfers:     []OutgoingTransferTx{},
-		PendingIbcAutoForwards: []PendingIbcAutoForward{},
+		Params: DefaultParams(),
+		Chains: []*GravityChain{
+			{
+				GravityNonces:      GravityNonces{},
+				Valsets:            []Valset{},
+				ValsetConfirms:     []MsgValsetConfirm{},
+				Batches:            []OutgoingTxBatch{},
+				BatchConfirms:      []MsgConfirmBatch{},
+				LogicCalls:         []OutgoingLogicCall{},
+				LogicCallConfirms:  []MsgConfirmLogicCall{},
+				Attestations:       []Attestation{},
+				DelegateKeys:       []MsgSetOrchestratorAddress{},
+				Erc20ToDenoms:      []ERC20ToDenom{},
+				UnbatchedTransfers: []OutgoingTransferTx{},
+			},
+		},
 	}
 }
 
