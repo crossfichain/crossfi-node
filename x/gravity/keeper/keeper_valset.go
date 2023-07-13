@@ -95,7 +95,7 @@ func (k Keeper) GetLatestValsetNonce(ctx sdk.Context, chainID types.ChainID) uin
 	}
 
 	store := ctx.KVStore(k.storeKey)
-	bytes := store.Get(types.LatestValsetNonce)
+	bytes := store.Get(types.AppendBytes(types.LatestValsetNonce, chainID.Bytes()))
 	return types.UInt64FromBytesUnsafe(bytes)
 }
 
@@ -109,7 +109,7 @@ func (k Keeper) SetLatestValsetNonce(ctx sdk.Context, chainID types.ChainID, non
 	}
 
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.LatestValsetNonce, types.UInt64Bytes(nonce))
+	store.Set(types.AppendBytes(types.LatestValsetNonce, chainID.Bytes()), types.UInt64Bytes(nonce))
 }
 
 // GetValset returns a valset by nonce
