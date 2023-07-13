@@ -87,6 +87,8 @@ var (
 	// submitted with too low of a ChainFee value, it will be rejected in the AnteHandler
 	ParamStoreMinChainFeeBasisPoints = []byte("MinChainFeeBasisPoints")
 
+	ParamStoreChainIds = []byte("ChainIds")
+
 	// Ensure that params implements the proper interface
 	_ paramtypes.ParamSet = &Params{
 		GravityId:                    "",
@@ -111,6 +113,7 @@ var (
 		BridgeActive:           true,
 		EthereumBlacklist:      []string{},
 		MinChainFeeBasisPoints: 0,
+		ChainIds:               []string{},
 	}
 )
 
@@ -280,6 +283,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(ParamStoreBridgeActive, &p.BridgeActive, validateBridgeActive),
 		paramtypes.NewParamSetPair(ParamStoreEthereumBlacklist, &p.EthereumBlacklist, validateEthereumBlacklistAddresses),
 		paramtypes.NewParamSetPair(ParamStoreMinChainFeeBasisPoints, &p.MinChainFeeBasisPoints, validateMinChainFeeBasisPoints),
+		paramtypes.NewParamSetPair(ParamStoreChainIds, &p.ChainIds, validateChainIds),
 	}
 }
 
@@ -463,6 +467,15 @@ func validateMinChainFeeBasisPoints(i interface{}) error {
 	if v >= 10000 {
 		return fmt.Errorf("MinChainFeeBasisPoints is set to 10000 or more, this is an unreasonable fee amount")
 	}
+	return nil
+}
+
+func validateChainIds(i interface{}) error {
+	_, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
 	return nil
 }
 

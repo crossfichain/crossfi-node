@@ -745,6 +745,7 @@ func New(
 		slashingtypes.ModuleName,
 		govtypes.ModuleName,
 		minttypes.ModuleName,
+		gravitytypes.ModuleName,
 		crisistypes.ModuleName,
 		// Ethermint modules
 		// evm module denomination is used by the revenue module, in AnteHandle
@@ -765,7 +766,6 @@ func New(
 		vestingtypes.ModuleName,
 		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
-		gravitytypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
