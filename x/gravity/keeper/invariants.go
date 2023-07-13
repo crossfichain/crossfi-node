@@ -20,17 +20,13 @@ import (
 func AllInvariants(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
 
-		for _, c := range k.GetParams(ctx).ChainIds {
-			chainID := types.ChainID(c)
-
-			res, stop := StoreValidityInvariant(k, chainID)(ctx)
-			if stop {
-				return res, stop
-			}
-			res, stop = ModuleBalanceInvariant(k, chainID)(ctx)
-			if stop {
-				return res, stop
-			}
+		res, stop := StoreValidityInvariant(k)(ctx)
+		if stop {
+			return res, stop
+		}
+		res, stop = ModuleBalanceInvariant(k)(ctx)
+		if stop {
+			return res, stop
 		}
 
 		return "", false
@@ -48,37 +44,41 @@ func AllInvariants(k Keeper) sdk.Invariant {
 
 // ModuleBalanceInvariant checks that the module account's balance is equal to the balance of unbatched transactions and unobserved batches
 // Note that the returned bool should be true if there is an error, e.g. an unexpected module balance
-func ModuleBalanceInvariant(k Keeper, chainID types.ChainID) sdk.Invariant {
+func ModuleBalanceInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-		modAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
-		actualBals := k.bankKeeper.GetAllBalances(ctx, modAcc)
-		expectedBals := make(map[string]*sdk.Int, len(actualBals)) // Collect balances by contract
-		for _, v := range actualBals {
-			newInt := sdk.NewInt(0)
-			expectedBals[v.Denom] = &newInt
-		}
-		expectedBals = sumUnconfirmedBatchModuleBalances(ctx, chainID, k, expectedBals)
-		expectedBals = sumUnbatchedTxModuleBalances(ctx, chainID, k, expectedBals)
+		for _, c := range k.GetParams(ctx).ChainIds {
+			chainID := types.ChainID(c)
 
-		// Compare actual vs expected balances
-		for _, actual := range actualBals {
-			denom := actual.GetDenom()
-			cosmosOriginated, _, err := k.DenomToERC20Lookup(ctx, chainID, denom)
-			if err != nil {
-				// Here we do not return because a user could halt the chain by gifting gravity a cosmos asset with no erc20 repr
-				ctx.Logger().Error("Unexpected gravity module balance of cosmos-originated asset with no erc20 representation", "asset", denom)
-				continue
+			modAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
+			actualBals := k.bankKeeper.GetAllBalances(ctx, modAcc)
+			expectedBals := make(map[string]*sdk.Int, len(actualBals)) // Collect balances by contract
+			for _, v := range actualBals {
+				newInt := sdk.NewInt(0)
+				expectedBals[v.Denom] = &newInt
 			}
-			expected, ok := expectedBals[denom]
-			if !ok {
-				return fmt.Sprint("Could not find expected balance for actual module balance of ", actual), true
-			}
+			expectedBals = sumUnconfirmedBatchModuleBalances(ctx, chainID, k, expectedBals)
+			expectedBals = sumUnbatchedTxModuleBalances(ctx, chainID, k, expectedBals)
 
-			if cosmosOriginated { // Cosmos originated mismatched balance
-				// We cannot make any assertions about cosmosOriginated assets because we do not have enough information.
-				// There is no index of denom => amount bridged, which would force us to parse all logs in existence
-			} else if !actual.Amount.Equal(*expected) { // Eth originated mismatched balance
-				return fmt.Sprint("Mismatched balance of eth-originated ", denom, ": actual balance ", actual.Amount, " != expected balance ", expected), true
+			// Compare actual vs expected balances
+			for _, actual := range actualBals {
+				denom := actual.GetDenom()
+				cosmosOriginated, _, err := k.DenomToERC20Lookup(ctx, chainID, denom)
+				if err != nil {
+					// Here we do not return because a user could halt the chain by gifting gravity a cosmos asset with no erc20 repr
+					ctx.Logger().Error("Unexpected gravity module balance of cosmos-originated asset with no erc20 representation", "asset", denom)
+					continue
+				}
+				expected, ok := expectedBals[denom]
+				if !ok {
+					return fmt.Sprint("Could not find expected balance for actual module balance of ", actual), true
+				}
+
+				if cosmosOriginated { // Cosmos originated mismatched balance
+					// We cannot make any assertions about cosmosOriginated assets because we do not have enough information.
+					// There is no index of denom => amount bridged, which would force us to parse all logs in existence
+				} else if !actual.Amount.Equal(*expected) { // Eth originated mismatched balance
+					return fmt.Sprint("Mismatched balance of eth-originated ", denom, ": actual balance ", actual.Amount, " != expected balance ", expected), true
+				}
 			}
 		}
 		return "", false
@@ -137,22 +137,26 @@ func sumUnbatchedTxModuleBalances(ctx sdk.Context, chainID types.ChainID, k Keep
 
 // StoreValidityInvariant checks that the currently stored objects are not corrupted and all pass ValidateBasic checks
 // Note that the returned bool should be true if there is an error, e.g. an unexpected batch was processed
-func StoreValidityInvariant(k Keeper, chainID types.ChainID) sdk.Invariant {
+func StoreValidityInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-		err := ValidateStore(ctx, chainID, k)
-		if err != nil {
-			return err.Error(), true
-		}
-		// Assert that batch metadata is consistent and expected
-		err = CheckBatches(ctx, chainID, k)
-		if err != nil {
-			return err.Error(), true
-		}
+		for _, c := range k.GetParams(ctx).ChainIds {
+			chainID := types.ChainID(c)
 
-		// Assert that valsets have been updated in the expected manner
-		err = CheckValsets(ctx, chainID, k)
-		if err != nil {
-			return err.Error(), true
+			err := ValidateStore(ctx, chainID, k)
+			if err != nil {
+				return err.Error(), true
+			}
+			// Assert that batch metadata is consistent and expected
+			err = CheckBatches(ctx, chainID, k)
+			if err != nil {
+				return err.Error(), true
+			}
+
+			// Assert that valsets have been updated in the expected manner
+			err = CheckValsets(ctx, chainID, k)
+			if err != nil {
+				return err.Error(), true
+			}
 		}
 
 		// SUCCESS: If execution made it here, everything passes the sanity checks
