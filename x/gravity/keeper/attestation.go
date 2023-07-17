@@ -121,8 +121,8 @@ func (k Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 				att.Observed = true
 				k.SetAttestation(ctx, claim.GetEventNonce(), hash, att)
 
-				k.processAttestation(ctx, att, claim)
-				k.emitObservedEvent(ctx, att, claim)
+				k.processAttestation(ctx, chainID, att, claim)
+				k.emitObservedEvent(ctx, chainID, att, claim)
 
 				break
 			}
@@ -134,7 +134,7 @@ func (k Keeper) TryAttestation(ctx sdk.Context, att *types.Attestation) {
 }
 
 // processAttestation actually applies the attestation to the consensus state
-func (k Keeper) processAttestation(ctx sdk.Context, att *types.Attestation, claim types.EthereumClaim) {
+func (k Keeper) processAttestation(ctx sdk.Context, chainID types.ChainID, att *types.Attestation, claim types.EthereumClaim) {
 	hash, err := claim.ClaimHash()
 	if err != nil {
 		panic("unable to compute claim hash")
@@ -157,7 +157,7 @@ func (k Keeper) processAttestation(ctx sdk.Context, att *types.Attestation, clai
 
 // emitObservedEvent emits an event with information about an attestation that has been applied to
 // consensus state.
-func (k Keeper) emitObservedEvent(ctx sdk.Context, att *types.Attestation, claim types.EthereumClaim) {
+func (k Keeper) emitObservedEvent(ctx sdk.Context, chainID types.ChainID, att *types.Attestation, claim types.EthereumClaim) {
 	hash, err := claim.ClaimHash()
 	if err != nil {
 		panic(sdkerrors.Wrap(err, "unable to compute claim hash"))
@@ -166,8 +166,8 @@ func (k Keeper) emitObservedEvent(ctx sdk.Context, att *types.Attestation, claim
 	err = ctx.EventManager().EmitTypedEvent(
 		&types.EventObservation{
 			AttestationType: string(claim.GetType()),
-			BridgeContract:  k.GetBridgeContractAddress(ctx).GetAddress().Hex(),
-			BridgeChainId:   strconv.Itoa(int(k.GetBridgeChainID(ctx))),
+			BridgeContract:  k.GetBridgeContractAddress(ctx, chainID).GetAddress().Hex(),
+			BridgeChainId:   strconv.Itoa(int(k.GetBridgeChainID(ctx, chainID))),
 			AttestationId:   string(types.GetAttestationKey(claim.ChainID(), claim.GetEventNonce(), hash)),
 			Nonce:           fmt.Sprint(claim.GetEventNonce()),
 		},

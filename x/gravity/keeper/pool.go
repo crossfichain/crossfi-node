@@ -84,8 +84,8 @@ func (k Keeper) AddToOutgoingPool(
 
 	return nextID, ctx.EventManager().EmitTypedEvent(
 		&types.EventWithdrawalReceived{
-			BridgeContract: k.GetBridgeContractAddress(ctx).GetAddress().Hex(),
-			BridgeChainId:  strconv.Itoa(int(k.GetBridgeChainID(ctx))),
+			BridgeContract: k.GetBridgeContractAddress(ctx, chainID).GetAddress().Hex(),
+			BridgeChainId:  strconv.Itoa(int(k.GetBridgeChainID(ctx, chainID))),
 			OutgoingTxId:   strconv.Itoa(int(nextID)),
 			Nonce:          fmt.Sprint(nextID),
 		},
@@ -144,8 +144,8 @@ func (k Keeper) RemoveFromOutgoingPoolAndRefund(ctx sdk.Context, chainID types.C
 		&types.EventWithdrawCanceled{
 			Sender:         sender.String(),
 			TxId:           fmt.Sprint(txId),
-			BridgeContract: k.GetBridgeContractAddress(ctx).GetAddress().Hex(),
-			BridgeChainId:  strconv.Itoa(int(k.GetBridgeChainID(ctx))),
+			BridgeContract: k.GetBridgeContractAddress(ctx, chainID).GetAddress().Hex(),
+			BridgeChainId:  strconv.Itoa(int(k.GetBridgeChainID(ctx, chainID))),
 		},
 	)
 }
@@ -291,7 +291,7 @@ func (k Keeper) GetBatchFeeByTokenType(ctx sdk.Context, chainID types.ChainID, t
 	// Since transactions are stored with keys [ prefix | contract | fee_amount] and since this iterator returns results
 	// in DESC order, we can safely pick the first N and have a batch with maximal fees for relaying
 	k.IterateUnbatchedTransactionsByContract(ctx, chainID, tokenContractAddr, func(key []byte, tx *types.InternalOutgoingTransferTx) bool {
-		if !k.IsOnBlacklist(ctx, *tx.DestAddress) {
+		if !k.IsOnBlacklist(ctx, chainID, *tx.DestAddress) {
 			fee := tx.Erc20Fee
 			if fee.Contract.GetAddress() != tokenContractAddr.GetAddress() {
 				panic(fmt.Errorf("unexpected fee contract %s under key %v when getting batch fees for contract %s", fee.Contract.GetAddress().Hex(), key, tokenContractAddr.GetAddress().Hex()))

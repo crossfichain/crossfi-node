@@ -28,7 +28,7 @@ func (k Keeper) BuildOutgoingTXBatch(
 	if maxElements == 0 {
 		return nil, sdkerrors.Wrap(types.ErrInvalid, "max elements value")
 	}
-	params := k.GetParams(ctx)
+	params := k.GetParamsForChain(ctx, chainID)
 	if !params.BridgeActive {
 		return nil, sdkerrors.Wrap(types.ErrInvalid, "bridge paused")
 	}
@@ -68,13 +68,13 @@ func (k Keeper) BuildOutgoingTXBatch(
 	k.StoreBatch(ctx, chainID, *batch)
 
 	// Get the checkpoint and store it as a legit past batch
-	checkpoint := batch.GetCheckpoint(k.GetGravityID(ctx))
+	checkpoint := batch.GetCheckpoint(k.GetGravityID(ctx, chainID))
 	k.SetPastEthSignatureCheckpoint(ctx, chainID, checkpoint)
 
 	return batch, ctx.EventManager().EmitTypedEvent(
 		&types.EventOutgoingBatch{
-			BridgeContract: k.GetBridgeContractAddress(ctx).GetAddress().Hex(),
-			BridgeChainId:  strconv.Itoa(int(k.GetBridgeChainID(ctx))),
+			BridgeContract: k.GetBridgeContractAddress(ctx, chainID).GetAddress().Hex(),
+			BridgeChainId:  strconv.Itoa(int(k.GetBridgeChainID(ctx, chainID))),
 			BatchId:        string(types.GetOutgoingTxBatchKey(chainID, contract, nextID)),
 			Nonce:          fmt.Sprint(nextID),
 		},
@@ -83,7 +83,7 @@ func (k Keeper) BuildOutgoingTXBatch(
 
 // This gets the batch timeout height in Ethereum blocks.
 func (k Keeper) getBatchTimeoutHeight(ctx sdk.Context, chainID types.ChainID) uint64 {
-	params := k.GetParams(ctx)
+	params := k.GetParamsForChain(ctx, chainID)
 	currentCosmosHeight := ctx.BlockHeight()
 	// we store the last observed Cosmos and Ethereum heights, we do not concern ourselves if these values are zero because
 	// no batch can be produced if the last Ethereum block height is not first populated by a deposit event.
@@ -190,7 +190,7 @@ func (k Keeper) pickUnbatchedTxs(
 			// batches with that tx will forever panic, blocking that erc20. With this check governance
 			// can add that address to the blacklist and quickly eliminate the issue. Note this is
 			// very inefficient, IsOnBlacklist is O(blacklist-length) and should be made faster
-			if !k.IsOnBlacklist(ctx, *tx.DestAddress) {
+			if !k.IsOnBlacklist(ctx, chainID, *tx.DestAddress) {
 				selectedTxs = append(selectedTxs, tx)
 				err = k.removeUnbatchedTX(ctx, chainID, *tx.Erc20Fee, tx.Id)
 				if err != nil {
@@ -257,8 +257,8 @@ func (k Keeper) CancelOutgoingTXBatch(ctx sdk.Context, chainID types.ChainID, to
 
 	return ctx.EventManager().EmitTypedEvent(
 		&types.EventOutgoingBatchCanceled{
-			BridgeContract: k.GetBridgeContractAddress(ctx).GetAddress().Hex(),
-			BridgeChainId:  strconv.Itoa(int(k.GetBridgeChainID(ctx))),
+			BridgeContract: k.GetBridgeContractAddress(ctx, chainID).GetAddress().Hex(),
+			BridgeChainId:  strconv.Itoa(int(k.GetBridgeChainID(ctx, chainID))),
 			BatchId:        string(types.GetOutgoingTxBatchKey(chainID, tokenContract, nonce)),
 			Nonce:          fmt.Sprint(nonce),
 		},

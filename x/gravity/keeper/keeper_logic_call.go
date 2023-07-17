@@ -37,7 +37,7 @@ func (k Keeper) SetOutgoingLogicCall(ctx sdk.Context, chainID types.ChainID, cal
 	store := ctx.KVStore(k.storeKey)
 
 	// Store checkpoint to prove that this logic call actually happened
-	checkpoint := call.GetCheckpoint(k.GetGravityID(ctx))
+	checkpoint := call.GetCheckpoint(k.GetGravityID(ctx, chainID))
 	k.SetPastEthSignatureCheckpoint(ctx, chainID, checkpoint)
 	key := types.GetOutgoingLogicCallKey(chainID, call.InvalidationId, call.InvalidationNonce)
 	if store.Has(key) {

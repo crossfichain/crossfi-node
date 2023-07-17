@@ -32,8 +32,8 @@ func (h Hooks) AfterValidatorBeginUnbonding(ctx sdk.Context, _ sdk.ConsAddress, 
 	// in the endblocker therefore we call the keeper function ourselves there.
 
 	params := h.k.GetParams(ctx)
-	for _, c := range params.ChainIds {
-		h.k.SetLastUnBondingBlockHeight(ctx, types.ChainID(c), uint64(ctx.BlockHeight()))
+	for _, c := range params.Chains {
+		h.k.SetLastUnBondingBlockHeight(ctx, types.ChainID(c.ChainId), uint64(ctx.BlockHeight()))
 	}
 
 	return nil

@@ -58,6 +58,8 @@ func (a AttestationHandler) handleSendToCosmos(ctx sdk.Context, claim types.MsgS
 	// Validate the receiver as a valid bech32 address
 	receiverAddress, addressErr := types.IBCAddressFromBech32(claim.CosmosReceiver)
 
+	chainID := types.ChainID(claim.ChainId)
+
 	if addressErr != nil {
 		invalidAddress = true
 		hash, er := claim.ClaimHash()
@@ -108,7 +110,7 @@ func (a AttestationHandler) handleSendToCosmos(ctx sdk.Context, claim types.MsgS
 
 	// Block blacklisted asset transfers
 	// (these funds are unrecoverable for the blacklisted sender, they will instead be sent to community pool)
-	if a.keeper.IsOnBlacklist(ctx, *ethereumSender) {
+	if a.keeper.IsOnBlacklist(ctx, chainID, *ethereumSender) {
 		hash, er := claim.ClaimHash()
 		if er != nil {
 			return sdkerrors.Wrapf(er, "Unable to log blacklisted error, could not compute ClaimHash for claim %v: %v", claim, er)

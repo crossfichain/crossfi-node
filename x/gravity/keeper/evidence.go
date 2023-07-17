@@ -39,7 +39,7 @@ func (k Keeper) CheckBadSignatureEvidence(
 
 func (k Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, chainID types.ChainID, subject types.EthereumSigned, signature string) error {
 	// Get checkpoint of the supposed bad signature (fake valset, batch, or logic call submitted to eth)
-	gravityID := k.GetGravityID(ctx)
+	gravityID := k.GetGravityID(ctx, chainID)
 	checkpoint := subject.GetCheckpoint(gravityID)
 
 	// Try to find the checkpoint in the archives. If it exists, we don't slash because
@@ -77,7 +77,7 @@ func (k Keeper) checkBadSignatureEvidenceInternal(ctx sdk.Context, chainID types
 		return sdkerrors.Wrap(err, "Could not get consensus key address for validator")
 	}
 
-	params := k.GetParams(ctx)
+	params := k.GetParamsForChain(ctx, chainID)
 	if !val.IsJailed() {
 		k.StakingKeeper.Jail(ctx, cons)
 		k.StakingKeeper.Slash(ctx, cons, ctx.BlockHeight(), val.ConsensusPower(sdk.DefaultPowerReduction), params.SlashFractionBadEthSignature)

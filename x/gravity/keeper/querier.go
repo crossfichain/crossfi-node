@@ -23,7 +23,7 @@ func NewQuerier(keeper Keeper) sdk.Querier {
 		case QueryCurrentValset:
 			return queryCurrentValset(ctx, keeper, types.ChainID(path[1]))
 		case QueryGravityID:
-			return queryGravityID(ctx, keeper)
+			return queryGravityID(ctx, types.ChainID(path[1]), keeper)
 		default:
 			return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "unknown %s query endpoint", types.ModuleName)
 		}
@@ -43,8 +43,8 @@ func queryCurrentValset(ctx sdk.Context, keeper Keeper, chainID types.ChainID) (
 	return res, nil
 }
 
-func queryGravityID(ctx sdk.Context, keeper Keeper) ([]byte, error) {
-	gravityID := keeper.GetGravityID(ctx)
+func queryGravityID(ctx sdk.Context, chainID types.ChainID, keeper Keeper) ([]byte, error) {
+	gravityID := keeper.GetGravityID(ctx, chainID)
 	res, err := codec.MarshalJSONIndent(types.ModuleCdc, gravityID)
 	if err != nil {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())

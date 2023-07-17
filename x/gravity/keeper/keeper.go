@@ -145,27 +145,66 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	return
 }
 
+// GetParams returns the parameters from the store
+func (k Keeper) GetParamsForChain(ctx sdk.Context, chainID types.ChainID) *types.ChainParam {
+	params := k.GetParams(ctx)
+
+	for _, chain := range params.Chains {
+		if types.ChainID(chain.ChainId) == chainID {
+			return chain
+		}
+	}
+
+	panic("Chain not found")
+}
+
+// GetParams returns the parameters from the store
+func (k Keeper) GetParamsForChainIfExist(ctx sdk.Context, chainID types.ChainID) *types.ChainParam {
+	params := k.GetParams(ctx)
+
+	for _, chain := range params.Chains {
+		if types.ChainID(chain.ChainId) == chainID {
+			return chain
+		}
+	}
+
+	return nil
+}
+
 // SetParams sets the parameters in the store
 func (k Keeper) SetParams(ctx sdk.Context, ps types.Params) {
 	k.paramSpace.SetParamSet(ctx, &ps)
 }
 
 // GetBridgeContractAddress returns the bridge contract address on ETH
-func (k Keeper) GetBridgeContractAddress(ctx sdk.Context) *types.EthAddress {
-	var a string
-	k.paramSpace.Get(ctx, types.ParamsStoreKeyBridgeEthereumAddress, &a)
-	addr, err := types.NewEthAddress(a)
-	if err != nil {
-		panic(sdkerrors.Wrapf(err, "found invalid bridge contract address in store: %v", a))
+func (k Keeper) GetBridgeContractAddress(ctx sdk.Context, chainID types.ChainID) *types.EthAddress {
+	params := k.GetParams(ctx)
+
+	for _, chain := range params.Chains {
+		if types.ChainID(chain.ChainId) == chainID {
+			addr, err := types.NewEthAddress(chain.BridgeEthereumAddress)
+			if err != nil {
+				panic(sdkerrors.Wrapf(err, "found invalid bridge contract address in store: %v", chain.BridgeEthereumAddress))
+			}
+
+			return addr
+		}
 	}
-	return addr
+
+	panic("Chain not found")
 }
 
 // GetBridgeChainID returns the chain id of the ETH chain we are running against
-func (k Keeper) GetBridgeChainID(ctx sdk.Context) uint64 {
-	var a uint64
-	k.paramSpace.Get(ctx, types.ParamsStoreKeyBridgeContractChainID, &a)
-	return a
+func (k Keeper) GetBridgeChainID(ctx sdk.Context, chainID types.ChainID) uint64 {
+	params := k.GetParams(ctx)
+
+	for _, chain := range params.Chains {
+		if types.ChainID(chain.ChainId) == chainID {
+			return chain.BridgeChainId
+		}
+	}
+
+	panic("Chain not found")
 }
 
 // GetGravityID returns the GravityID the GravityID is essentially a salt value
@@ -178,10 +217,16 @@ func (k Keeper) GetBridgeChainID(ctx sdk.Context) uint64 {
 // is deployed the GravityID CAN NOT BE CHANGED. Meaning that it can't just be the
 // same as the chain id since the chain id may be changed many times with each
 // successive chain in charge of the same bridge
-func (k Keeper) GetGravityID(ctx sdk.Context) string {
-	var a string
-	k.paramSpace.Get(ctx, types.ParamsStoreKeyGravityID, &a)
-	return a
+func (k Keeper) GetGravityID(ctx sdk.Context, chainID types.ChainID) string {
+	params := k.GetParams(ctx)
+
+	for _, chain := range params.Chains {
+		if types.ChainID(chain.ChainId) == chainID {
+			return chain.GravityId
+		}
+	}
+
+	panic("Chain not found")
 }
 
 // Set GravityID sets the GravityID the GravityID is essentially a salt value
@@ -194,8 +239,18 @@ func (k Keeper) GetGravityID(ctx sdk.Context) string {
 // is deployed the GravityID CAN NOT BE CHANGED. Meaning that it can't just be the
 // same as the chain id since the chain id may be changed many times with each
 // successive chain in charge of the same bridge
-func (k Keeper) SetGravityID(ctx sdk.Context, v string) {
-	k.paramSpace.Set(ctx, types.ParamsStoreKeyGravityID, v)
+func (k Keeper) SetGravityID(ctx sdk.Context, chainID types.ChainID, v string) {
+	params := k.GetParams(ctx)
+
+	for i, chain := range params.Chains {
+		if types.ChainID(chain.ChainId) == chainID {
+			params.Chains[i].GravityId = v
+			k.SetParams(ctx, params)
+			return
+		}
+	}
+
+	panic("Chain not found")
 }
 
 // logger returns a module-specific logger.
@@ -451,20 +506,23 @@ func (k Keeper) DeserializeValidatorIterator(vals []byte) stakingtypes.ValAddres
 }
 
 // Checks if the provided Ethereum address is on the Governance blacklist
-func (k Keeper) IsOnBlacklist(ctx sdk.Context, addr types.EthAddress) bool {
+func (k Keeper) IsOnBlacklist(ctx sdk.Context, chainID types.ChainID, addr types.EthAddress) bool {
 	params := k.GetParams(ctx)
-	// Checks the address if it's inside the blacklisted address list and marks
-	// if it's inside the list.
-	for index := 0; index < len(params.EthereumBlacklist); index++ {
-		baddr, err := types.NewEthAddress(params.EthereumBlacklist[index])
-		if err != nil {
-			// this should not be possible we validate on genesis load
-			panic("unvalidated black list address!")
-		}
-		if *baddr == addr {
-			return true
+	for _, chain := range params.Chains {
+		// Checks the address if it's inside the blacklisted address list and marks
+		// if it's inside the list.
+		for index := 0; index < len(chain.EthereumBlacklist); index++ {
+			baddr, err := types.NewEthAddress(chain.EthereumBlacklist[index])
+			if err != nil {
+				// this should not be possible we validate on genesis load
+				panic("unvalidated black list address!")
+			}
+			if *baddr == addr {
+				return true
+			}
 		}
 	}
+
 	return false
 }
 
@@ -474,6 +532,6 @@ func (k Keeper) IsOnBlacklist(ctx sdk.Context, addr types.EthAddress) bool {
 // blacklist. (2) is not yet implemented
 // Blocking some addresses is technically motivated, if any ERC20 transfers in a batch fail the entire batch
 // becomes impossible to execute.
-func (k Keeper) InvalidSendToEthAddress(ctx sdk.Context, addr types.EthAddress, _erc20Addr types.EthAddress) bool {
-	return k.IsOnBlacklist(ctx, addr) || addr == types.ZeroAddress()
+func (k Keeper) InvalidSendToEthAddress(ctx sdk.Context, chainID types.ChainID, addr types.EthAddress, _erc20Addr types.EthAddress) bool {
+	return k.IsOnBlacklist(ctx, chainID, addr) || addr == types.ZeroAddress()
 }

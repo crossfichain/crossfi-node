@@ -14,15 +14,15 @@ import (
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	params := k.GetParams(ctx)
 
-	for _, c := range params.ChainIds {
-		chainID := types.ChainID(c)
+	for _, c := range params.Chains {
+		chainID := types.ChainID(c.ChainId)
 
 		slashing(ctx, chainID, k)
 		attestationTally(ctx, chainID, k)
 		cleanupTimedOutBatches(ctx, chainID, k)
 		cleanupTimedOutLogicCalls(ctx, chainID, k)
 		createValsets(ctx, chainID, k)
-		pruneValsets(ctx, chainID, k, params)
+		pruneValsets(ctx, chainID, k, c)
 		pruneAttestations(ctx, chainID, k)
 	}
 }
@@ -72,7 +72,7 @@ func createValsets(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper) {
 	}
 }
 
-func pruneValsets(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, params types.Params) {
+func pruneValsets(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, params *types.ChainParam) {
 	// Validator set pruning
 	// prune all validator sets with a nonce less than the
 	// last observed nonce, they can't be submitted any longer
@@ -94,7 +94,7 @@ func pruneValsets(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, param
 }
 
 func slashing(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper) {
-	params := k.GetParams(ctx)
+	params := k.GetParamsForChain(ctx, chainID)
 
 	// Slash validator for not confirming valset requests, batch requests, logic call requests
 	valsetSlashing(ctx, chainID, k, params)
@@ -106,7 +106,7 @@ func slashing(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper) {
 // "Observe" those who have passed the threshold. Break the loop once we see
 // an attestation that has not passed the threshold
 func attestationTally(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper) {
-	params := k.GetParams(ctx)
+	params := k.GetParamsForChain(ctx, chainID)
 	// bridge is currently disabled, do not process attestations from Ethereum
 	if !params.BridgeActive {
 		return
@@ -213,7 +213,7 @@ func prepValsetConfirms(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper,
 }
 
 // valsetSlashing slashes validators who have not signed validator sets during the signing window
-func valsetSlashing(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, params types.Params) {
+func valsetSlashing(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, params *types.ChainParam) {
 	// don't slash in the beginning before there aren't even SignedValsetsWindow blocks yet
 	if uint64(ctx.BlockHeight()) <= params.SignedValsetsWindow {
 		return
@@ -368,7 +368,7 @@ func prepBatchConfirms(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, 
 // batchSlashing slashes currently bonded validators who have not submitted batch
 // signatures. This is distinct from validator sets, which includes unbonding validators
 // because validator set updates must succeed as validators leave the set, batches will just be re-created
-func batchSlashing(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, params types.Params) {
+func batchSlashing(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, params *types.ChainParam) {
 	// We look through the full bonded set (the active set)
 	// and we slash users who haven't signed a batch confirmation that is >15hrs in blocks old
 	var maxHeight uint64
@@ -448,7 +448,7 @@ func prepLogicCallConfirms(ctx sdk.Context, chainID types.ChainID, k keeper.Keep
 // logicCallSlashing slashes currently bonded validators who have not submitted logicCall
 // signatures. This is distinct from validator sets, which includes unbonding validators
 // because validator set updates must succeed as validators leave the set, logicCalls will just be re-created
-func logicCallSlashing(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, params types.Params) {
+func logicCallSlashing(ctx sdk.Context, chainID types.ChainID, k keeper.Keeper, params *types.ChainParam) {
 	// We look through the full bonded set (the active set)
 	// and we slash users who haven't signed a batch confirmation that is >15hrs in blocks old
 	var maxHeight uint64

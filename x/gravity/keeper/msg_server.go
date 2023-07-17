@@ -92,7 +92,7 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 		return nil, sdkerrors.Wrap(types.ErrInvalid, "couldn't find valset")
 	}
 
-	gravityID := k.GetGravityID(ctx)
+	gravityID := k.GetGravityID(ctx, chainId)
 	checkpoint := valset.GetCheckpoint(gravityID)
 	orchaddr, err := sdk.AccAddressFromBech32(msg.Orchestrator)
 	if err != nil {
@@ -137,12 +137,12 @@ func (k msgServer) SendToEth(c context.Context, msg *types.MsgSendToEth) (*types
 		return nil, sdkerrors.Wrap(err, "invalid denom")
 	}
 
-	if k.InvalidSendToEthAddress(ctx, *dest, *erc20) {
+	if k.InvalidSendToEthAddress(ctx, chainId, *dest, *erc20) {
 		return nil, sdkerrors.Wrap(types.ErrInvalid, "destination address is invalid or blacklisted")
 	}
 
 	// Collect the ChainFee and give to stakers, ensuring it meets MinChainFeeBasisPoints
-	if err := k.checkAndDeductSendToEthFees(ctx, sender, msg.Amount, msg.ChainFee); err != nil {
+	if err := k.checkAndDeductSendToEthFees(ctx, chainId, sender, msg.Amount, msg.ChainFee); err != nil {
 		return nil, sdkerrors.Wrapf(err, "Could not deduct chainFee %v from account %v", msg.ChainFee.String(), msg.Sender)
 	}
 
@@ -160,11 +160,11 @@ func (k msgServer) SendToEth(c context.Context, msg *types.MsgSendToEth) (*types
 }
 
 // checkAndDeductSendToEthFees asserts that the minimum chainFee has been met for the given sendAmount
-func (k msgServer) checkAndDeductSendToEthFees(ctx sdk.Context, sender sdk.AccAddress, sendAmount sdk.Coin, chainFee sdk.Coin) error {
+func (k msgServer) checkAndDeductSendToEthFees(ctx sdk.Context, chainID types.ChainID, sender sdk.AccAddress, sendAmount sdk.Coin, chainFee sdk.Coin) error {
 	// Compute the minimum fee which must be paid
 	minFeeBasisPoints := int64(0)
-	params, err := k.Keeper.GetParamsIfSet(ctx)
-	if err == nil {
+	params := k.Keeper.GetParamsForChainIfExist(ctx, chainID)
+	if params == nil {
 		// The params have been set, get the min send to eth fee
 		minFeeBasisPoints = int64(params.MinChainFeeBasisPoints)
 	}
@@ -192,7 +192,7 @@ func (k msgServer) checkAndDeductSendToEthFees(ctx sdk.Context, sender sdk.AccAd
 	if !(chainFee == sdk.Coin{}) && chainFee.Amount.IsPositive() {
 		senderAcc := k.accountKeeper.GetAccount(ctx, sender)
 
-		err = sdkante.DeductFees(k.bankKeeper, ctx, senderAcc, sdk.NewCoins(chainFee))
+		err := sdkante.DeductFees(k.bankKeeper, ctx, senderAcc, sdk.NewCoins(chainFee))
 		if err != nil {
 			ctx.Logger().Error("Could not deduct MsgSendToEth fee!", "error", err, "account", senderAcc, "chainFee", chainFee)
 			return err
@@ -257,7 +257,7 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 		return nil, sdkerrors.Wrap(types.ErrInvalid, "couldn't find batch")
 	}
 
-	gravityID := k.GetGravityID(ctx)
+	gravityID := k.GetGravityID(ctx, chainId)
 	checkpoint := batch.GetCheckpoint(gravityID)
 	orchaddr, err := sdk.AccAddressFromBech32(msg.Orchestrator)
 	if err != nil {
@@ -299,7 +299,7 @@ func (k msgServer) ConfirmLogicCall(c context.Context, msg *types.MsgConfirmLogi
 		return nil, sdkerrors.Wrap(types.ErrInvalid, "couldn't find logic")
 	}
 
-	gravityID := k.GetGravityID(ctx)
+	gravityID := k.GetGravityID(ctx, chainID)
 	checkpoint := logic.GetCheckpoint(gravityID)
 	orchaddr, err := sdk.AccAddressFromBech32(msg.Orchestrator)
 	if err != nil {

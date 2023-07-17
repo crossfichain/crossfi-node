@@ -46,8 +46,8 @@ func AllInvariants(k Keeper) sdk.Invariant {
 // Note that the returned bool should be true if there is an error, e.g. an unexpected module balance
 func ModuleBalanceInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-		for _, c := range k.GetParams(ctx).ChainIds {
-			chainID := types.ChainID(c)
+		for _, c := range k.GetParams(ctx).Chains {
+			chainID := types.ChainID(c.ChainId)
 
 			modAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
 			actualBals := k.bankKeeper.GetAllBalances(ctx, modAcc)
@@ -139,8 +139,8 @@ func sumUnbatchedTxModuleBalances(ctx sdk.Context, chainID types.ChainID, k Keep
 // Note that the returned bool should be true if there is an error, e.g. an unexpected batch was processed
 func StoreValidityInvariant(k Keeper) sdk.Invariant {
 	return func(ctx sdk.Context) (string, bool) {
-		for _, c := range k.GetParams(ctx).ChainIds {
-			chainID := types.ChainID(c)
+		for _, c := range k.GetParams(ctx).Chains {
+			chainID := types.ChainID(c.ChainId)
 
 			err := ValidateStore(ctx, chainID, k)
 			if err != nil {

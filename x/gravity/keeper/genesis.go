@@ -170,7 +170,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data types.GenesisState) {
 		// now that we have the denom-erc20 mapping we need to validate
 		// that the valset reward is possible and cosmos originated remove
 		// this if you want a non-cosmos originated reward
-		valsetReward := k.GetParams(ctx).ValsetReward
+		valsetReward := k.GetParamsForChain(ctx, chainID).ValsetReward
 		if valsetReward.IsValid() && !valsetReward.IsZero() {
 			_, exists := k.GetCosmosOriginatedERC20(ctx, chainID, valsetReward.Denom)
 			if !exists {
@@ -200,8 +200,8 @@ func ExportGenesis(ctx sdk.Context, k Keeper) types.GenesisState {
 
 	var p = k.GetParams(ctx)
 
-	for _, cid := range p.ChainIds {
-		chainID := types.ChainID(cid)
+	for _, chain := range p.Chains {
+		chainID := types.ChainID(chain.ChainId)
 
 		var (
 			calls              = k.GetOutgoingLogicCalls(ctx, chainID)

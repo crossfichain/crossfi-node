@@ -105,7 +105,10 @@ option go_package = "github.com/mineplexio/mineplex-2-node/x/gravity/types";
 // The minimum SendToEth `chain_fee` amount, in terms of basis points. e.g. 10% fee = 1000, and 0.02% fee = 2
 message Params {
   option (gogoproto.stringer) = false;
+  repeated ChainParam chains = 1;
+}
 
+message ChainParam {
   string gravity_id                  = 1;
   string contract_source_hash        = 2;
   string bridge_ethereum_address     = 4;
@@ -142,7 +145,7 @@ message Params {
   repeated string ethereum_blacklist = 19;
   uint64 min_chain_fee_basis_points = 20;
 
-  repeated string chain_ids = 21;
+  string chain_id = 21;
 }
 
 // GenesisState struct, containing all persistant data required by the Gravity module

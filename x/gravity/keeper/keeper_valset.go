@@ -36,13 +36,13 @@ func (k Keeper) SetValsetRequest(ctx sdk.Context, chainID types.ChainID) types.V
 	// based slashing. We are storing the checkpoint that will be signed with
 	// the validators Ethereum keys so that we know not to slash them if someone
 	// attempts to submit the signature of this validator set as evidence of bad behavior
-	checkpoint := valset.GetCheckpoint(k.GetGravityID(ctx))
+	checkpoint := valset.GetCheckpoint(k.GetGravityID(ctx, chainID))
 	k.SetPastEthSignatureCheckpoint(ctx, chainID, checkpoint)
 
 	if err := ctx.EventManager().EmitTypedEvent(
 		&types.EventMultisigUpdateRequest{
-			BridgeContract: k.GetBridgeContractAddress(ctx).GetAddress().Hex(),
-			BridgeChainId:  strconv.Itoa(int(k.GetBridgeChainID(ctx))),
+			BridgeContract: k.GetBridgeContractAddress(ctx, chainID).GetAddress().Hex(),
+			BridgeChainId:  strconv.Itoa(int(k.GetBridgeChainID(ctx, chainID))),
 			MultisigId:     fmt.Sprint(valset.Nonce),
 			Nonce:          fmt.Sprint(valset.Nonce),
 		},
@@ -290,7 +290,7 @@ func (k Keeper) GetCurrentValset(ctx sdk.Context, chainID types.ChainID) (types.
 	}
 
 	// get the reward from the params store
-	reward := k.GetParams(ctx).ValsetReward
+	reward := k.GetParamsForChain(ctx, chainID).ValsetReward
 	var rewardToken *types.EthAddress
 	var rewardAmount sdk.Int
 	if !reward.IsValid() || reward.IsZero() {
