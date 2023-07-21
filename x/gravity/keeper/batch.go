@@ -120,7 +120,7 @@ func (k Keeper) OutgoingTxBatchExecuted(ctx sdk.Context, chainID types.ChainID, 
 			totalToBurn = totalToBurn.Add(tx.Erc20Token.Amount.Add(tx.Erc20Fee.Amount))
 		}
 		// burn vouchers to send them back to ETH
-		erc20, err := types.NewInternalERC20Token(totalToBurn, contract.GetAddress().Hex())
+		erc20, err := types.NewInternalERC20Token(totalToBurn, contract.GetAddress().Hex(), chainID)
 		if err != nil {
 			panic(sdkerrors.Wrapf(err, "invalid ERC20 address in executed batch"))
 		}

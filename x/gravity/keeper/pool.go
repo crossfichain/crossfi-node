@@ -49,12 +49,12 @@ func (k Keeper) AddToOutgoingPool(
 	// get next tx id from keeper
 	nextID := k.autoIncrementID(ctx, types.AppendBytes(types.KeyLastTXPoolID, chainID.Bytes()))
 
-	erc20Fee, err := types.NewInternalERC20Token(fee.Amount, tokenContract.GetAddress().Hex())
+	erc20Fee, err := types.NewInternalERC20Token(fee.Amount, tokenContract.GetAddress().Hex(), chainID)
 	if err != nil {
 		return 0, sdkerrors.Wrapf(err, "invalid Erc20Fee from amount %d and contract %v",
 			fee.Amount, tokenContract)
 	}
-	erc20Token, err := types.NewInternalERC20Token(amount.Amount, tokenContract.GetAddress().Hex())
+	erc20Token, err := types.NewInternalERC20Token(amount.Amount, tokenContract.GetAddress().Hex(), chainID)
 	if err != nil {
 		return 0, sdkerrors.Wrapf(err, "invalid ERC20Token from amount %d and contract %v",
 			amount.Amount, tokenContract)

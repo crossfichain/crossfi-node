@@ -59,6 +59,7 @@ message ERC20Token {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable)   = false
   ];
+  string chain_id = 3;
 }
 
 message EventObservation {
