@@ -237,7 +237,7 @@ func (k Keeper) GetUnbatchedTransactions(ctx sdk.Context, chainID types.ChainID)
 
 // Aggregates all unbatched transactions in the store with a given prefix
 func (k Keeper) collectUnbatchedTransactions(ctx sdk.Context, chainID types.ChainID, prefixKey []byte) (out []*types.InternalOutgoingTransferTx) {
-	k.filterAndIterateUnbatchedTransactions(ctx, chainID, prefixKey, func(_ []byte, tx *types.InternalOutgoingTransferTx) bool {
+	k.filterAndIterateUnbatchedTransactions(ctx, prefixKey, func(_ []byte, tx *types.InternalOutgoingTransferTx) bool {
 		out = append(out, tx)
 		return false
 	})
@@ -248,21 +248,21 @@ func (k Keeper) collectUnbatchedTransactions(ctx sdk.Context, chainID types.Chai
 // executing the given callback on each discovered Tx. Return true in cb to stop iteration, false to continue.
 // unbatched transactions are sorted by fee amount in DESC order
 func (k Keeper) IterateUnbatchedTransactionsByContract(ctx sdk.Context, chainID types.ChainID, contractAddress types.EthAddress, cb func(key []byte, tx *types.InternalOutgoingTransferTx) bool) {
-	k.filterAndIterateUnbatchedTransactions(ctx, chainID, types.GetOutgoingTxPoolContractPrefix(chainID, contractAddress), cb)
+	k.filterAndIterateUnbatchedTransactions(ctx, types.GetOutgoingTxPoolContractPrefix(chainID, contractAddress), cb)
 }
 
 // IterateUnbatchedTransactions iterates through all unbatched transactions in DESC order, executing the given callback
 // on each discovered Tx. Return true in cb to stop iteration, false to continue.
 // For finer grained control, use filterAndIterateUnbatchedTransactions or one of the above methods
 func (k Keeper) IterateUnbatchedTransactions(ctx sdk.Context, chainID types.ChainID, cb func(key []byte, tx *types.InternalOutgoingTransferTx) (stop bool)) {
-	k.filterAndIterateUnbatchedTransactions(ctx, chainID, types.OutgoingTXPoolKey, cb)
+	k.filterAndIterateUnbatchedTransactions(ctx, types.AppendBytes(types.OutgoingTXPoolKey, chainID.Bytes()), cb)
 }
 
 // filterAndIterateUnbatchedTransactions iterates through all unbatched transactions whose keys begin with prefixKey in DESC order
 // prefixKey should be either OutgoingTXPoolKey or some more granular key, passing the wrong key will cause a panic
-func (k Keeper) filterAndIterateUnbatchedTransactions(ctx sdk.Context, chainID types.ChainID, prefixKey []byte, cb func(key []byte, tx *types.InternalOutgoingTransferTx) bool) {
+func (k Keeper) filterAndIterateUnbatchedTransactions(ctx sdk.Context, prefixKey []byte, cb func(key []byte, tx *types.InternalOutgoingTransferTx) bool) {
 	prefixStore := ctx.KVStore(k.storeKey)
-	iter := prefixStore.ReverseIterator(prefixRange(types.AppendBytes(prefixKey, chainID.Bytes())))
+	iter := prefixStore.ReverseIterator(prefixRange(prefixKey))
 	defer iter.Close()
 	for ; iter.Valid(); iter.Next() {
 		var transact types.OutgoingTransferTx
