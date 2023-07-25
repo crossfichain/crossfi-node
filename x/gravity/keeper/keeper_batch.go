@@ -76,6 +76,7 @@ func (k Keeper) IterateBatchConfirmByNonceAndTokenContract(ctx sdk.Context, chai
 
 	for ; iter.Valid(); iter.Next() {
 		confirm := types.MsgConfirmBatch{
+			ChainId:       chainID.String(),
 			Nonce:         nonce,
 			TokenContract: tokenContract.GetAddress().Hex(),
 			EthSigner:     "",
