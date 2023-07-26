@@ -17,6 +17,7 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -229,6 +230,11 @@ var (
 		erc20types.ModuleName:   {authtypes.Minter, authtypes.Burner},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
+
+	// module accounts that are allowed to receive tokens
+	allowedReceivingModAcc = map[string]bool{
+		govtypes.ModuleName: true,
+	}
 )
 
 var (
@@ -399,7 +405,7 @@ func New(
 		appCodec,
 		keys[authtypes.StoreKey],
 		app.GetSubspace(authtypes.ModuleName),
-		authtypes.ProtoBaseAccount,
+		evmostypes.ProtoAccount,
 		maccPerms,
 		sdk.Bech32PrefixAccAddr,
 	)
@@ -416,7 +422,7 @@ func New(
 		keys[banktypes.StoreKey],
 		app.AccountKeeper,
 		app.GetSubspace(banktypes.ModuleName),
-		app.BlockedModuleAccountAddrs(),
+		app.BlockedAddrs(),
 	)
 	app.BankKeeper = bankKeeper
 
@@ -561,11 +567,6 @@ func New(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 
-	app.Erc20Keeper = erc20keeper.NewKeeper(keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		&app.AccountKeeper, &bankKeeper, app.EvmKeeper, &app.StakingKeeper,
-	)
-	erc20Module := erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName))
-
 	govRouter := govv1beta1.NewRouter()
 	govRouter.
 		AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
@@ -585,6 +586,17 @@ func New(
 		govRouter,
 		app.MsgServiceRouter(),
 		govConfig,
+	)
+
+	app.Erc20Keeper = erc20keeper.NewKeeper(
+		keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, bankKeeper, app.EvmKeeper, app.StakingKeeper,
+	)
+
+	app.EvmKeeper = app.EvmKeeper.SetHooks(
+		evmkeeper.NewMultiEvmHooks(
+			app.Erc20Keeper.Hooks(),
+		),
 	)
 
 	app.MineplexchainKeeper = *mineplexchainmodulekeeper.NewKeeper(
@@ -681,7 +693,9 @@ func New(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 
-		gravityModule, erc20Module,
+		gravityModule,
+
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
 
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
@@ -766,7 +780,6 @@ func New(
 		govtypes.ModuleName,
 		minttypes.ModuleName,
 		gravitytypes.ModuleName,
-		erc20types.ModuleName,
 		crisistypes.ModuleName,
 		// Ethermint modules
 		// evm module denomination is used by the revenue module, in AnteHandle
@@ -787,6 +800,7 @@ func New(
 		vestingtypes.ModuleName,
 		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
+		erc20types.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -819,7 +833,6 @@ func New(
 		mineplexchainModule,
 		treasuryModule,
 		gravityModule,
-		erc20Module,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 	app.sm.RegisterStoreDecoders()
@@ -934,13 +947,22 @@ func (app *App) ModuleAccountAddrs() map[string]bool {
 	return modAccAddrs
 }
 
-// BlockedModuleAccountAddrs returns all the app's blocked module account
-// addresses.
-func (app *App) BlockedModuleAccountAddrs() map[string]bool {
-	modAccAddrs := app.ModuleAccountAddrs()
-	delete(modAccAddrs, authtypes.NewModuleAddress(govtypes.ModuleName).String())
+// BlockedAddrs returns all the app's module account addresses that are not
+// allowed to receive external tokens.
+func (app *App) BlockedAddrs() map[string]bool {
+	blockedAddrs := make(map[string]bool)
 
-	return modAccAddrs
+	accs := make([]string, 0, len(maccPerms))
+	for k := range maccPerms {
+		accs = append(accs, k)
+	}
+	sort.Strings(accs)
+
+	for _, acc := range accs {
+		blockedAddrs[authtypes.NewModuleAddress(acc).String()] = !allowedReceivingModAcc[acc]
+	}
+
+	return blockedAddrs
 }
 
 // LegacyAmino returns SimApp's amino codec.
