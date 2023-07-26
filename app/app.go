@@ -594,16 +594,16 @@ func New(
 	)
 	treasuryModule := treasurymodule.NewAppModule(appCodec, app.TreasuryKeeper, app.AccountKeeper, app.BankKeeper)
 
-	app.GravityKeeper = gravitykeeper.NewKeeper(keys[gravitytypes.StoreKey],
-		app.GetSubspace(gravitytypes.ModuleName), appCodec, &bankKeeper,
-		&app.StakingKeeper, &app.SlashingKeeper, &app.DistrKeeper, &app.AccountKeeper,
-	)
-	gravityModule := gravity.NewAppModule(app.GravityKeeper, app.BankKeeper)
-
 	app.Erc20Keeper = erc20keeper.NewKeeper(keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
 		&app.AccountKeeper, &bankKeeper, app.EvmKeeper, &app.StakingKeeper,
 	)
 	erc20Module := erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName))
+
+	app.GravityKeeper = gravitykeeper.NewKeeper(keys[gravitytypes.StoreKey],
+		app.GetSubspace(gravitytypes.ModuleName), appCodec, &bankKeeper,
+		&app.StakingKeeper, &app.SlashingKeeper, &app.DistrKeeper, &app.AccountKeeper, app.Erc20Keeper,
+	)
+	gravityModule := gravity.NewAppModule(app.GravityKeeper, app.BankKeeper)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 

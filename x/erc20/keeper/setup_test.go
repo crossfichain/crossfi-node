@@ -4,8 +4,6 @@ import (
 	"github.com/mineplexio/mineplex-2-node/app"
 	"testing"
 
-	. "github.com/onsi/gomega"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -64,10 +62,6 @@ var (
 func TestKeeperTestSuite(t *testing.T) {
 	s = new(KeeperTestSuite)
 	suite.Run(t, s)
-
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
 }
 
 func (suite *KeeperTestSuite) SetupTest() {

@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	erc20keeper "github.com/mineplexio/mineplex-2-node/x/erc20/keeper"
 	"sort"
 
 	gethcommon "github.com/ethereum/go-ethereum/common"
@@ -42,6 +43,7 @@ type Keeper struct {
 	SlashingKeeper *slashingkeeper.Keeper
 	DistKeeper     *distrkeeper.Keeper
 	accountKeeper  *authkeeper.AccountKeeper
+	erc20Keeper    erc20keeper.Keeper
 
 	AttestationHandler interface {
 		Handle(sdk.Context, types.Attestation, types.EthereumClaim) error
@@ -77,6 +79,7 @@ func NewKeeper(
 	slashingKeeper *slashingkeeper.Keeper,
 	distKeeper *distrkeeper.Keeper,
 	accKeeper *authkeeper.AccountKeeper,
+	erc20keeper erc20keeper.Keeper,
 ) Keeper {
 	// set KeyTable if it has not already been set
 	if !paramSpace.HasKeyTable() {
@@ -93,6 +96,7 @@ func NewKeeper(
 		SlashingKeeper:     slashingKeeper,
 		DistKeeper:         distKeeper,
 		accountKeeper:      accKeeper,
+		erc20Keeper:        erc20keeper,
 		AttestationHandler: nil,
 	}
 	attestationHandler := AttestationHandler{keeper: &k}

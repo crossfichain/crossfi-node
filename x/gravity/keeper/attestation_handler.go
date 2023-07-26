@@ -5,6 +5,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	"github.com/ethereum/go-ethereum/common"
+	erc20types "github.com/mineplexio/mineplex-2-node/x/erc20/types"
 	"math/big"
 	"strconv"
 
@@ -481,6 +483,17 @@ func (a AttestationHandler) sendCoinToLocalAddress(
 			Amount:   coin.Amount.String(),
 		}); err != nil {
 			return err
+		}
+	}
+
+	// If the coin is a registered ERC20, convert it to an ERC20 representation
+	if a.keeper.erc20Keeper.IsDenomRegistered(ctx, coin.Denom) {
+		if _, err := a.keeper.erc20Keeper.ConvertCoin(ctx, &erc20types.MsgConvertCoin{
+			Coin:     coin,
+			Receiver: common.BytesToAddress(receiver.Bytes()).String(),
+			Sender:   receiver.String(),
+		}); err != nil {
+			return sdkerrors.Wrapf(err, "Unable to convert coin to ERC20")
 		}
 	}
 
