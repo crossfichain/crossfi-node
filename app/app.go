@@ -11,6 +11,7 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 	v2 "github.com/mineplexio/mineplex-2-node/app/upgrades/v2"
 	v3 "github.com/mineplexio/mineplex-2-node/app/upgrades/v3"
+	"github.com/mineplexio/mineplex-2-node/x/erc20"
 	"github.com/mineplexio/mineplex-2-node/x/gravity"
 	"io"
 	"math/big"
@@ -124,6 +125,9 @@ import (
 	gravitykeeper "github.com/mineplexio/mineplex-2-node/x/gravity/keeper"
 	gravitytypes "github.com/mineplexio/mineplex-2-node/x/gravity/types"
 
+	erc20keeper "github.com/mineplexio/mineplex-2-node/x/erc20/keeper"
+	erc20types "github.com/mineplexio/mineplex-2-node/x/erc20/types"
+
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	appparams "github.com/cosmos/cosmos-sdk/simapp/params"
@@ -197,6 +201,8 @@ var (
 
 		gravity.AppModuleBasic{},
 
+		erc20.AppModuleBasic{},
+
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -216,6 +222,7 @@ var (
 		evmtypes.ModuleName: {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 
 		gravitytypes.ModuleName: {authtypes.Minter, authtypes.Burner},
+		erc20types.ModuleName:   {authtypes.Minter, authtypes.Burner},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 )
@@ -289,6 +296,7 @@ type App struct {
 	TreasuryKeeper treasurymodulekeeper.Keeper
 
 	GravityKeeper gravitykeeper.Keeper
+	Erc20Keeper   erc20keeper.Keeper
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
@@ -341,7 +349,7 @@ func New(
 
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 
-		gravitytypes.StoreKey,
+		gravitytypes.StoreKey, erc20types.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
@@ -592,6 +600,11 @@ func New(
 	)
 	gravityModule := gravity.NewAppModule(app.GravityKeeper, app.BankKeeper)
 
+	app.Erc20Keeper = erc20keeper.NewKeeper(keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		&app.AccountKeeper, &bankKeeper, app.EvmKeeper, &app.StakingKeeper,
+	)
+	erc20Module := erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName))
+
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
 	/**** IBC Routing ****/
@@ -663,7 +676,7 @@ func New(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 
-		gravityModule,
+		gravityModule, erc20Module,
 
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
@@ -699,6 +712,7 @@ func New(
 		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
 		gravitytypes.ModuleName,
+		erc20types.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -728,6 +742,7 @@ func New(
 		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
 		gravitytypes.ModuleName,
+		erc20types.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -746,6 +761,7 @@ func New(
 		govtypes.ModuleName,
 		minttypes.ModuleName,
 		gravitytypes.ModuleName,
+		erc20types.ModuleName,
 		crisistypes.ModuleName,
 		// Ethermint modules
 		// evm module denomination is used by the revenue module, in AnteHandle
@@ -798,6 +814,7 @@ func New(
 		mineplexchainModule,
 		treasuryModule,
 		gravityModule,
+		erc20Module,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 	app.sm.RegisterStoreDecoders()
@@ -1041,6 +1058,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 
 	paramsKeeper.Subspace(gravitytypes.ModuleName)
+	paramsKeeper.Subspace(erc20types.ModuleName)
 
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
@@ -1094,6 +1112,7 @@ func (app *App) setupUpgradeHandlers() {
 		storeUpgrades = &storetypes.StoreUpgrades{
 			Added: []string{
 				gravitytypes.ModuleName,
+				erc20types.ModuleName,
 			},
 		}
 	}
