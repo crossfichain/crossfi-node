@@ -8,6 +8,8 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v6/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v6/modules/apps/transfer/types"
 	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
+	erc20keeper "github.com/mineplexio/mineplex-2-node/x/erc20/keeper"
+	erc20types "github.com/mineplexio/mineplex-2-node/x/erc20/types"
 	"testing"
 	"time"
 
@@ -396,6 +398,7 @@ func CreateTestEnv(t *testing.T) TestInput {
 	gravityKey := sdk.NewKVStoreKey(types.StoreKey)
 	keyAcc := sdk.NewKVStoreKey(authtypes.StoreKey)
 	keyStaking := sdk.NewKVStoreKey(stakingtypes.StoreKey)
+	keyErc20 := sdk.NewKVStoreKey(erc20types.StoreKey)
 	keyBank := sdk.NewKVStoreKey(banktypes.StoreKey)
 	keyDistro := sdk.NewKVStoreKey(distrtypes.StoreKey)
 	keyParams := sdk.NewKVStoreKey(paramstypes.StoreKey)
@@ -566,8 +569,12 @@ func CreateTestEnv(t *testing.T) TestInput {
 		getSubspace(paramsKeeper, slashingtypes.ModuleName).WithKeyTable(slashingtypes.ParamKeyTable()),
 	)
 
+	erc20Keeper := erc20keeper.NewKeeper(keyErc20, marshaler, authtypes.NewModuleAddress(govtypes.ModuleName),
+		&accountKeeper, &bankKeeper, nil, &stakingKeeper,
+	)
+
 	k := NewKeeper(gravityKey, getSubspace(paramsKeeper, types.DefaultParamspace), marshaler, &bankKeeper,
-		&stakingKeeper, &slashingKeeper, &distKeeper, &accountKeeper)
+		&stakingKeeper, &slashingKeeper, &distKeeper, &accountKeeper, erc20Keeper)
 
 	stakingKeeper = *stakingKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(
