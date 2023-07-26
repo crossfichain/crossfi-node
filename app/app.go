@@ -105,6 +105,7 @@ import (
 	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
 	"github.com/evmos/evmos/v12/app/ante"
+	erc20client "github.com/mineplexio/mineplex-2-node/x/erc20/client"
 	"github.com/mineplexio/mineplex-2-node/x/mint"
 	mintkeeper "github.com/mineplexio/mineplex-2-node/x/mint/keeper"
 	minttypes "github.com/mineplexio/mineplex-2-node/x/mint/types"
@@ -158,6 +159,9 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		upgradeclient.LegacyCancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
+		erc20client.RegisterCoinProposalHandler,
+		erc20client.RegisterERC20ProposalHandler,
+		erc20client.ToggleTokenConversionProposalHandler,
 		// this line is used by starport scaffolding # stargate/app/govProposalHandler
 	)
 
