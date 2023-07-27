@@ -373,9 +373,9 @@ func New(
 		appCodec,
 		keys[authtypes.StoreKey],
 		app.GetSubspace(authtypes.ModuleName),
-		authtypes.ProtoBaseAccount,
+		evmostypes.ProtoAccount,
 		maccPerms,
-		sdk.Bech32PrefixAccAddr,
+		sdk.GetConfig().GetBech32AccountAddrPrefix(),
 	)
 
 	app.AuthzKeeper = authzkeeper.NewKeeper(
