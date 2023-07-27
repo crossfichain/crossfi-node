@@ -407,7 +407,7 @@ func New(
 		app.GetSubspace(authtypes.ModuleName),
 		evmostypes.ProtoAccount,
 		maccPerms,
-		sdk.Bech32PrefixAccAddr,
+		sdk.GetConfig().GetBech32AccountAddrPrefix(),
 	)
 
 	app.AuthzKeeper = authzkeeper.NewKeeper(
