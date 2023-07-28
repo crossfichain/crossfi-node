@@ -253,6 +253,11 @@ func init() {
 	DefaultNodeHome = filepath.Join(userHomeDir, "."+Name)
 	evmtypes.DefaultEVMDenom = "xfi"
 	feemarkettypes.DefaultMinGasPrice = sdk.NewDec(10000000000000)
+
+	evmtypes.DefaultActivePrecompiles = []string{
+		"0x0000000000000000000000000000000000000800", // Staking precompile
+		"0x0000000000000000000000000000000000000801", // Distribution precompile
+	}
 }
 
 // App extends an ABCI application, but with most of its parameters exported.
@@ -536,6 +541,15 @@ func New(
 	)
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
+
+	// We call this after setting the hooks to ensure that the hooks are set on the keeper
+	app.EvmKeeper = app.EvmKeeper.WithPrecompiles(
+		evmkeeper.AvailablePrecompiles(
+			app.StakingKeeper,
+			app.DistrKeeper,
+			app.AuthzKeeper,
+		),
+	)
 
 	app.ICAHostKeeper = icahostkeeper.NewKeeper(
 		appCodec, keys[icahosttypes.StoreKey],

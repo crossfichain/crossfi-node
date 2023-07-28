@@ -896,8 +896,8 @@ github.com/miekg/dns v1.0.14/go.mod h1:W1PPwlIAgtquWBMBEV9nkV9Cazfe8ScdGz/Lj7v3N
 github.com/mimoo/StrobeGo v0.0.0-20181016162300-f8f6d4d2b643/go.mod h1:43+3pMjjKimDBf5Kr4ZFNGbLql1zKkbImw+fZbw3geM=
 github.com/mimoo/StrobeGo v0.0.0-20210601165009-122bf33a46e0 h1:QRUSJEgZn2Snx0EmT/QLXibWjSUDjKWvXIT19NBVp94=
 github.com/mimoo/StrobeGo v0.0.0-20210601165009-122bf33a46e0/go.mod h1:43+3pMjjKimDBf5Kr4ZFNGbLql1zKkbImw+fZbw3geM=
-github.com/mineplexio-org/evmos/v13 v13.0.0-20230728063600-216fa03adfa8 h1:rOoOWH2pSQUvyeZT7VoeE0p8XilbbhFbqHgXdtNEH6E=
-github.com/mineplexio-org/evmos/v13 v13.0.0-20230728063600-216fa03adfa8/go.mod h1:roMJt5LTLfxFU5868+0P3iXH4DSA0btsmI//8jbgfS8=
+github.com/mineplexio-org/evmos/v13 v13.0.0-20230728065037-c60f8e30db6c h1:hlY1cBLy2B4S+hQR9afQHgTS+b4nTx3xTL0o5g0h0l4=
+github.com/mineplexio-org/evmos/v13 v13.0.0-20230728065037-c60f8e30db6c/go.mod h1:roMJt5LTLfxFU5868+0P3iXH4DSA0btsmI//8jbgfS8=
 github.com/minio/highwayhash v1.0.2 h1:Aak5U0nElisjDCfPSG79Tgzkn2gl66NxOMspRrKnA/g=
 github.com/minio/highwayhash v1.0.2/go.mod h1:BQskDq+xkJ12lmlUUi7U0M5Swg3EWR+dLTk+kldvVxY=
 github.com/mitchellh/cli v1.0.0/go.mod h1:hNIlj7HEI86fIcpObd7a0FcrxTWetlwJDGcceTlRvqc=
