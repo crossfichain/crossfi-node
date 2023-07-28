@@ -6,8 +6,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v12/contracts"
-	evm "github.com/evmos/evmos/v12/x/evm/types"
+	"github.com/evmos/evmos/v13/contracts"
+	evm "github.com/evmos/evmos/v13/x/evm/types"
 	"github.com/mineplexio/mineplex-2-node/x/erc20/types"
 )
 

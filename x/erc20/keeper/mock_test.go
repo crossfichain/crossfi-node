@@ -8,8 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/evmos/evmos/v12/x/evm/statedb"
-	evm "github.com/evmos/evmos/v12/x/evm/types"
+	"github.com/evmos/evmos/v13/x/evm/statedb"
+	evm "github.com/evmos/evmos/v13/x/evm/types"
 	"github.com/mineplexio/mineplex-2-node/x/erc20/types"
 	"github.com/stretchr/testify/mock"
 )

@@ -7,11 +7,11 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	utiltx "github.com/evmos/evmos/v12/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	utiltx "github.com/evmos/evmos/v13/testutil/tx"
+	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/evmos/evmos/v12/contracts"
+	"github.com/evmos/evmos/v13/contracts"
 	"github.com/mineplexio/mineplex-2-node/x/erc20/keeper"
 	"github.com/mineplexio/mineplex-2-node/x/erc20/types"
 )

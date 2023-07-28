@@ -12,8 +12,8 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v6/testing"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ibctesting "github.com/evmos/evmos/v12/ibc/testing"
-	evm "github.com/evmos/evmos/v12/x/evm/types"
+	ibctesting "github.com/evmos/evmos/v13/ibc/testing"
+	evm "github.com/evmos/evmos/v13/x/evm/types"
 	"github.com/mineplexio/mineplex-2-node/x/erc20/types"
 	"github.com/stretchr/testify/suite"
 )

@@ -8,8 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v12/contracts"
-	utiltx "github.com/evmos/evmos/v12/testutil/tx"
+	"github.com/evmos/evmos/v13/contracts"
+	utiltx "github.com/evmos/evmos/v13/testutil/tx"
 	"github.com/mineplexio/mineplex-2-node/x/erc20/types"
 )
 

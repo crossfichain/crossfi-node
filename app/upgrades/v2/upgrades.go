@@ -7,10 +7,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	evmkeeper "github.com/evmos/evmos/v12/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
-	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
+	evmkeeper "github.com/evmos/evmos/v13/x/evm/keeper"
+	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	feemarketkeeper "github.com/evmos/evmos/v13/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v13/x/feemarket/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 

@@ -3,12 +3,12 @@ package app
 import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
-	ethante "github.com/evmos/evmos/v12/app/ante/evm"
-	"github.com/evmos/evmos/v12/ethereum/eip712"
-	evmostypes "github.com/evmos/evmos/v12/types"
-	evmkeeper "github.com/evmos/evmos/v12/x/evm/keeper"
-	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
+	ethante "github.com/evmos/evmos/v13/app/ante/evm"
+	"github.com/evmos/evmos/v13/ethereum/eip712"
+	evmostypes "github.com/evmos/evmos/v13/types"
+	evmkeeper "github.com/evmos/evmos/v13/x/evm/keeper"
+	feemarketkeeper "github.com/evmos/evmos/v13/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v13/x/feemarket/types"
 	v2 "github.com/mineplexio/mineplex-2-node/app/upgrades/v2"
 	v3 "github.com/mineplexio/mineplex-2-node/app/upgrades/v3"
 	"github.com/mineplexio/mineplex-2-node/x/erc20"
@@ -105,7 +105,7 @@ import (
 	ibcporttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
-	"github.com/evmos/evmos/v12/app/ante"
+	"github.com/evmos/evmos/v13/app/ante"
 	erc20client "github.com/mineplexio/mineplex-2-node/x/erc20/client"
 	"github.com/mineplexio/mineplex-2-node/x/mint"
 	mintkeeper "github.com/mineplexio/mineplex-2-node/x/mint/keeper"
@@ -135,11 +135,11 @@ import (
 	appparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/mineplexio/mineplex-2-node/docs"
 
-	"github.com/evmos/evmos/v12/x/evm"
-	"github.com/evmos/evmos/v12/x/feemarket"
+	"github.com/evmos/evmos/v13/x/evm"
+	"github.com/evmos/evmos/v13/x/feemarket"
 
-	srvflags "github.com/evmos/evmos/v12/server/flags"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	srvflags "github.com/evmos/evmos/v13/server/flags"
+	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 )
 
 const (

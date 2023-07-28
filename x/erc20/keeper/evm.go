@@ -29,10 +29,10 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v12/server/config"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	"github.com/evmos/evmos/v13/server/config"
+	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 
-	"github.com/evmos/evmos/v12/contracts"
+	"github.com/evmos/evmos/v13/contracts"
 	"github.com/mineplexio/mineplex-2-node/x/erc20/types"
 )
 

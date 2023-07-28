@@ -6,19 +6,17 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
-	. "github.com/onsi/gomega"
-
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/common"
 	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/evmos/evmos/v12/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v12/utils"
+	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v13/utils"
 
-	"github.com/evmos/evmos/v12/app"
-	"github.com/evmos/evmos/v12/testutil"
+	"github.com/evmos/evmos/v13/app"
+	"github.com/evmos/evmos/v13/testutil"
 	"github.com/mineplexio/mineplex-2-node/x/erc20/types"
 )
 
