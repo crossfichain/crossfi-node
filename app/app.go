@@ -11,6 +11,7 @@ import (
 	feemarkettypes "github.com/evmos/evmos/v13/x/feemarket/types"
 	v2 "github.com/mineplexio/mineplex-2-node/app/upgrades/v2"
 	v3 "github.com/mineplexio/mineplex-2-node/app/upgrades/v3"
+	"github.com/mineplexio/mineplex-2-node/precompiles"
 	"github.com/mineplexio/mineplex-2-node/x/erc20"
 	"github.com/mineplexio/mineplex-2-node/x/gravity"
 	"io"
@@ -253,11 +254,6 @@ func init() {
 	DefaultNodeHome = filepath.Join(userHomeDir, "."+Name)
 	evmtypes.DefaultEVMDenom = "xfi"
 	feemarkettypes.DefaultMinGasPrice = sdk.NewDec(10000000000000)
-
-	evmtypes.DefaultActivePrecompiles = []string{
-		"0x0000000000000000000000000000000000000800", // Staking precompile
-		"0x0000000000000000000000000000000000000801", // Distribution precompile
-	}
 }
 
 // App extends an ABCI application, but with most of its parameters exported.
@@ -544,10 +540,11 @@ func New(
 
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	app.EvmKeeper = app.EvmKeeper.WithPrecompiles(
-		evmkeeper.AvailablePrecompiles(
+		precompiles.AvailablePrecompiles(
 			app.StakingKeeper,
 			app.DistrKeeper,
 			app.AuthzKeeper,
+			app.GravityKeeper,
 		),
 	)
 
