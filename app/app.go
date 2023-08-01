@@ -545,6 +545,7 @@ func New(
 			app.DistrKeeper,
 			app.AuthzKeeper,
 			app.GravityKeeper,
+			app.Erc20Keeper,
 		),
 	)
 

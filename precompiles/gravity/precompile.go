@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	cmn "github.com/evmos/evmos/v13/precompiles/common"
+	erc20keeper "github.com/mineplexio/mineplex-2-node/x/erc20/keeper"
 	gravitykeeper "github.com/mineplexio/mineplex-2-node/x/gravity/keeper"
 )
 
@@ -23,9 +24,10 @@ var f embed.FS
 type Precompile struct {
 	cmn.Precompile
 	gravityKeeper gravitykeeper.Keeper
+	erc20Keeper   erc20keeper.Keeper
 }
 
-func NewPrecompile(gravityKeeper gravitykeeper.Keeper, authzKeeper authzkeeper.Keeper) (*Precompile, error) {
+func NewPrecompile(gravityKeeper gravitykeeper.Keeper, erc20Keeper erc20keeper.Keeper, authzKeeper authzkeeper.Keeper) (*Precompile, error) {
 	abiBz, err := f.ReadFile("abi.json")
 	if err != nil {
 		return nil, fmt.Errorf("error loading the distribution ABI %s", err)
@@ -45,6 +47,7 @@ func NewPrecompile(gravityKeeper gravitykeeper.Keeper, authzKeeper authzkeeper.K
 			ApprovalExpiration:   cmn.DefaultExpirationDuration, // should be configurable in the future.
 		},
 		gravityKeeper: gravityKeeper,
+		erc20Keeper:   erc20Keeper,
 	}, nil
 }
 
@@ -80,7 +83,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	switch method.Name {
 	case SendToEthMethod:
-		bz, err = p.SendToEth(ctx, contract, stateDB, method, args)
+		bz, err = p.SendToEth(ctx, evm, contract, stateDB, method, args)
 	}
 
 	if err != nil {

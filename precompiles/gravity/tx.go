@@ -1,6 +1,7 @@
 package gravity
 
 import (
+	erc20types "github.com/mineplexio/mineplex-2-node/x/erc20/types"
 	gravitykeeper "github.com/mineplexio/mineplex-2-node/x/gravity/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,19 +15,28 @@ const (
 )
 
 // SendToEth sends a transaction to the Ethereum network.
-func (p Precompile) SendToEth(
-	ctx sdk.Context,
-	contract *vm.Contract,
-	stateDB vm.StateDB,
-	method *abi.Method,
-	args []interface{},
-) ([]byte, error) {
+func (p Precompile) SendToEth(ctx sdk.Context, evm *vm.EVM, contract *vm.Contract, stateDB vm.StateDB, method *abi.Method, args []interface{}) ([]byte, error) {
 	msg, err := NewMsgSendToEth(args, contract.Caller())
 	if err != nil {
 		return nil, err
 	}
 
-	// todo: convert msg.denom from contract.Caller() to cosmos-sdk part
+	pair, err := p.erc20Keeper.TokenPair(ctx, &erc20types.QueryTokenPairRequest{
+		Token: msg.Amount.Denom,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = p.erc20Keeper.ConvertERC20(ctx.WithValue("evm", evm), &erc20types.MsgConvertERC20{
+		ContractAddress: pair.TokenPair.Erc20Address,
+		Amount:          msg.Amount.Amount.Add(msg.ChainFee.Amount).Add(msg.BridgeFee.Amount),
+		Receiver:        msg.Sender,
+		Sender:          contract.Caller().String(),
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	msgSrv := gravitykeeper.NewMsgServerImpl(p.gravityKeeper)
 	if _, err = msgSrv.SendToEth(sdk.WrapSDKContext(ctx), msg); err != nil {

@@ -11,6 +11,7 @@ import (
 	stakingprecompile "github.com/evmos/evmos/v13/precompiles/staking"
 	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 	"github.com/mineplexio/mineplex-2-node/precompiles/gravity"
+	erc20keeper "github.com/mineplexio/mineplex-2-node/x/erc20/keeper"
 	gravitykeeper "github.com/mineplexio/mineplex-2-node/x/gravity/keeper"
 	"golang.org/x/exp/maps"
 )
@@ -28,6 +29,7 @@ func AvailablePrecompiles(
 	distributionKeeper distributionkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	gravityKeeper gravitykeeper.Keeper,
+	erc20Keeper erc20keeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -42,7 +44,7 @@ func AvailablePrecompiles(
 		panic(fmt.Errorf("failed to load distribution precompile: %w", err))
 	}
 
-	gravityPrecompile, err := gravity.NewPrecompile(gravityKeeper, authzKeeper)
+	gravityPrecompile, err := gravity.NewPrecompile(gravityKeeper, erc20Keeper, authzKeeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to load gravity precompile: %w", err))
 	}
