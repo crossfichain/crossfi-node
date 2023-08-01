@@ -26,6 +26,8 @@ func (p Precompile) SendToEth(
 		return nil, err
 	}
 
+	// todo: convert msg.denom from contract.Caller() to cosmos-sdk part
+
 	msgSrv := gravitykeeper.NewMsgServerImpl(p.gravityKeeper)
 	if _, err = msgSrv.SendToEth(sdk.WrapSDKContext(ctx), msg); err != nil {
 		return nil, err

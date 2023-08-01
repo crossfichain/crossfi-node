@@ -85,7 +85,11 @@ func (k msgServer) SetOrchestratorAddress(c context.Context, msg *types.MsgSetOr
 // ValsetConfirm handles MsgValsetConfirm
 func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm) (*types.MsgValsetConfirmResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	chainId := types.ChainID(msg.ChainId) // todo: validate
+	chainId := types.ChainID(msg.ChainId)
+
+	if err := k.Keeper.ValidateChainID(ctx, chainId); err != nil {
+		return nil, err
+	}
 
 	valset := k.GetValset(ctx, chainId, msg.Nonce) // A valset request was previously created
 	if valset == nil {
@@ -120,7 +124,11 @@ func (k msgServer) ValsetConfirm(c context.Context, msg *types.MsgValsetConfirm)
 // SendToEth handles MsgSendToEth
 func (k msgServer) SendToEth(c context.Context, msg *types.MsgSendToEth) (*types.MsgSendToEthResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	chainId := types.ChainID(msg.ChainId) // todo: validate
+	chainId := types.ChainID(msg.ChainId)
+
+	if err := k.Keeper.ValidateChainID(ctx, chainId); err != nil {
+		return nil, err
+	}
 
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
@@ -201,7 +209,7 @@ func (k msgServer) checkAndDeductSendToEthFees(ctx sdk.Context, chainID types.Ch
 		// Report the fee collection to the event log
 		return ctx.EventManager().EmitTypedEvent(
 			&types.EventSendToEthFeeCollected{
-				ChainId:    "", // todo
+				ChainId:    chainID.String(),
 				Sender:     sender.String(),
 				SendAmount: sendAmount.String(),
 				FeeAmount:  chainFee.String(),
@@ -215,7 +223,11 @@ func (k msgServer) checkAndDeductSendToEthFees(ctx sdk.Context, chainID types.Ch
 // RequestBatch handles MsgRequestBatch
 func (k msgServer) RequestBatch(c context.Context, msg *types.MsgRequestBatch) (*types.MsgRequestBatchResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	chainId := types.ChainID(msg.ChainId) // todo: validate
+	chainId := types.ChainID(msg.ChainId)
+
+	if err := k.Keeper.ValidateChainID(ctx, chainId); err != nil {
+		return nil, err
+	}
 
 	// Check if the denom is a gravity coin, if not, check if there is a deployed ERC20 representing it.
 	// If not, error out
@@ -249,7 +261,11 @@ func (k msgServer) ConfirmBatch(c context.Context, msg *types.MsgConfirmBatch) (
 		return nil, sdkerrors.Wrap(types.ErrInvalid, "eth address invalid")
 	}
 	ctx := sdk.UnwrapSDKContext(c)
-	chainId := types.ChainID(msg.ChainId) // todo: validate
+	chainId := types.ChainID(msg.ChainId)
+
+	if err := k.Keeper.ValidateChainID(ctx, chainId); err != nil {
+		return nil, err
+	}
 
 	// fetch the outgoing batch given the nonce
 	batch := k.GetOutgoingTXBatch(ctx, chainId, *contract, msg.Nonce)
@@ -292,6 +308,10 @@ func (k msgServer) ConfirmLogicCall(c context.Context, msg *types.MsgConfirmLogi
 	}
 
 	chainID := types.ChainID(msg.ChainId)
+
+	if err := k.Keeper.ValidateChainID(ctx, chainID); err != nil {
+		return nil, err
+	}
 
 	// fetch the outgoing logic given the nonce
 	logic := k.GetOutgoingLogicCall(ctx, chainID, invalidationIdBytes, msg.InvalidationNonce)
@@ -354,6 +374,10 @@ func (k msgServer) claimHandlerCommon(ctx sdk.Context, msgAny *codectypes.Any, m
 		return sdkerrors.Wrap(err, "unable to compute claim hash")
 	}
 
+	if err := k.Keeper.ValidateChainID(ctx, msg.ChainID()); err != nil {
+		return err
+	}
+
 	// Emit the handle message event
 	return ctx.EventManager().EmitTypedEvent(
 		&types.EventClaim{
@@ -414,6 +438,10 @@ func (k msgServer) confirmHandlerCommon(ctx sdk.Context, ethAddress string, orch
 func (k msgServer) SendToCosmosClaim(c context.Context, msg *types.MsgSendToCosmosClaim) (*types.MsgSendToCosmosClaimResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
+	if err := k.Keeper.ValidateChainID(ctx, msg.ChainID()); err != nil {
+		return nil, err
+	}
+
 	err := k.checkOrchestratorValidatorInSet(ctx, msg.Orchestrator)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "Could not check orchstrator validator inset")
@@ -436,6 +464,10 @@ func (k msgServer) SendToCosmosClaim(c context.Context, msg *types.MsgSendToCosm
 // should not be a security risk as 'old' events can never execute but it does store spam in the chain.
 func (k msgServer) BatchSendToEthClaim(c context.Context, msg *types.MsgBatchSendToEthClaim) (*types.MsgBatchSendToEthClaimResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
+
+	if err := k.Keeper.ValidateChainID(ctx, msg.ChainID()); err != nil {
+		return nil, err
+	}
 
 	err := k.checkOrchestratorValidatorInSet(ctx, msg.Orchestrator)
 	if err != nil {
@@ -484,6 +516,10 @@ func additionalPatchChecks(ctx sdk.Context, k msgServer, msg *types.MsgBatchSend
 func (k msgServer) ERC20DeployedClaim(c context.Context, msg *types.MsgERC20DeployedClaim) (*types.MsgERC20DeployedClaimResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
+	if err := k.Keeper.ValidateChainID(ctx, msg.ChainID()); err != nil {
+		return nil, err
+	}
+
 	err := k.checkOrchestratorValidatorInSet(ctx, msg.Orchestrator)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "Could not check orchestrator validator in set")
@@ -504,6 +540,10 @@ func (k msgServer) ERC20DeployedClaim(c context.Context, msg *types.MsgERC20Depl
 func (k msgServer) LogicCallExecutedClaim(c context.Context, msg *types.MsgLogicCallExecutedClaim) (*types.MsgLogicCallExecutedClaimResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
+	if err := k.Keeper.ValidateChainID(ctx, msg.ChainID()); err != nil {
+		return nil, err
+	}
+
 	err := k.checkOrchestratorValidatorInSet(ctx, msg.Orchestrator)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "Could not check orchestrator validator in set")
@@ -523,6 +563,10 @@ func (k msgServer) LogicCallExecutedClaim(c context.Context, msg *types.MsgLogic
 // ValsetUpdatedClaim handles claims for executing a validator set update on Ethereum
 func (k msgServer) ValsetUpdateClaim(c context.Context, msg *types.MsgValsetUpdatedClaim) (*types.MsgValsetUpdatedClaimResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
+
+	if err := k.Keeper.ValidateChainID(ctx, msg.ChainID()); err != nil {
+		return nil, err
+	}
 
 	err := k.checkOrchestratorValidatorInSet(ctx, msg.Orchestrator)
 	if err != nil {
@@ -547,6 +591,10 @@ func (k msgServer) CancelSendToEth(c context.Context, msg *types.MsgCancelSendTo
 		return nil, err
 	}
 	chainID := types.ChainID(msg.ChainId)
+	if err := k.Keeper.ValidateChainID(ctx, chainID); err != nil {
+		return nil, err
+	}
+
 	err = k.RemoveFromOutgoingPoolAndRefund(ctx, chainID, msg.TransactionId, sender)
 	if err != nil {
 		return nil, err
@@ -557,6 +605,10 @@ func (k msgServer) CancelSendToEth(c context.Context, msg *types.MsgCancelSendTo
 
 func (k msgServer) SubmitBadSignatureEvidence(c context.Context, msg *types.MsgSubmitBadSignatureEvidence) (*types.MsgSubmitBadSignatureEvidenceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
+
+	if err := k.Keeper.ValidateChainID(ctx, types.ChainID(msg.ChainId)); err != nil {
+		return nil, err
+	}
 
 	err := k.CheckBadSignatureEvidence(ctx, msg)
 	if err != nil {

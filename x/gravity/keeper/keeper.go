@@ -539,3 +539,11 @@ func (k Keeper) IsOnBlacklist(ctx sdk.Context, chainID types.ChainID, addr types
 func (k Keeper) InvalidSendToEthAddress(ctx sdk.Context, chainID types.ChainID, addr types.EthAddress, _erc20Addr types.EthAddress) bool {
 	return k.IsOnBlacklist(ctx, chainID, addr) || addr == types.ZeroAddress()
 }
+
+func (k Keeper) ValidateChainID(ctx sdk.Context, chainID types.ChainID) error {
+	if k.GetParamsForChainIfExist(ctx, chainID) == nil {
+		return fmt.Errorf("chain id not exists")
+	}
+
+	return nil
+}
