@@ -1,12 +1,7 @@
 package gravity
 
 import (
-	"fmt"
 	gravitykeeper "github.com/mineplexio/mineplex-2-node/x/gravity/keeper"
-
-	cmn "github.com/evmos/evmos/v13/precompiles/common"
-
-	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -21,23 +16,14 @@ const (
 // SendToEth sends a transaction to the Ethereum network.
 func (p Precompile) SendToEth(
 	ctx sdk.Context,
-	origin common.Address,
 	contract *vm.Contract,
 	stateDB vm.StateDB,
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	msg, senderAddress, err := NewMsgSendToEth(args)
+	msg, err := NewMsgSendToEth(args, contract.Caller())
 	if err != nil {
 		return nil, err
-	}
-
-	// todo: check
-	// If the contract is the delegator, we don't need an origin check
-	// Otherwise check if the origin matches the delegator address
-	isContractDelegator := contract.CallerAddress == senderAddress
-	if !isContractDelegator && origin != senderAddress {
-		return nil, fmt.Errorf(cmn.ErrDifferentOrigin, origin.String(), senderAddress.String())
 	}
 
 	msgSrv := gravitykeeper.NewMsgServerImpl(p.gravityKeeper)
@@ -45,7 +31,7 @@ func (p Precompile) SendToEth(
 		return nil, err
 	}
 
-	if err = p.EmitSendToEthEvent(ctx, stateDB, senderAddress); err != nil {
+	if err = p.EmitSendToEthEvent(ctx, stateDB, contract.CallerAddress); err != nil {
 		return nil, err
 	}
 

@@ -80,7 +80,7 @@ func (p Precompile) Run(evm *vm.EVM, contract *vm.Contract, readOnly bool) (bz [
 
 	switch method.Name {
 	case SendToEthMethod:
-		bz, err = p.SendToEth(ctx, evm.Origin, contract, stateDB, method, args)
+		bz, err = p.SendToEth(ctx, contract, stateDB, method, args)
 	}
 
 	if err != nil {

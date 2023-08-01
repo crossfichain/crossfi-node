@@ -6,6 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/evmos/v13/precompiles/common"
 	gravitytypes "github.com/mineplexio/mineplex-2-node/x/gravity/types"
+	"math/big"
 )
 
 // EventSendToEth defines the event data for the SendToEth transaction.
@@ -14,43 +15,53 @@ type EventSendToEth struct {
 }
 
 // NewMsgSendToEth creates a new MsgSendToEth instance.
-func NewMsgSendToEth(args []interface{}) (*gravitytypes.MsgSendToEth, common.Address, error) {
-	if len(args) != 2 {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
+func NewMsgSendToEth(args []interface{}, caller common.Address) (*gravitytypes.MsgSendToEth, error) {
+	if len(args) != 6 {
+		return nil, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
 	}
 
-	delegatorAddress, ok := args[0].(common.Address)
-	if !ok || delegatorAddress == (common.Address{}) {
-		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidDelegator, args[0])
+	chainId, ok := args[0].(string)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidChainID, args[0])
 	}
 
-	withdrawerAddress, _ := args[1].(string)
-
-	// If the withdrawer address is a hex address, convert it to a bech32 address.
-	if common.IsHexAddress(withdrawerAddress) {
-		var err error
-		withdrawerAddress, err = sdk.Bech32ifyAddressBytes("evmos", common.HexToAddress(withdrawerAddress).Bytes())
-		if err != nil {
-			return nil, common.Address{}, err
-		}
+	ethDest, ok := args[1].(common.Address)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidDest, args[1])
 	}
 
-	//DelegatorAddress: sdk.AccAddress(delegatorAddress.Bytes()).String(),
-	//WithdrawAddress:  withdrawerAddress,
+	denom, ok := args[2].(string)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidDenom, args[2])
+	}
 
-	// todo
+	amount, ok := args[3].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidAmount, args[3])
+	}
+
+	bridgeFee, ok := args[4].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidAmount, args[4])
+	}
+
+	chainFee, ok := args[5].(*big.Int)
+	if !ok {
+		return nil, fmt.Errorf(ErrInvalidAmount, args[5])
+	}
+
 	msg := &gravitytypes.MsgSendToEth{
-		ChainId:   "",
-		Sender:    "",
-		EthDest:   "",
-		Amount:    sdk.Coin{},
-		BridgeFee: sdk.Coin{},
-		ChainFee:  sdk.Coin{},
+		ChainId:   chainId,
+		Sender:    sdk.AccAddress(caller.Bytes()).String(),
+		EthDest:   ethDest.String(),
+		Amount:    sdk.NewCoin(denom, sdk.NewIntFromBigInt(amount)),
+		BridgeFee: sdk.NewCoin(denom, sdk.NewIntFromBigInt(bridgeFee)),
+		ChainFee:  sdk.NewCoin(denom, sdk.NewIntFromBigInt(chainFee)),
 	}
 
 	if err := msg.ValidateBasic(); err != nil {
-		return nil, common.Address{}, err
+		return nil, err
 	}
 
-	return msg, delegatorAddress, nil
+	return msg, nil
 }
