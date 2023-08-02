@@ -11,7 +11,7 @@ import (
 
 const (
 	// SendToEthMethod defines the ABI method name for the send to eth transaction.
-	SendToEthMethod = "setToEth"
+	SendToEthMethod = "sendToEth"
 )
 
 // SendToEth sends a transaction to the Ethereum network.
@@ -21,14 +21,14 @@ func (p Precompile) SendToEth(ctx sdk.Context, evm *vm.EVM, contract *vm.Contrac
 		return nil, err
 	}
 
-	pair, err := p.erc20Keeper.TokenPair(ctx, &erc20types.QueryTokenPairRequest{
+	pair, err := p.erc20Keeper.TokenPair(sdk.WrapSDKContext(ctx), &erc20types.QueryTokenPairRequest{
 		Token: msg.Amount.Denom,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = p.erc20Keeper.ConvertERC20(ctx.WithValue("evm", evm), &erc20types.MsgConvertERC20{
+	_, err = p.erc20Keeper.ConvertERC20(sdk.WrapSDKContext(ctx.WithValue("evm", evm)), &erc20types.MsgConvertERC20{
 		ContractAddress: pair.TokenPair.Erc20Address,
 		Amount:          msg.Amount.Amount.Add(msg.ChainFee.Amount).Add(msg.BridgeFee.Amount),
 		Receiver:        msg.Sender,

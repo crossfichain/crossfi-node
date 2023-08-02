@@ -538,6 +538,17 @@ func New(
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 	transferIBCModule := transfer.NewIBCModule(app.TransferKeeper)
 
+	app.Erc20Keeper = erc20keeper.NewKeeper(
+		keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, bankKeeper, app.EvmKeeper, app.StakingKeeper,
+	)
+
+	app.EvmKeeper = app.EvmKeeper.SetHooks(
+		evmkeeper.NewMultiEvmHooks(
+			app.Erc20Keeper.Hooks(),
+		),
+	)
+
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	app.EvmKeeper = app.EvmKeeper.WithPrecompiles(
 		precompiles.AvailablePrecompiles(
@@ -598,17 +609,6 @@ func New(
 		govRouter,
 		app.MsgServiceRouter(),
 		govConfig,
-	)
-
-	app.Erc20Keeper = erc20keeper.NewKeeper(
-		keys[erc20types.StoreKey], appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, bankKeeper, app.EvmKeeper, app.StakingKeeper,
-	)
-
-	app.EvmKeeper = app.EvmKeeper.SetHooks(
-		evmkeeper.NewMultiEvmHooks(
-			app.Erc20Keeper.Hooks(),
-		),
 	)
 
 	app.MineplexchainKeeper = *mineplexchainmodulekeeper.NewKeeper(
