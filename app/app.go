@@ -549,6 +549,12 @@ func New(
 		),
 	)
 
+	app.GravityKeeper = gravitykeeper.NewKeeper(keys[gravitytypes.StoreKey],
+		app.GetSubspace(gravitytypes.ModuleName), appCodec, &bankKeeper,
+		&app.StakingKeeper, &app.SlashingKeeper, &app.DistrKeeper, &app.AccountKeeper, app.Erc20Keeper,
+	)
+	gravityModule := gravity.NewAppModule(app.GravityKeeper, app.BankKeeper)
+
 	// We call this after setting the hooks to ensure that the hooks are set on the keeper
 	app.EvmKeeper = app.EvmKeeper.WithPrecompiles(
 		precompiles.AvailablePrecompiles(
@@ -627,12 +633,6 @@ func New(
 		app.BankKeeper,
 	)
 	treasuryModule := treasurymodule.NewAppModule(appCodec, app.TreasuryKeeper, app.AccountKeeper, app.BankKeeper)
-
-	app.GravityKeeper = gravitykeeper.NewKeeper(keys[gravitytypes.StoreKey],
-		app.GetSubspace(gravitytypes.ModuleName), appCodec, &bankKeeper,
-		&app.StakingKeeper, &app.SlashingKeeper, &app.DistrKeeper, &app.AccountKeeper, app.Erc20Keeper,
-	)
-	gravityModule := gravity.NewAppModule(app.GravityKeeper, app.BankKeeper)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
