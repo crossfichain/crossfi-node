@@ -1,1 +1,1 @@
-# Mineplex Chain 2
+# CrossFi Node
