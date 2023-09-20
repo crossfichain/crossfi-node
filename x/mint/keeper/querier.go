@@ -12,6 +12,10 @@ import (
 // NewQuerier returns a minting Querier handler.
 func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, _ abci.RequestQuery) ([]byte, error) {
+		if len(path) == 0 {
+			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "expected subpath")
+		}
+
 		switch path[0] {
 		case types.QueryParameters:
 			return queryParams(ctx, k, legacyQuerierCdc)
