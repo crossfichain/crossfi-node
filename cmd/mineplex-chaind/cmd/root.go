@@ -87,10 +87,13 @@ func NewRootCmd() (*cobra.Command, appparams.EncodingConfig) {
 	}
 
 	initRootCmd(rootCmd, encodingConfig)
-	overwriteFlagDefaults(rootCmd, map[string]string{
+	err := overwriteFlagDefaults(rootCmd, map[string]string{
 		flags.FlagChainID:        strings.ReplaceAll(app.Name, "-", ""),
 		flags.FlagKeyringBackend: "test",
 	})
+	if err != nil {
+		panic(err)
+	}
 
 	return rootCmd, encodingConfig
 }
@@ -213,20 +216,32 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	// this line is used by starport scaffolding # root/arguments
 }
 
-func overwriteFlagDefaults(c *cobra.Command, defaults map[string]string) {
-	set := func(s *pflag.FlagSet, key, val string) {
+func overwriteFlagDefaults(c *cobra.Command, defaults map[string]string) error {
+	set := func(s *pflag.FlagSet, key, val string) error {
 		if f := s.Lookup(key); f != nil {
 			f.DefValue = val
-			f.Value.Set(val)
+			if err := f.Value.Set(val); err != nil {
+				return err
+			}
 		}
+
+		return nil
 	}
 	for key, val := range defaults {
-		set(c.Flags(), key, val)
-		set(c.PersistentFlags(), key, val)
+		if err := set(c.Flags(), key, val); err != nil {
+			return err
+		}
+		if err := set(c.PersistentFlags(), key, val); err != nil {
+			return err
+		}
 	}
 	for _, c := range c.Commands() {
-		overwriteFlagDefaults(c, defaults)
+		if err := overwriteFlagDefaults(c, defaults); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 type appCreator struct {

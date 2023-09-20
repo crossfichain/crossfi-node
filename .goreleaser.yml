@@ -66,10 +66,6 @@ builds:
 
 archives:
 - name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
-  replacements:
-    darwin: Darwin
-    linux: Linux
-    windows: Windows
   format_overrides:
     - goos: windows
       format: zip

@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -68,6 +69,10 @@ func (k Keeper) MintCoins(ctx sdk.Context, newCoins sdk.Coins) error {
 	if newCoins.Empty() {
 		// skip as no coins need to be minted
 		return nil
+	}
+
+	if !newCoins.IsAllPositive() {
+		return errors.Wrapf(errors.ErrInvalidCoins, "minted coins %s must be positive", newCoins)
 	}
 
 	return k.bankKeeper.MintCoins(ctx, types.ModuleName, newCoins)
