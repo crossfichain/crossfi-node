@@ -3,7 +3,7 @@ home_dir: "./chain_data"
 keyring_backend: "file"
 seed:
   name: "seed"
-  addr: "seed.testnet.ms:26656"
+  addr: "127.0.0.1:26656"
   client:
     keyring-backend: file
     broadcast-mode: block
@@ -30,7 +30,7 @@ seed:
       laddr: "tcp://0.0.0.0:26657"
 genesis:
   chain_id: "crossfi-evm-testnet-1"
-  genesis_time: "2023-10-29T13:30:00.000000Z"
+  genesis_time: "2023-10-15T00:00:00.000000Z"
   app_state:
     evm:
       params:
@@ -67,10 +67,20 @@ validators:
       keyring-backend: file
       broadcast-mode: block
     config:
+      p2p:
+        allow_duplicate_ip: true
+        laddr: "tcp://0.0.0.0:36650"
       rpc:
         laddr: ""
         pprof_laddr: ""
+      storage:
+        discard_abci_responses: true
     app:
+      pruning: everything
+      state-sync:
+        snapshot-interval: 0
+        snapshot-keep-recent: 0
+      min-retain-blocks: 10
       grpc:
         enable: false
       grpc-web:
@@ -85,10 +95,20 @@ validators:
       keyring-backend: file
       broadcast-mode: block
     config:
+      p2p:
+        allow_duplicate_ip: true
+        laddr: "tcp://0.0.0.0:36651"
       rpc:
         laddr: ""
         pprof_laddr: ""
+      storage:
+        discard_abci_responses: true
     app:
+      pruning: everything
+      state-sync:
+        snapshot-interval: 0
+        snapshot-keep-recent: 0
+      min-retain-blocks: 10
       grpc:
         enable: false
       grpc-web:
@@ -103,10 +123,20 @@ validators:
       keyring-backend: file
       broadcast-mode: block
     config:
+      p2p:
+        allow_duplicate_ip: true
+        laddr: "tcp://0.0.0.0:36652"
       rpc:
         laddr: ""
         pprof_laddr: ""
+      storage:
+        discard_abci_responses: true
     app:
+      pruning: everything
+      state-sync:
+        snapshot-interval: 0
+        snapshot-keep-recent: 0
+      min-retain-blocks: 10
       grpc:
         enable: false
       grpc-web:
@@ -121,10 +151,20 @@ validators:
       keyring-backend: file
       broadcast-mode: block
     config:
+      p2p:
+        allow_duplicate_ip: true
+        laddr: "tcp://0.0.0.0:36653"
       rpc:
         laddr: ""
         pprof_laddr: ""
+      storage:
+        discard_abci_responses: true
     app:
+      pruning: everything
+      state-sync:
+        snapshot-interval: 0
+        snapshot-keep-recent: 0
+      min-retain-blocks: 10
       grpc:
         enable: false
       grpc-web:
