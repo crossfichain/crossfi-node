@@ -33924,6 +33924,81 @@ paths:
           format: int64
       tags:
         - Query
+  /crossfichain/crossfi-node/mineplexchain/params:
+    get:
+      summary: Parameters queries the parameters of the module.
+      operationId: CrossfiCrossfichainMineplexchainParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params holds all the parameters of this module.
+                type: object
+            description: >-
+              QueryParamsResponse is response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
+  /crossfichain/crossfi-node/treasury/params:
+    get:
+      summary: Parameters queries the parameters of the module.
+      operationId: CrossfiCrossfichainTreasuryParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params holds all the parameters of this module.
+                type: object
+                properties:
+                  owner:
+                    type: string
+            description: >-
+              QueryParamsResponse is response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
   /evmos/evm/v1/account/{address}:
     get:
       summary: Account queries an Ethereum account.
@@ -40337,6 +40412,9 @@ paths:
             type: object
             properties:
               denom_trace:
+                description: >-
+                  denom_trace returns the requested denomination trace
+                  information.
                 type: object
                 properties:
                   path:
@@ -40349,11 +40427,6 @@ paths:
                   base_denom:
                     type: string
                     description: base denomination of the relayed fungible token.
-                description: >-
-                  DenomTrace contains the base denomination for ICS20 fungible
-                  tokens and the
-
-                  source tracing information path.
             description: >-
               QueryDenomTraceResponse is the response type for the
               Query/DenomTrace RPC
@@ -50420,81 +50493,6 @@ paths:
                           "@type": "type.googleapis.com/google.protobuf.Duration",
                           "value": "1.212s"
                         }
-      tags:
-        - Query
-  /mineplexio/mineplex-2-node/mineplexchain/params:
-    get:
-      summary: Parameters queries the parameters of the module.
-      operationId: MineplexMineplexchainMineplexchainParams
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              params:
-                description: params holds all the parameters of this module.
-                type: object
-            description: >-
-              QueryParamsResponse is response type for the Query/Params RPC
-              method.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
-      tags:
-        - Query
-  /mineplexio/mineplex-2-node/treasury/params:
-    get:
-      summary: Parameters queries the parameters of the module.
-      operationId: MineplexMineplexchainTreasuryParams
-      responses:
-        '200':
-          description: A successful response.
-          schema:
-            type: object
-            properties:
-              params:
-                description: params holds all the parameters of this module.
-                type: object
-                properties:
-                  owner:
-                    type: string
-            description: >-
-              QueryParamsResponse is response type for the Query/Params RPC
-              method.
-        default:
-          description: An unexpected error response.
-          schema:
-            type: object
-            properties:
-              code:
-                type: integer
-                format: int32
-              message:
-                type: string
-              details:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    '@type':
-                      type: string
-                  additionalProperties: {}
       tags:
         - Query
   /mineplex/mint/v1beta1/params:
@@ -75550,6 +75548,38 @@ definitions:
             NOTE: The amount field is an Int which implements the custom method
             signatures required by gogoproto.
     description: Period defines a length of time and amount of coins that will vest.
+  crossfi.crossfichain.mineplexchain.Params:
+    type: object
+    description: Params defines the parameters for the module.
+  crossfi.crossfichain.mineplexchain.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params holds all the parameters of this module.
+        type: object
+    description: QueryParamsResponse is response type for the Query/Params RPC method.
+  crossfi.crossfichain.treasury.MsgBurnResponse:
+    type: object
+  crossfi.crossfichain.treasury.MsgChangeOwnerResponse:
+    type: object
+  crossfi.crossfichain.treasury.MsgMintResponse:
+    type: object
+  crossfi.crossfichain.treasury.Params:
+    type: object
+    properties:
+      owner:
+        type: string
+    description: Params defines the parameters for the module.
+  crossfi.crossfichain.treasury.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params holds all the parameters of this module.
+        type: object
+        properties:
+          owner:
+            type: string
+    description: QueryParamsResponse is response type for the Query/Params RPC method.
   ethermint.evm.v1.ChainConfig:
     type: object
     properties:
@@ -77685,6 +77715,7 @@ definitions:
     type: object
     properties:
       denom_trace:
+        description: denom_trace returns the requested denomination trace information.
         type: object
         properties:
           path:
@@ -77697,11 +77728,6 @@ definitions:
           base_denom:
             type: string
             description: base denomination of the relayed fungible token.
-        description: >-
-          DenomTrace contains the base denomination for ICS20 fungible tokens
-          and the
-
-          source tracing information path.
     description: |-
       QueryDenomTraceResponse is the response type for the Query/DenomTrace RPC
       method.
@@ -82122,38 +82148,6 @@ definitions:
     description: |-
       Version defines the versioning scheme used to negotiate the IBC verison in
       the connection handshake.
-  mineplex.mineplexchain.mineplexchain.Params:
-    type: object
-    description: Params defines the parameters for the module.
-  mineplex.mineplexchain.mineplexchain.QueryParamsResponse:
-    type: object
-    properties:
-      params:
-        description: params holds all the parameters of this module.
-        type: object
-    description: QueryParamsResponse is response type for the Query/Params RPC method.
-  mineplex.mineplexchain.treasury.MsgBurnResponse:
-    type: object
-  mineplex.mineplexchain.treasury.MsgChangeOwnerResponse:
-    type: object
-  mineplex.mineplexchain.treasury.MsgMintResponse:
-    type: object
-  mineplex.mineplexchain.treasury.Params:
-    type: object
-    properties:
-      owner:
-        type: string
-    description: Params defines the parameters for the module.
-  mineplex.mineplexchain.treasury.QueryParamsResponse:
-    type: object
-    properties:
-      params:
-        description: params holds all the parameters of this module.
-        type: object
-        properties:
-          owner:
-            type: string
-    description: QueryParamsResponse is response type for the Query/Params RPC method.
   mineplex.mint.v1beta1.Params:
     type: object
     properties:

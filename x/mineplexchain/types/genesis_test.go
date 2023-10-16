@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	"github.com/mineplexio/mineplex-2-node/x/mineplexchain/types"
+	"github.com/crossfichain/crossfi-node/x/mineplexchain/types"
 	"github.com/stretchr/testify/require"
 )
 

@@ -9,8 +9,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
-	"github.com/mineplexio/mineplex-2-node/x/mint/simulation"
-	"github.com/mineplexio/mineplex-2-node/x/mint/types"
+	"github.com/crossfichain/crossfi-node/x/mint/simulation"
+	"github.com/crossfichain/crossfi-node/x/mint/types"
 )
 
 func TestDecodeStore(t *testing.T) {

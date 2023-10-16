@@ -9,9 +9,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
-	"github.com/mineplexio/mineplex-2-node/testutil/sample"
-	mineplexchainsimulation "github.com/mineplexio/mineplex-2-node/x/mineplexchain/simulation"
-	"github.com/mineplexio/mineplex-2-node/x/mineplexchain/types"
+	"github.com/crossfichain/crossfi-node/testutil/sample"
+	mineplexchainsimulation "github.com/crossfichain/crossfi-node/x/mineplexchain/simulation"
+	"github.com/crossfichain/crossfi-node/x/mineplexchain/types"
 )
 
 // avoid unused import issue

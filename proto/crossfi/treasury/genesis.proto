@@ -1,10 +1,10 @@
 syntax = "proto3";
-package mineplex.mineplexchain.treasury;
+package crossfi.crossfichain.treasury;
 
 import "gogoproto/gogo.proto";
-import "mineplexchain/treasury/params.proto";
+import "crossfi/treasury/params.proto";
 
-option go_package = "github.com/mineplexio/mineplex-2-node/x/treasury/types";
+option go_package = "github.com/crossfichain/crossfi-node/x/treasury/types";
 
 // GenesisState defines the treasury module's genesis state.
 message GenesisState {

@@ -9,7 +9,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/mineplexio/mineplex-2-node/x/mineplexchain/types"
+	"github.com/crossfichain/crossfi-node/x/mineplexchain/types"
 )
 
 type (

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mineplexio/mineplex-2-node/app"
+	"github.com/crossfichain/crossfi-node/app"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"

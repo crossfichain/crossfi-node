@@ -5,6 +5,7 @@ on:
       - "v*.*.*"
 jobs:
   goreleaser:
+    permissions: write-all
     runs-on: ubuntu-latest
     environment: release
     steps:

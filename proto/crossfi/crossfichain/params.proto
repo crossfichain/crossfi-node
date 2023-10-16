@@ -1,13 +1,12 @@
 syntax = "proto3";
-package mineplex.mineplexchain.treasury;
+package crossfi.crossfichain.mineplexchain;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/mineplexio/mineplex-2-node/x/treasury/types";
+option go_package = "github.com/crossfichain/crossfi-node/x/mineplexchain/types";
 
 // Params defines the parameters for the module.
 message Params {
   option (gogoproto.goproto_stringer) = false;
-
-  string owner = 1;
+  
 }

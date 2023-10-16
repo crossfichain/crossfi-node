@@ -16,9 +16,9 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/mineplexio/mineplex-2-node/x/mineplexchain/client/cli"
-	"github.com/mineplexio/mineplex-2-node/x/mineplexchain/keeper"
-	"github.com/mineplexio/mineplex-2-node/x/mineplexchain/types"
+	"github.com/crossfichain/crossfi-node/x/mineplexchain/client/cli"
+	"github.com/crossfichain/crossfi-node/x/mineplexchain/keeper"
+	"github.com/crossfichain/crossfi-node/x/mineplexchain/types"
 )
 
 var (

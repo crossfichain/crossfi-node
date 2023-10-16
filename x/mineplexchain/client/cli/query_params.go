@@ -5,7 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/mineplexio/mineplex-2-node/x/mineplexchain/types"
+	"github.com/crossfichain/crossfi-node/x/mineplexchain/types"
 	"github.com/spf13/cobra"
 )
 

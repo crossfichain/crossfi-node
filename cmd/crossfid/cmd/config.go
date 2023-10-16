@@ -2,7 +2,7 @@ package cmd
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mineplexio/mineplex-2-node/app"
+	"github.com/crossfichain/crossfi-node/app"
 )
 
 func initSDKConfig() {

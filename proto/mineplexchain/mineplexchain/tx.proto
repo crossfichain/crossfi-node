@@ -1,7 +1,0 @@
-syntax = "proto3";
-package mineplex.mineplexchain.mineplexchain;
-
-option go_package = "github.com/mineplexio/mineplex-2-node/x/mineplexchain/types";
-
-// Msg defines the Msg service.
-service Msg {}

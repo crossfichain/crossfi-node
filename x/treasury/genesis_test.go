@@ -3,10 +3,10 @@ package treasury_test
 import (
 	"testing"
 
-	keepertest "github.com/mineplexio/mineplex-2-node/testutil/keeper"
-	"github.com/mineplexio/mineplex-2-node/testutil/nullify"
-	"github.com/mineplexio/mineplex-2-node/x/treasury"
-	"github.com/mineplexio/mineplex-2-node/x/treasury/types"
+	keepertest "github.com/crossfichain/crossfi-node/testutil/keeper"
+	"github.com/crossfichain/crossfi-node/testutil/nullify"
+	"github.com/crossfichain/crossfi-node/x/treasury"
+	"github.com/crossfichain/crossfi-node/x/treasury/types"
 	"github.com/stretchr/testify/require"
 )
 

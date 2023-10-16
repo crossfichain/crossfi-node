@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/mineplexio/mineplex-2-node/x/mint/simulation"
+	"github.com/crossfichain/crossfi-node/x/mint/simulation"
 )
 
 func TestParamChangest(t *testing.T) {

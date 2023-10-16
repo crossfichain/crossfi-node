@@ -38,7 +38,7 @@ import (
 	// this line is used by starport scaffolding # root/moduleImport
 
 	appparams "github.com/cosmos/cosmos-sdk/simapp/params"
-	"github.com/mineplexio/mineplex-2-node/app"
+	"github.com/crossfichain/crossfi-node/app"
 
 	evmosclient "github.com/evmos/evmos/v12/client"
 	evmoskr "github.com/evmos/evmos/v12/crypto/keyring"

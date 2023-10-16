@@ -1,18 +1,18 @@
 syntax = "proto3";
-package mineplex.mineplexchain.treasury;
+package crossfi.crossfichain.treasury;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "mineplexchain/treasury/params.proto";
+import "crossfi/treasury/params.proto";
 
-option go_package = "github.com/mineplexio/mineplex-2-node/x/treasury/types";
+option go_package = "github.com/crossfichain/crossfi-node/x/treasury/types";
 
 // Query defines the gRPC querier service.
 service Query {
   // Parameters queries the parameters of the module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/mineplexio/mineplex-2-node/treasury/params";
+    option (google.api.http).get = "/crossfichain/crossfi-node/treasury/params";
   }
 }
 

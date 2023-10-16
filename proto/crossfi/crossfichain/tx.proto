@@ -1,0 +1,7 @@
+syntax = "proto3";
+package crossfi.crossfichain.mineplexchain;
+
+option go_package = "github.com/crossfichain/crossfi-node/x/mineplexchain/types";
+
+// Msg defines the Msg service.
+service Msg {}

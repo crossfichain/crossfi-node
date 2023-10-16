@@ -3,9 +3,9 @@ before:
   - go mod download
     
 builds:
-  - id: "mineplex-chaind-darwin"
-    main: ./cmd/mineplex-chaind
-    binary: bin/mineplex-chaind
+  - id: "crossfid-darwin"
+    main: ./cmd/crossfid
+    binary: bin/crossfid
     env:
       - CGO_ENABLED=1
       - CC=o64-clang
@@ -17,10 +17,10 @@ builds:
     flags:
         - -tags=cgo
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=mineplex-chain -X github.com/cosmos/cosmos-sdk/version.AppName=mineplex-chaind -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "mineplex-chaind-darwin-arm64"
-    main: ./cmd/mineplex-chaind
-    binary: bin/mineplex-chaind
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=crossfi-chain -X github.com/cosmos/cosmos-sdk/version.AppName=crossfid -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "crossfid-darwin-arm64"
+    main: ./cmd/crossfid
+    binary: bin/crossfid
     env:
       - CGO_ENABLED=1
       - CC=oa64-clang
@@ -32,10 +32,10 @@ builds:
     flags:
       - -tags=cgo
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=mineplex-chain -X github.com/cosmos/cosmos-sdk/version.AppName=mineplex-chaind -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "mineplex-chaind-linux"
-    main: ./cmd/mineplex-chaind
-    binary: bin/mineplex-chaind
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=crossfi-chain -X github.com/cosmos/cosmos-sdk/version.AppName=crossfid -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "crossfid-linux"
+    main: ./cmd/crossfid
+    binary: bin/crossfid
     env:
       - CGO_ENABLED=1
       - CC=gcc
@@ -47,10 +47,10 @@ builds:
     flags:
       - -tags=cgo
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=mineplex-chain -X github.com/cosmos/cosmos-sdk/version.AppName=mineplex-chaind -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
-  - id: "mineplex-chaind-linux-arm64"
-    main: ./cmd/mineplex-chaind
-    binary: bin/mineplex-chaind
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=crossfi-chain -X github.com/cosmos/cosmos-sdk/version.AppName=crossfid -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+  - id: "crossfid-linux-arm64"
+    main: ./cmd/crossfid
+    binary: bin/crossfid
     env:
       - CGO_ENABLED=1
       - CC=aarch64-linux-gnu-gcc
@@ -62,7 +62,7 @@ builds:
     flags:
       - -tags=cgo
     ldflags:
-      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=mineplex-chain -X github.com/cosmos/cosmos-sdk/version.AppName=mineplex-chaind -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
+      - -s -w -X github.com/cosmos/cosmos-sdk/version.Name=crossfi-chain -X github.com/cosmos/cosmos-sdk/version.AppName=crossfid -X github.com/cosmos/cosmos-sdk/version.Version={{.Version}} -X github.com/cosmos/cosmos-sdk/version.Commit={{.Commit}}
 
 archives:
 - name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
@@ -70,10 +70,10 @@ archives:
     - goos: windows
       format: zip
   builds:
-  - mineplex-chaind-darwin
-  - mineplex-chaind-darwin-arm64
-  - mineplex-chaind-linux
-  - mineplex-chaind-linux-arm64
+    - crossfid-darwin
+    - crossfid-darwin-arm64
+    - crossfid-linux
+    - crossfid-linux-arm64
   
 checksum:
   name_template: 'checksums.txt'
