@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	v2 "github.com/crossfichain/crossfi-node/app/upgrades/v2"
+	"github.com/crossfichain/crossfi-node/x/erc20"
 	ethante "github.com/evmos/evmos/v12/app/ante/evm"
 	"github.com/evmos/evmos/v12/ethereum/eip712"
 	evmostypes "github.com/evmos/evmos/v12/types"
@@ -128,6 +129,10 @@ import (
 
 	srvflags "github.com/evmos/evmos/v12/server/flags"
 	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+
+	erc20client "github.com/crossfichain/crossfi-node/x/erc20/client"
+	erc20keeper "github.com/crossfichain/crossfi-node/x/erc20/keeper"
+	erc20types "github.com/crossfichain/crossfi-node/x/erc20/types"
 )
 
 const (
@@ -148,6 +153,9 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		upgradeclient.LegacyCancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
+
+		erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
+
 		// this line is used by starport scaffolding # stargate/app/govProposalHandler
 	)
 
@@ -189,6 +197,8 @@ var (
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
 
+		erc20.AppModuleBasic{},
+
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -207,6 +217,7 @@ var (
 		// evm
 		evmtypes.ModuleName: {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 
+		erc20types.ModuleName: {authtypes.Minter, authtypes.Burner},
 		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 )
@@ -278,6 +289,8 @@ type App struct {
 	MineplexchainKeeper mineplexchainmodulekeeper.Keeper
 
 	TreasuryKeeper treasurymodulekeeper.Keeper
+
+	Erc20Keeper erc20keeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// mm is the module manager
@@ -328,6 +341,8 @@ func New(
 		treasurymoduletypes.StoreKey,
 
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
+
+		erc20types.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
@@ -477,6 +492,9 @@ func New(
 		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
+
+	app.Erc20Keeper = erc20keeper.NewKeeper(keys[erc20types.StoreKey], appCodec,
+		authtypes.NewModuleAddress(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper, app.EvmKeeper)
 
 	// ... other modules keepers
 
@@ -642,6 +660,8 @@ func New(
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
+
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -675,6 +695,7 @@ func New(
 		vestingtypes.ModuleName,
 		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
+		erc20types.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -703,6 +724,7 @@ func New(
 		vestingtypes.ModuleName,
 		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
+		erc20types.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -740,6 +762,7 @@ func New(
 		vestingtypes.ModuleName,
 		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
+		erc20types.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -771,6 +794,7 @@ func New(
 		transferModule,
 		mineplexchainModule,
 		treasuryModule,
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 	app.sm.RegisterStoreDecoders()
@@ -1012,6 +1036,8 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	paramsKeeper.Subspace(evmtypes.ModuleName)
+
+	paramsKeeper.Subspace(erc20types.ModuleName)
 
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
