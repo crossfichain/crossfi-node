@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
+	erc20upgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20"
 	v2 "github.com/crossfichain/crossfi-node/app/upgrades/v2"
 	"github.com/crossfichain/crossfi-node/x/erc20"
 	ethante "github.com/evmos/evmos/v12/app/ante/evm"
@@ -1062,6 +1063,13 @@ func (app *App) setupUpgradeHandlers() {
 		),
 	)
 
+	app.UpgradeKeeper.SetUpgradeHandler(
+		erc20upgrade.UpgradeName,
+		erc20upgrade.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
 	// When a planned update height is reached, the old binary will panic
 	// writing on disk the height and name of the update that triggered it
 	// This will read that value, and execute the preparations for the upgrade.
@@ -1082,6 +1090,12 @@ func (app *App) setupUpgradeHandlers() {
 			Added: []string{
 				evmtypes.ModuleName,
 				feemarkettypes.ModuleName,
+			},
+		}
+	case erc20upgrade.UpgradeName:
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{
+				erc20types.ModuleName,
 			},
 		}
 	}
