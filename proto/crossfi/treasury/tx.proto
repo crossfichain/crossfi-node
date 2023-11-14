@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package crossfi.crossfichain.treasury;
+package crossfi.treasury;
 
 option go_package = "github.com/crossfichain/crossfi-node/x/treasury/types";
 
@@ -9,16 +9,16 @@ import "cosmos_proto/cosmos.proto";
 
 // Msg defines the Msg service.
 service Msg {
-  rpc Mint        (MsgMint       ) returns (MsgMintResponse       );
-  rpc Burn        (MsgBurn       ) returns (MsgBurnResponse       );
-  rpc ChangeOwner (MsgChangeOwner) returns (MsgChangeOwnerResponse);
+  rpc Mint(MsgMint) returns (MsgMintResponse);
+  rpc Burn(MsgBurn) returns (MsgBurnResponse);
+  rpc ChangeOwner(MsgChangeOwner) returns (MsgChangeOwnerResponse);
 }
 message MsgMint {
   string creator = 1;
-  string amount  = 2 [
-    (cosmos_proto.scalar)  = "cosmos.Coin",
+  string amount = 2 [
+    (cosmos_proto.scalar) = "cosmos.Coin",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
-    (gogoproto.nullable)   = false
+    (gogoproto.nullable) = false
   ];
 }
 
@@ -26,19 +26,18 @@ message MsgMintResponse {}
 
 message MsgBurn {
   string creator = 1;
-  string amount  = 2 [
-    (cosmos_proto.scalar)  = "cosmos.Coin",
+  string amount = 2 [
+    (cosmos_proto.scalar) = "cosmos.Coin",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
-    (gogoproto.nullable)   = false
+    (gogoproto.nullable) = false
   ];
 }
 
 message MsgBurnResponse {}
 
 message MsgChangeOwner {
-  string creator  = 1;
+  string creator = 1;
   string newOwner = 2;
 }
 
 message MsgChangeOwnerResponse {}
-

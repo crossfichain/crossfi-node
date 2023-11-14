@@ -1,5 +1,5 @@
 syntax = "proto3";
-package mineplex.mint.v1beta1;
+package mint.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
@@ -23,4 +23,3 @@ message QueryParamsResponse {
   // params defines the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 }
-

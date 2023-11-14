@@ -496,6 +496,8 @@ func New(
 	app.Erc20Keeper = erc20keeper.NewKeeper(keys[erc20types.StoreKey], appCodec,
 		authtypes.NewModuleAddress(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper, app.EvmKeeper)
 
+	app.EvmKeeper = app.EvmKeeper.SetHooks(app.Erc20Keeper.Hooks())
+
 	// ... other modules keepers
 
 	// Create IBC Keeper
@@ -558,7 +560,9 @@ func New(
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
+		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
+		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper))
+
 	govConfig := govtypes.DefaultConfig()
 	app.GovKeeper = govkeeper.NewKeeper(
 		appCodec,

@@ -20,22 +20,22 @@ import (
 	ibcgotestinghelpers "github.com/cosmos/ibc-go/v6/testing/simapp/helpers"
 	"github.com/crossfichain/crossfi-node/app"
 	"github.com/crossfichain/crossfi-node/contracts"
-	"github.com/crossfichain/crossfi-node/crypto/ethsecp256k1"
-	ibctesting "github.com/crossfichain/crossfi-node/ibc/testing"
-	"github.com/crossfichain/crossfi-node/server/config"
 	"github.com/crossfichain/crossfi-node/testutil"
 	utiltx "github.com/crossfichain/crossfi-node/testutil/tx"
-	teststypes "github.com/crossfichain/crossfi-node/types/tests"
-	"github.com/crossfichain/crossfi-node/utils"
-	claimstypes "github.com/crossfichain/crossfi-node/x/claims/types"
 	"github.com/crossfichain/crossfi-node/x/erc20/types"
-	"github.com/crossfichain/crossfi-node/x/evm/statedb"
-	evm "github.com/crossfichain/crossfi-node/x/evm/types"
-	feemarkettypes "github.com/crossfichain/crossfi-node/x/feemarket/types"
-	inflationtypes "github.com/crossfichain/crossfi-node/x/inflation/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/evmos/evmos/v12/crypto/ethsecp256k1"
+	ibctesting "github.com/evmos/evmos/v12/ibc/testing"
+	"github.com/evmos/evmos/v12/server/config"
+	teststypes "github.com/evmos/evmos/v12/types/tests"
+	"github.com/evmos/evmos/v12/utils"
+	claimstypes "github.com/evmos/evmos/v12/x/claims/types"
+	"github.com/evmos/evmos/v12/x/evm/statedb"
+	evm "github.com/evmos/evmos/v12/x/evm/types"
+	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
+	inflationtypes "github.com/evmos/evmos/v12/x/inflation/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -144,7 +144,7 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	suite.coordinator.CommitNBlocks(suite.IBCOsmosisChain, 2)
 	suite.coordinator.CommitNBlocks(suite.IBCCosmosChain, 2)
 
-	s.app = suite.EvmosChain.App.(*app.Evmos)
+	s.app = suite.EvmosChain.App.(*app.App)
 	evmParams := s.app.EvmKeeper.GetParams(s.EvmosChain.GetContext())
 	evmParams.EvmDenom = utils.BaseDenom
 	err := s.app.EvmKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
@@ -362,7 +362,7 @@ func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation() (common.
 func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimals uint8) (common.Address, error) {
 	return testutil.DeployContract(
 		s.EvmosChain.GetContext(),
-		s.EvmosChain.App.(*app.Evmos),
+		s.EvmosChain.App.(*app.App),
 		suite.EvmosChain.SenderPrivKey,
 		suite.queryClientEvm,
 		contracts.ERC20MinterBurnerDecimalsContract,

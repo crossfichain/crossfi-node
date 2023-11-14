@@ -1,5 +1,5 @@
 syntax = "proto3";
-package crossfi.crossfichain.treasury;
+package crossfi.treasury;
 
 import "gogoproto/gogo.proto";
 import "crossfi/treasury/params.proto";
@@ -7,6 +7,4 @@ import "crossfi/treasury/params.proto";
 option go_package = "github.com/crossfichain/crossfi-node/x/treasury/types";
 
 // GenesisState defines the treasury module's genesis state.
-message GenesisState {
-  Params params = 1 [(gogoproto.nullable) = false];
-}
+message GenesisState {Params params = 1 [(gogoproto.nullable) = false];}

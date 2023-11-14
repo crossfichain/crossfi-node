@@ -1,5 +1,5 @@
 syntax = "proto3";
-package crossfi.crossfichain.mineplexchain;
+package crossfi.mineplexchain;
 
 option go_package = "github.com/crossfichain/crossfi-node/x/mineplexchain/types";
 

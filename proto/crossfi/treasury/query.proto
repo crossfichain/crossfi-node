@@ -1,5 +1,5 @@
 syntax = "proto3";
-package crossfi.crossfichain.treasury;
+package crossfi.treasury;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";

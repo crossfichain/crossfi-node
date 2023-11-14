@@ -1,5 +1,5 @@
 syntax = "proto3";
-package mineplex.mint.v1beta1;
+package mint.v1beta1;
 
 option go_package = "github.com/crossfichain/crossfi-node/x/mint/types";
 
@@ -11,9 +11,9 @@ message RewardPeriod {
   int64 to_height = 2;
 
   string reward_per_block = 3 [
-    (cosmos_proto.scalar)  = "cosmos.Int",
+    (cosmos_proto.scalar) = "cosmos.Int",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable)   = false
+    (gogoproto.nullable) = false
   ];
 }
 

@@ -14,8 +14,8 @@ import (
 	"github.com/tendermint/tendermint/version"
 
 	utiltx "github.com/crossfichain/crossfi-node/testutil/tx"
-	"github.com/crossfichain/crossfi-node/utils"
-	feemarkettypes "github.com/crossfichain/crossfi-node/x/feemarket/types"
+	"github.com/evmos/evmos/v12/utils"
+	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 
 	"github.com/crossfichain/crossfi-node/app"
 	"github.com/crossfichain/crossfi-node/x/erc20"
@@ -25,7 +25,7 @@ import (
 type GenesisTestSuite struct {
 	suite.Suite
 	ctx     sdk.Context
-	app     *app.Evmos
+	app     *app.App
 	genesis types.GenesisState
 }
 

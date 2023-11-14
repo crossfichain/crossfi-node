@@ -1,10 +1,10 @@
 syntax = "proto3";
-package crossfi.crossfichain.mineplexchain;
+package crossfi.mineplexchain;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "crossfi/crossfichain/params.proto";
+import "crossfi/mineplexchain/params.proto";
 
 option go_package = "github.com/crossfichain/crossfi-node/x/mineplexchain/types";
 
@@ -12,7 +12,8 @@ option go_package = "github.com/crossfichain/crossfi-node/x/mineplexchain/types"
 service Query {
   // Parameters queries the parameters of the module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/crossfichain/crossfi-node/mineplexchain/params";
+    option (google.api.http).get =
+        "/crossfichain/crossfi-node/mineplexchain/params";
   }
 }
 
