@@ -1066,7 +1066,7 @@ func (app *App) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		erc20upgrade.UpgradeName,
 		erc20upgrade.CreateUpgradeHandler(
-			app.mm, app.configurator,
+			app.mm, app.configurator, app.Erc20Keeper,
 		),
 	)
 
