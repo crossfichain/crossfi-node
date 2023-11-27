@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	erc20upgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20"
+	erc20fixupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_fix"
 	v2 "github.com/crossfichain/crossfi-node/app/upgrades/v2"
 	"github.com/crossfichain/crossfi-node/x/erc20"
 	ethante "github.com/evmos/evmos/v12/app/ante/evm"
@@ -1067,6 +1068,13 @@ func (app *App) setupUpgradeHandlers() {
 		erc20upgrade.UpgradeName,
 		erc20upgrade.CreateUpgradeHandler(
 			app.mm, app.configurator, app.Erc20Keeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		erc20fixupgrade.UpgradeName,
+		erc20fixupgrade.CreateUpgradeHandler(
+			app.mm, app.configurator,
 		),
 	)
 
