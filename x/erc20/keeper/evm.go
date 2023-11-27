@@ -186,7 +186,11 @@ func (k Keeper) CallEVMWithData(
 			return nil, errorsmod.Wrapf(errortypes.ErrJSONMarshal, "failed to marshal tx args: %s", err.Error())
 		}
 
-		gasRes, err := k.evmKeeper.EstimateGas(sdk.WrapSDKContext(ctx), &evmtypes.EthCallRequest{
+		gasCtx := sdk.WrapSDKContext(ctx.
+			WithGasMeter(sdk.NewGasMeter(config.DefaultGasCap)).
+			WithBlockGasMeter(sdk.NewGasMeter(config.DefaultGasCap)),
+		)
+		gasRes, err := k.evmKeeper.EstimateGas(gasCtx, &evmtypes.EthCallRequest{
 			Args:   args,
 			GasCap: config.DefaultGasCap,
 		})
