@@ -4,16 +4,13 @@
 package keeper
 
 import (
-	"encoding/json"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v12/server/config"
@@ -175,40 +172,15 @@ func (k Keeper) CallEVMWithData(
 		return nil, err
 	}
 
-	gasCap := config.DefaultGasCap
-	if commit {
-		args, err := json.Marshal(evmtypes.TransactionArgs{
-			From: &from,
-			To:   contract,
-			Data: (*hexutil.Bytes)(&data),
-		})
-		if err != nil {
-			return nil, errorsmod.Wrapf(errortypes.ErrJSONMarshal, "failed to marshal tx args: %s", err.Error())
-		}
-
-		gasCtx := sdk.WrapSDKContext(ctx.
-			WithGasMeter(sdk.NewGasMeter(config.DefaultGasCap)).
-			WithBlockGasMeter(sdk.NewGasMeter(config.DefaultGasCap)),
-		)
-		gasRes, err := k.evmKeeper.EstimateGas(gasCtx, &evmtypes.EthCallRequest{
-			Args:   args,
-			GasCap: config.DefaultGasCap,
-		})
-		if err != nil {
-			return nil, err
-		}
-		gasCap = gasRes.Gas
-	}
-
 	msg := ethtypes.NewMessage(
 		from,
 		contract,
 		nonce,
-		big.NewInt(0), // amount
-		gasCap,        // gasLimit
-		big.NewInt(0), // gasFeeCap
-		big.NewInt(0), // gasTipCap
-		big.NewInt(0), // gasPrice
+		big.NewInt(0),        // amount
+		config.DefaultGasCap, // gasLimit
+		big.NewInt(0),        // gasFeeCap
+		big.NewInt(0),        // gasTipCap
+		big.NewInt(0),        // gasPrice
 		data,
 		ethtypes.AccessList{}, // AccessList
 		!commit,               // isFake
