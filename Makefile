@@ -1,5 +1,5 @@
 PACKAGE_NAME:=github.com/mineplexio-org/mineplex-2-node
-GOLANG_CROSS_VERSION  = v1.20
+GOLANG_CROSS_VERSION  = v1.21
 GOPATH ?= '$(HOME)/go'
 release-dry-run:
 	docker run \
