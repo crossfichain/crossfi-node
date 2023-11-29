@@ -3,7 +3,7 @@ package testutil
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/crossfichain/crossfi-node/app"
-	"github.com/evmos/evmos/v12/encoding"
+	"github.com/evmos/evmos/v13/encoding"
 )
 
 // NextFn is a no-op function that returns the context and no error in order to mock

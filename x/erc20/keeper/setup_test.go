@@ -16,8 +16,8 @@ import (
 	"github.com/crossfichain/crossfi-node/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	ibctesting "github.com/evmos/evmos/v12/ibc/testing"
-	evm "github.com/evmos/evmos/v12/x/evm/types"
+	ibctesting "github.com/evmos/evmos/v13/ibc/testing"
+	evm "github.com/evmos/evmos/v13/x/evm/types"
 	"github.com/stretchr/testify/suite"
 )
 

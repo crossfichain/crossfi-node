@@ -26,7 +26,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/crossfichain/crossfi-node/app"
-	"github.com/evmos/evmos/v12/crypto/ethsecp256k1"
+	"github.com/evmos/evmos/v13/crypto/ethsecp256k1"
 )
 
 // SubmitProposal delivers a submit proposal tx for a given gov content.

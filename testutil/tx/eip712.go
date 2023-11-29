@@ -30,9 +30,9 @@ import (
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/crossfichain/crossfi-node/app"
-	cryptocodec "github.com/evmos/evmos/v12/crypto/codec"
-	"github.com/evmos/evmos/v12/ethereum/eip712"
-	"github.com/evmos/evmos/v12/types"
+	cryptocodec "github.com/evmos/evmos/v13/crypto/codec"
+	"github.com/evmos/evmos/v13/ethereum/eip712"
+	"github.com/evmos/evmos/v13/types"
 )
 
 type EIP712TxArgs struct {

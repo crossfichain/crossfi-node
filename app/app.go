@@ -7,12 +7,12 @@ import (
 	erc20fixupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_fix"
 	v2 "github.com/crossfichain/crossfi-node/app/upgrades/v2"
 	"github.com/crossfichain/crossfi-node/x/erc20"
-	ethante "github.com/evmos/evmos/v12/app/ante/evm"
-	"github.com/evmos/evmos/v12/ethereum/eip712"
-	evmostypes "github.com/evmos/evmos/v12/types"
-	evmkeeper "github.com/evmos/evmos/v12/x/evm/keeper"
-	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
+	ethante "github.com/evmos/evmos/v13/app/ante/evm"
+	"github.com/evmos/evmos/v13/ethereum/eip712"
+	evmostypes "github.com/evmos/evmos/v13/types"
+	evmkeeper "github.com/evmos/evmos/v13/x/evm/keeper"
+	feemarketkeeper "github.com/evmos/evmos/v13/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v13/x/feemarket/types"
 	"io"
 	"math/big"
 	"os"
@@ -107,7 +107,7 @@ import (
 	"github.com/crossfichain/crossfi-node/x/mint"
 	mintkeeper "github.com/crossfichain/crossfi-node/x/mint/keeper"
 	minttypes "github.com/crossfichain/crossfi-node/x/mint/types"
-	"github.com/evmos/evmos/v12/app/ante"
+	"github.com/evmos/evmos/v13/app/ante"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -126,11 +126,11 @@ import (
 	appparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/crossfichain/crossfi-node/docs"
 
-	"github.com/evmos/evmos/v12/x/evm"
-	"github.com/evmos/evmos/v12/x/feemarket"
+	"github.com/evmos/evmos/v13/x/evm"
+	"github.com/evmos/evmos/v13/x/feemarket"
 
-	srvflags "github.com/evmos/evmos/v12/server/flags"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	srvflags "github.com/evmos/evmos/v13/server/flags"
+	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 
 	erc20client "github.com/crossfichain/crossfi-node/x/erc20/client"
 	erc20keeper "github.com/crossfichain/crossfi-node/x/erc20/keeper"
@@ -1074,7 +1074,7 @@ func (app *App) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		erc20fixupgrade.UpgradeName,
 		erc20fixupgrade.CreateUpgradeHandler(
-			app.mm, app.configurator,
+			app.mm, app.configurator, app.GovKeeper,
 		),
 	)
 

@@ -25,9 +25,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	cmdcfg "github.com/evmos/evmos/v12/cmd/config"
-	evmosserver "github.com/evmos/evmos/v12/server"
-	servercfg "github.com/evmos/evmos/v12/server/config"
+	cmdcfg "github.com/evmos/evmos/v13/cmd/config"
+	evmosserver "github.com/evmos/evmos/v13/server"
+	servercfg "github.com/evmos/evmos/v13/server/config"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -40,8 +40,8 @@ import (
 	appparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/crossfichain/crossfi-node/app"
 
-	evmosclient "github.com/evmos/evmos/v12/client"
-	evmoskr "github.com/evmos/evmos/v12/crypto/keyring"
+	evmosclient "github.com/evmos/evmos/v13/client"
+	evmoskr "github.com/evmos/evmos/v13/crypto/keyring"
 )
 
 // NewRootCmd creates a new root command for a Cosmos SDK application

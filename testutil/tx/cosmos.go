@@ -27,7 +27,7 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 
 	"github.com/crossfichain/crossfi-node/app"
-	"github.com/evmos/evmos/v12/utils"
+	"github.com/evmos/evmos/v13/utils"
 )
 
 var (

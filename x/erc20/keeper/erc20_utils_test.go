@@ -8,7 +8,7 @@ import (
 	"github.com/crossfichain/crossfi-node/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	evm "github.com/evmos/evmos/v12/x/evm/types"
+	evm "github.com/evmos/evmos/v13/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) MintERC20Token(contractAddr, from, to common.Address, amount *big.Int) *evm.MsgEthereumTx {

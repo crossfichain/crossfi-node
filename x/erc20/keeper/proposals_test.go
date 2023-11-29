@@ -13,11 +13,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	utiltx "github.com/crossfichain/crossfi-node/testutil/tx"
-	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
 
 	"github.com/crossfichain/crossfi-node/x/erc20/keeper"
 	"github.com/crossfichain/crossfi-node/x/erc20/types"
-	inflationtypes "github.com/evmos/evmos/v12/x/inflation/types"
+	inflationtypes "github.com/evmos/evmos/v13/x/inflation/types"
 )
 
 const (
