@@ -1082,7 +1082,7 @@ func (app *App) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		erc20redeployupgrade.UpgradeName,
 		erc20redeployupgrade.CreateUpgradeHandler(
-			app.mm, app.configurator, app.Erc20Keeper,
+			app.mm, app.configurator, app.Erc20Keeper, app.BankKeeper,
 		),
 	)
 
