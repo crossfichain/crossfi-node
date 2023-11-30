@@ -4,6 +4,7 @@ import (
 	"errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	erc20keeper "github.com/crossfichain/crossfi-node/x/erc20/keeper"
@@ -13,6 +14,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	erc20keeper erc20keeper.Keeper,
+	bankkeeper bankkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -35,7 +37,7 @@ func CreateUpgradeHandler(
 
 		erc20keeper.DeleteTokenPair(ctx, pair)
 
-		_, err = erc20keeper.RegisterCoin(ctx, banktypes.Metadata{
+		metadata := banktypes.Metadata{
 			Description: "mpx",
 			DenomUnits: []*banktypes.DenomUnit{
 				{
@@ -51,7 +53,11 @@ func CreateUpgradeHandler(
 			Display: "MPX",
 			Name:    "MPX",
 			Symbol:  "MPX",
-		})
+		}
+
+		bankkeeper.SetDenomMetaData(ctx, metadata)
+
+		_, err = erc20keeper.RegisterCoin(ctx, metadata)
 
 		if err != nil {
 			return nil, err
