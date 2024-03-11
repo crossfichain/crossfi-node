@@ -2,7 +2,8 @@ package app
 
 import (
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
+	"github.com/crossfichain/crossfi-node/app/post"
+	"github.com/crossfichain/crossfi-node/app/upgrades/burn_commissions"
 	erc20upgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20"
 	erc20fixupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_fix"
 	erc20redeployupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_redeploy"
@@ -207,7 +208,7 @@ var (
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     nil,
+		authtypes.FeeCollectorName:     {authtypes.Burner},
 		distrtypes.ModuleName:          nil,
 		icatypes.ModuleName:            nil,
 		minttypes.ModuleName:           {authtypes.Minter},
@@ -868,14 +869,17 @@ func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
 }
 
 func (app *App) setPostHandler() {
-	postHandler, err := posthandler.NewPostHandler(
-		posthandler.HandlerOptions{},
-	)
-	if err != nil {
+	options := post.HandlerOptions{
+		FeeCollectorName: authtypes.FeeCollectorName,
+		BankKeeper:       app.BankKeeper,
+		FeeMarketKeeper:  &app.FeeMarketKeeper,
+	}
+
+	if err := options.Validate(); err != nil {
 		panic(err)
 	}
 
-	app.SetPostHandler(postHandler)
+	app.SetPostHandler(post.NewPostHandler(options))
 }
 
 // Name returns the name of the App
@@ -1083,6 +1087,13 @@ func (app *App) setupUpgradeHandlers() {
 		erc20redeployupgrade.UpgradeName,
 		erc20redeployupgrade.CreateUpgradeHandler(
 			app.mm, app.configurator, app.Erc20Keeper, app.BankKeeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		burn_commissions.UpgradeName,
+		burn_commissions.CreateUpgradeHandler(
+			app.mm, app.configurator, app.AccountKeeper,
 		),
 	)
 
