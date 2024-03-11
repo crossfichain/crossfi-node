@@ -238,7 +238,7 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, "."+Name)
+	DefaultNodeHome = filepath.Join(userHomeDir, ".crossfid")
 	evmtypes.DefaultEVMDenom = "xfi"
 	feemarkettypes.DefaultMinGasPrice = sdk.NewDec(10000000000000)
 }

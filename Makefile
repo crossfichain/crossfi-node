@@ -1,4 +1,4 @@
-PACKAGE_NAME:=github.com/mineplexio-org/mineplex-2-node
+PACKAGE_NAME:=github.com/crossfichain/crossfi-node
 GOLANG_CROSS_VERSION  = v1.21
 GOPATH ?= '$(HOME)/go'
 release-dry-run:

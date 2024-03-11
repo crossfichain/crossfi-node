@@ -1,1 +1,1 @@
-# Mineplex Chain 2
+# crossfichain/crossfi-node
