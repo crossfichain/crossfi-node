@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/crossfichain/crossfi-node/app/post"
+	"github.com/crossfichain/crossfi-node/app/upgrades/burn_commissions"
 	erc20upgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20"
 	erc20fixupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_fix"
 	erc20redeployupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_redeploy"
@@ -1086,6 +1087,13 @@ func (app *App) setupUpgradeHandlers() {
 		erc20redeployupgrade.UpgradeName,
 		erc20redeployupgrade.CreateUpgradeHandler(
 			app.mm, app.configurator, app.Erc20Keeper, app.BankKeeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		burn_commissions.UpgradeName,
+		burn_commissions.CreateUpgradeHandler(
+			app.mm, app.configurator, app.AccountKeeper,
 		),
 	)
 
