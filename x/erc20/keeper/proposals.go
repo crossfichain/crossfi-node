@@ -9,9 +9,45 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/common"
+	"strings"
 
 	"github.com/crossfichain/crossfi-node/x/erc20/types"
 )
+
+func (k Keeper) CreateCheque(ctx sdk.Context, pair types.TokenPair) error {
+	name := pair.Denom + "_cheque"
+	nameUpper := strings.ToUpper(name)
+
+	metadata := banktypes.Metadata{
+		Description: name,
+		DenomUnits: []*banktypes.DenomUnit{
+			{
+				Denom:    name,
+				Exponent: 0,
+			},
+			{
+				Denom:    nameUpper,
+				Exponent: 18,
+			},
+		},
+		Base:    name,
+		Display: nameUpper,
+		Name:    nameUpper,
+		Symbol:  nameUpper,
+	}
+
+	addr, err := k.DeployERC20Contract(ctx, metadata)
+	if err != nil {
+		return errorsmod.Wrap(
+			err, "failed to create cheque token",
+		)
+	}
+
+	pair.Erc20Cheque = addr.String()
+	k.SetTokenPair(ctx, pair)
+
+	return nil
+}
 
 // RegisterCoin deploys an erc20 contract and creates the token pair for the
 // existing cosmos coin

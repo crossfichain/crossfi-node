@@ -1,4 +1,4 @@
-binary: "mineplex-chaind"
+binary: "crossfid"
 home_dir: "./chain_data"
 keyring_backend: "test"
 key_algo: "eth_secp256k1"
@@ -11,8 +11,9 @@ genesis:
   app_state:
     evm:
       params:
+        active_precompiles:
         evm_denom:
-          mpx
+          xfi
     crisis:
       constant_fee:
         denom: mpx
@@ -33,7 +34,7 @@ genesis:
       params:
         owner: mx1fv9cgmsgvs4r4f346axfd76twmjd7mqllwndy5
 accounts:
-  - name: myacc
+  - address: mx1tqpns4ukycaz0jhlf8dxghhzftld7x3l4kdscl
     coins:
       - 100000000000000000000000000mpx
       - 100000000000000000000000000xfi
@@ -43,3 +44,6 @@ validators:
     client:
       keyring-backend: test
       broadcast-mode: block
+    app:
+      json-rpc:
+        enable: true

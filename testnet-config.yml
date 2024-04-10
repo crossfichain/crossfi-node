@@ -30,12 +30,20 @@ seed:
       laddr: "tcp://0.0.0.0:26657"
 genesis:
   chain_id: "crossfi-evm-testnet-1"
-  genesis_time: "2023-10-15T00:00:00.000000Z"
+  genesis_time: "2023-10-19T06:00:00.000000Z"
+  consensus_params:
+    block:
+      max_gas: "20000000"
   app_state:
     evm:
       params:
         evm_denom:
-          mpx
+          xfi
+    feemarket:
+      params:
+        base_fee: "10000000000000"
+        min_gas_price: "10000000000000.000000000000000000"
+        elasticity_multiplier: 4
     crisis:
       constant_fee:
         denom: mpx
@@ -63,6 +71,9 @@ accounts:
 validators:
   - name: validator1
     bonded: 1000000000000000000000000mpx
+    gentx:
+      gas: 200000
+      gas-prices: 10000000000000mpx
     client:
       keyring-backend: file
       broadcast-mode: block
@@ -91,6 +102,9 @@ validators:
         enable: false
   - name: validator2
     bonded: 1000000000000000000000000mpx
+    gentx:
+      gas: 200000
+      gas-prices: 10000000000000mpx
     client:
       keyring-backend: file
       broadcast-mode: block
@@ -119,6 +133,9 @@ validators:
         enable: false
   - name: validator3
     bonded: 1000000000000000000000000mpx
+    gentx:
+      gas: 200000
+      gas-prices: 10000000000000mpx
     client:
       keyring-backend: file
       broadcast-mode: block
@@ -147,6 +164,9 @@ validators:
         enable: false
   - name: validator4
     bonded: 1000000000000000000000000mpx
+    gentx:
+      gas: 200000
+      gas-prices: 10000000000000mpx
     client:
       keyring-backend: file
       broadcast-mode: block
