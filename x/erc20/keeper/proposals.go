@@ -14,7 +14,7 @@ import (
 	"github.com/crossfichain/crossfi-node/x/erc20/types"
 )
 
-func (k Keeper) CreateCheque(ctx sdk.Context, pair types.TokenPair) error {
+func (k Keeper) CreateCheque(ctx sdk.Context, pair types.TokenPair) (common.Address, error) {
 	name := pair.Denom + "_cheque"
 	nameUpper := strings.ToUpper(name)
 
@@ -38,7 +38,7 @@ func (k Keeper) CreateCheque(ctx sdk.Context, pair types.TokenPair) error {
 
 	addr, err := k.DeployERC20Contract(ctx, metadata)
 	if err != nil {
-		return errorsmod.Wrap(
+		return common.Address{}, errorsmod.Wrap(
 			err, "failed to create cheque token",
 		)
 	}
@@ -46,7 +46,7 @@ func (k Keeper) CreateCheque(ctx sdk.Context, pair types.TokenPair) error {
 	pair.Erc20Cheque = addr.String()
 	k.SetTokenPair(ctx, pair)
 
-	return nil
+	return addr, nil
 }
 
 // RegisterCoin deploys an erc20 contract and creates the token pair for the

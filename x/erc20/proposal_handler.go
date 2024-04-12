@@ -65,7 +65,7 @@ func handleRegisterCoinProposal(
 		}
 
 		if p.EnableCheque {
-			err := k.CreateCheque(ctx, *pair)
+			_, err := k.CreateCheque(ctx, *pair)
 			if err != nil {
 				return err
 			}

@@ -5,7 +5,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/crossfichain/crossfi-node/contracts"
 	erc20keeper "github.com/crossfichain/crossfi-node/x/erc20/keeper"
+	"github.com/crossfichain/crossfi-node/x/erc20/types"
+	"github.com/ethereum/go-ethereum/common"
+	"math/big"
 )
 
 func CreateUpgradeHandler(
@@ -32,7 +36,16 @@ func CreateUpgradeHandler(
 			return nil, errors.New("coin pair not found")
 		}
 
-		err = erc20keeper.CreateCheque(ctx, pair)
+		addr, err := erc20keeper.CreateCheque(ctx, pair)
+
+		owner := common.HexToAddress("0x23F0A127a1c5B27DE33A73D116c384798dE2408A") // todo
+		tokens := big.NewInt(1e18)
+		tokens.Mul(tokens, big.NewInt(10000000))
+
+		_, err = erc20keeper.CallEVM(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, types.ModuleAddress, addr, true, "mint", owner, tokens)
+		if err != nil {
+			return nil, err
+		}
 
 		if err != nil {
 			return nil, err
