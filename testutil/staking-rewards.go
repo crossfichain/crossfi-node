@@ -30,7 +30,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/crossfichain/crossfi-node/app"
-	"github.com/evmos/evmos/v13/utils"
+	"github.com/evmos/evmos/v12/utils"
 )
 
 // PrepareAccountsForDelegationRewards prepares the test suite for testing to withdraw delegation rewards.

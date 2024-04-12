@@ -28,7 +28,7 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/crossfichain/crossfi-node/app"
-	"github.com/evmos/evmos/v13/encoding"
+	"github.com/evmos/evmos/v12/encoding"
 )
 
 // Commit commits a block at a given time. Reminder: At the end of each

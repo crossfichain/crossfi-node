@@ -14,8 +14,8 @@ import (
 	"github.com/tendermint/tendermint/version"
 
 	utiltx "github.com/crossfichain/crossfi-node/testutil/tx"
-	"github.com/evmos/evmos/v13/utils"
-	feemarkettypes "github.com/evmos/evmos/v13/x/feemarket/types"
+	"github.com/evmos/evmos/v12/utils"
+	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 
 	"github.com/crossfichain/crossfi-node/app"
 	"github.com/crossfichain/crossfi-node/x/erc20"

@@ -13,8 +13,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v13/server/config"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	"github.com/evmos/evmos/v12/server/config"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 
 	"github.com/crossfichain/crossfi-node/contracts"
 	"github.com/crossfichain/crossfi-node/x/erc20/types"

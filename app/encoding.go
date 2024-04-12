@@ -7,8 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/std"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-	cryptocodec "github.com/evmos/evmos/v13/crypto/codec"
-	evmostypes "github.com/evmos/evmos/v13/types"
+	cryptocodec "github.com/evmos/evmos/v12/crypto/codec"
+	evmostypes "github.com/evmos/evmos/v12/types"
 
 	"github.com/cosmos/cosmos-sdk/simapp/params"
 )

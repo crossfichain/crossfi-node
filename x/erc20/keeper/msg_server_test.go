@@ -14,8 +14,8 @@ import (
 
 	"github.com/crossfichain/crossfi-node/x/erc20/keeper"
 	"github.com/crossfichain/crossfi-node/x/erc20/types"
-	"github.com/evmos/evmos/v13/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	"github.com/evmos/evmos/v12/x/evm/statedb"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestConvertCoinNativeCoin() {

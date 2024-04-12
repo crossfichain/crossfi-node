@@ -18,7 +18,7 @@ import (
 	"github.com/crossfichain/crossfi-node/app"
 
 	"github.com/crossfichain/crossfi-node/testutil/tx"
-	evm "github.com/evmos/evmos/v13/x/evm/types"
+	evm "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 // DeployContract deploys a contract with the provided private key,

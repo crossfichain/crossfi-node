@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	evmoskr "github.com/evmos/evmos/v13/crypto/keyring"
+	evmoskr "github.com/evmos/evmos/v12/crypto/keyring"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

@@ -7,7 +7,7 @@ import (
 
 	utiltx "github.com/crossfichain/crossfi-node/testutil/tx"
 	"github.com/crossfichain/crossfi-node/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v13/x/evm/types"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestGetTokenPairs() {

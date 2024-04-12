@@ -10,7 +10,7 @@ import (
 
 	"github.com/crossfichain/crossfi-node/contracts"
 	"github.com/crossfichain/crossfi-node/x/erc20/types"
-	utiltx "github.com/evmos/evmos/v13/testutil/tx"
+	utiltx "github.com/evmos/evmos/v12/testutil/tx"
 )
 
 // ensureHooksSet tries to set the hooks on EVMKeeper, this will fail if the erc20 hook is already set
