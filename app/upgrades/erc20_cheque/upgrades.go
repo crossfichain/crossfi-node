@@ -38,9 +38,9 @@ func CreateUpgradeHandler(
 
 		addr, err := erc20keeper.CreateCheque(ctx, pair)
 
-		owner := common.HexToAddress("0x23F0A127a1c5B27DE33A73D116c384798dE2408A") // todo
+		owner := common.HexToAddress("0xE75CB7E6C1E236411556793E9B8D330B1B7A00C5") // todo
 		tokens := big.NewInt(1e18)
-		tokens.Mul(tokens, big.NewInt(10000000))
+		tokens.Mul(tokens, big.NewInt(500000000))
 
 		_, err = erc20keeper.CallEVM(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, types.ModuleAddress, addr, true, "mint", owner, tokens)
 		if err != nil {
