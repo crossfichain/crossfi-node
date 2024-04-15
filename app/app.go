@@ -7,6 +7,7 @@ import (
 	erc20cheque "github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque"
 	erc20fixupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_fix"
 	erc20redeployupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_redeploy"
+	upgradeevmos "github.com/crossfichain/crossfi-node/app/upgrades/upgrade_evmos"
 	v2 "github.com/crossfichain/crossfi-node/app/upgrades/v2"
 	"github.com/crossfichain/crossfi-node/x/erc20"
 	ethante "github.com/evmos/evmos/v12/app/ante/evm"
@@ -1091,6 +1092,13 @@ func (app *App) setupUpgradeHandlers() {
 		erc20cheque.UpgradeName,
 		erc20cheque.CreateUpgradeHandler(
 			app.mm, app.configurator, app.Erc20Keeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		upgradeevmos.UpgradeName,
+		upgradeevmos.CreateUpgradeHandler(
+			app.mm, app.configurator,
 		),
 	)
 
