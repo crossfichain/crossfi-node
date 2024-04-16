@@ -5,6 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	erc20upgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20"
 	erc20cheque "github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque"
+	"github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque_transfer"
 	erc20fixupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_fix"
 	erc20redeployupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_redeploy"
 	upgradeevmos "github.com/crossfichain/crossfi-node/app/upgrades/upgrade_evmos"
@@ -1099,6 +1100,13 @@ func (app *App) setupUpgradeHandlers() {
 		upgradeevmos.UpgradeName,
 		upgradeevmos.CreateUpgradeHandler(
 			app.mm, app.configurator,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		erc20_cheque_transfer.UpgradeName,
+		erc20_cheque_transfer.CreateUpgradeHandler(
+			app.mm, app.configurator, app.Erc20Keeper,
 		),
 	)
 
