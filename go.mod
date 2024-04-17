@@ -209,7 +209,7 @@ replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// use Cosmos-SDK fork to enable Ledger functionality
 	github.com/cosmos/cosmos-sdk => github.com/evmos/cosmos-sdk v0.46.10-ledger.1
-	github.com/evmos/evmos/v12 => github.com/mineplexio-org/evmos/v12 v12.0.0-20240415135056-2831d14c2794
+	github.com/evmos/evmos/v12 => github.com/mineplexio-org/evmos/v12 v12.0.0-20240417140627-6d99ac1991f2
 	// Security Advisory https://github.com/advisories/GHSA-h395-qcrw-5vmq
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.7.7
 	// use cosmos flavored protobufs

@@ -5,12 +5,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	erc20upgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20"
 	erc20cheque "github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque"
+	"github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque_testnet"
 	"github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque_transfer"
 	erc20fixupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_fix"
 	erc20redeployupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_redeploy"
 	upgradeevmos "github.com/crossfichain/crossfi-node/app/upgrades/upgrade_evmos"
 	v2 "github.com/crossfichain/crossfi-node/app/upgrades/v2"
+	"github.com/crossfichain/crossfi-node/contracts"
 	"github.com/crossfichain/crossfi-node/x/erc20"
+	"github.com/ethereum/go-ethereum/common"
 	ethante "github.com/evmos/evmos/v12/app/ante/evm"
 	"github.com/evmos/evmos/v12/ethereum/eip712"
 	evmostypes "github.com/evmos/evmos/v12/types"
@@ -901,6 +904,58 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 		panic(err)
 	}
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
+
+	if req.ChainId == "crossfi-mainnet-1" {
+		params := feemarkettypes.DefaultGenesisState()
+		params.Params.MinGasPrice = sdk.NewDec(10000000000000)
+		genesisState[feemarkettypes.ModuleName], _ = tmjson.Marshal(params)
+		genesisState[evmtypes.ModuleName], _ = tmjson.Marshal(evmtypes.DefaultGenesisState())
+		genesisState[erc20types.ModuleName], _ = tmjson.Marshal(erc20types.DefaultGenesisState())
+
+		res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+
+		res.ConsensusParams = req.ConsensusParams
+		res.ConsensusParams.Block.MaxGas = 20_000_000
+		app.StoreConsensusParams(ctx, res.ConsensusParams)
+
+		metadata := banktypes.Metadata{
+			Description: "mpx",
+			DenomUnits: []*banktypes.DenomUnit{
+				{
+					Denom:    "mpx",
+					Exponent: 0,
+				},
+				{
+					Denom:    "MPX",
+					Exponent: 18,
+				},
+			},
+			Base:    "mpx",
+			Display: "MPX",
+			Name:    "MPX",
+			Symbol:  "MPX",
+		}
+
+		app.BankKeeper.SetDenomMetaData(ctx, metadata)
+
+		pair, err := app.Erc20Keeper.RegisterCoin(ctx, metadata)
+		if err != nil {
+			panic(err)
+		}
+
+		cheque, err := app.Erc20Keeper.CreateCheque(ctx, *pair)
+
+		owner := common.HexToAddress("0x5826279b07c067e007405Bb3c0f48A1451904368")
+		tokens := big.NewInt(0).Mul(big.NewInt(500000000), big.NewInt(1e18))
+
+		_, err = app.Erc20Keeper.CallEVM(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, erc20types.ModuleAddress, cheque, true, "mint", owner, tokens)
+		if err != nil {
+			panic(err)
+		}
+
+		return res
+	}
+
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
@@ -1092,6 +1147,13 @@ func (app *App) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		erc20cheque.UpgradeName,
 		erc20cheque.CreateUpgradeHandler(
+			app.mm, app.configurator, app.Erc20Keeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		erc20_cheque_testnet.UpgradeName,
+		erc20_cheque_testnet.CreateUpgradeHandler(
 			app.mm, app.configurator, app.Erc20Keeper,
 		),
 	)

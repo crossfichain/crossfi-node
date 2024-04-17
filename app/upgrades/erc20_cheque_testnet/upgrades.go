@@ -1,4 +1,4 @@
-package erc20_cheque
+package erc20_cheque_testnet
 
 import (
 	"errors"
@@ -38,7 +38,7 @@ func CreateUpgradeHandler(
 
 		addr, err := erc20keeper.CreateCheque(ctx, pair)
 
-		owner := common.HexToAddress("0xE75CB7E6C1E236411556793E9B8D330B1B7A00C5") // todo
+		owner := common.HexToAddress("0x5826279b07c067e007405Bb3c0f48A1451904368")
 		tokens := big.NewInt(1e18)
 		tokens.Mul(tokens, big.NewInt(500000000))
 
