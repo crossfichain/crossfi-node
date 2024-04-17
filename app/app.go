@@ -918,6 +918,9 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 		res.ConsensusParams.Block.MaxGas = 20_000_000
 		app.StoreConsensusParams(ctx, res.ConsensusParams)
 
+		blockHeader := ctx.BlockHeader()
+		blockHeader.ProposerAddress, _ = app.StakingKeeper.GetAllValidators(ctx)[0].GetConsAddr()
+
 		metadata := banktypes.Metadata{
 			Description: "mpx",
 			DenomUnits: []*banktypes.DenomUnit{
@@ -938,17 +941,17 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 
 		app.BankKeeper.SetDenomMetaData(ctx, metadata)
 
-		pair, err := app.Erc20Keeper.RegisterCoin(ctx, metadata)
+		pair, err := app.Erc20Keeper.RegisterCoin(ctx.WithBlockHeader(blockHeader), metadata)
 		if err != nil {
 			panic(err)
 		}
 
-		cheque, err := app.Erc20Keeper.CreateCheque(ctx, *pair)
+		cheque, err := app.Erc20Keeper.CreateCheque(ctx.WithBlockHeader(blockHeader), *pair)
 
 		owner := common.HexToAddress("0x5826279b07c067e007405Bb3c0f48A1451904368")
 		tokens := big.NewInt(0).Mul(big.NewInt(500000000), big.NewInt(1e18))
 
-		_, err = app.Erc20Keeper.CallEVM(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, erc20types.ModuleAddress, cheque, true, "mint", owner, tokens)
+		_, err = app.Erc20Keeper.CallEVM(ctx.WithBlockHeader(blockHeader), contracts.ERC20MinterBurnerDecimalsContract.ABI, erc20types.ModuleAddress, cheque, true, "mint", owner, tokens)
 		if err != nil {
 			panic(err)
 		}
