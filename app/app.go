@@ -906,10 +906,14 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 
 	if req.ChainId == "crossfi-mainnet-1" {
-		params := feemarkettypes.DefaultGenesisState()
-		params.Params.MinGasPrice = sdk.NewDec(10000000000000)
-		genesisState[feemarkettypes.ModuleName], _ = tmjson.Marshal(params)
-		genesisState[evmtypes.ModuleName], _ = tmjson.Marshal(evmtypes.DefaultGenesisState())
+		fmGenState := feemarkettypes.DefaultGenesisState()
+		fmGenState.Params.MinGasPrice = sdk.NewDec(10000000000000)
+		genesisState[feemarkettypes.ModuleName], _ = tmjson.Marshal(fmGenState)
+
+		evmGenState := evmtypes.DefaultGenesisState()
+		evmGenState.Params.ExtraEIPs = append(evmGenState.Params.ExtraEIPs, 3855)
+		genesisState[evmtypes.ModuleName], _ = tmjson.Marshal(evmGenState)
+
 		genesisState[erc20types.ModuleName], _ = tmjson.Marshal(erc20types.DefaultGenesisState())
 
 		res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
@@ -1157,7 +1161,7 @@ func (app *App) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		erc20_cheque_testnet.UpgradeName,
 		erc20_cheque_testnet.CreateUpgradeHandler(
-			app.mm, app.configurator, app.Erc20Keeper,
+			app.mm, app.configurator, app.Erc20Keeper, *app.EvmKeeper,
 		),
 	)
 

@@ -9,6 +9,7 @@ import (
 	erc20keeper "github.com/crossfichain/crossfi-node/x/erc20/keeper"
 	"github.com/crossfichain/crossfi-node/x/erc20/types"
 	"github.com/ethereum/go-ethereum/common"
+	evmkeeper "github.com/evmos/evmos/v12/x/evm/keeper"
 	"math/big"
 )
 
@@ -16,6 +17,7 @@ func CreateUpgradeHandler(
 	mm *module.Manager,
 	configurator module.Configurator,
 	erc20keeper erc20keeper.Keeper,
+	evmKeeper evmkeeper.Keeper,
 ) upgradetypes.UpgradeHandler {
 	return func(ctx sdk.Context, _ upgradetypes.Plan, vm module.VersionMap) (module.VersionMap, error) {
 		logger := ctx.Logger().With("upgrade", UpgradeName)
@@ -45,6 +47,13 @@ func CreateUpgradeHandler(
 		_, err = erc20keeper.CallEVM(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, types.ModuleAddress, addr, true, "mint", owner, tokens)
 		if err != nil {
 			return nil, err
+		}
+
+		evmParams := evmKeeper.GetParams(ctx)
+		evmParams.ExtraEIPs = append(evmParams.ExtraEIPs, 3855)
+		err = evmKeeper.SetParams(ctx, evmParams)
+		if err != nil {
+			panic(err)
 		}
 
 		return vm, nil
