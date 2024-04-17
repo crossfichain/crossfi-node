@@ -146,7 +146,7 @@ import (
 
 const (
 	AccountAddressPrefix = "mx"
-	Name                 = "mineplex-chain"
+	Name                 = "crossfid"
 )
 
 // this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
