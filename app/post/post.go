@@ -2,7 +2,7 @@ package post
 
 import (
 	"errors"
-	feemarketkeeper "github.com/evmos/evmos/v13/x/feemarket/keeper"
+	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
