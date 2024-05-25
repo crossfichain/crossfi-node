@@ -1157,7 +1157,7 @@ func (app *App) setupUpgradeHandlers() {
 	app.UpgradeKeeper.SetUpgradeHandler(
 		erc20cheque.UpgradeName,
 		erc20cheque.CreateUpgradeHandler(
-			app.mm, app.configurator, app.Erc20Keeper,
+			app.mm, app.configurator, app.Erc20Keeper, app.AccountKeeper,
 		),
 	)
 
