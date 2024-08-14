@@ -909,6 +909,24 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 
 	if req.ChainId == "crossfi-mainnet-1" {
+		previousHeight := int64(7000000) // todo: update this value before upgrade
+
+		mintGenState := minttypes.GenesisState{}
+		err := tmjson.Unmarshal(genesisState[minttypes.ModuleName], &mintGenState)
+		if err != nil {
+			panic(err)
+		}
+		for i, period := range mintGenState.Params.Periods {
+			if period.FromHeight > previousHeight {
+				mintGenState.Params.Periods[i].FromHeight -= previousHeight
+			}
+
+			if period.ToHeight > previousHeight {
+				mintGenState.Params.Periods[i].ToHeight -= previousHeight
+			}
+		}
+		genesisState[minttypes.ModuleName], _ = tmjson.Marshal(mintGenState)
+
 		fmGenState := feemarkettypes.DefaultGenesisState()
 		fmGenState.Params.MinGasPrice = sdk.NewDec(10000000000000)
 		genesisState[feemarkettypes.ModuleName], _ = tmjson.Marshal(fmGenState)
