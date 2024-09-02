@@ -155,7 +155,8 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
 	// this line is used by starport scaffolding # stargate/app/govProposalHandlers
 
-	govProposalHandlers = append(govProposalHandlers,
+	govProposalHandlers = append(
+		govProposalHandlers,
 		paramsclient.ProposalHandler,
 		distrclient.ProposalHandler,
 		upgradeclient.LegacyProposalHandler,
@@ -163,7 +164,8 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
 
-		erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler, erc20client.ToggleTokenConversionProposalHandler,
+		erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler,
+		erc20client.ToggleTokenConversionProposalHandler,
 
 		// this line is used by starport scaffolding # stargate/app/govProposalHandler
 	)
@@ -497,13 +499,16 @@ func New(
 	)
 
 	app.EvmKeeper = evmkeeper.NewKeeper(
-		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey], authtypes.NewModuleAddress(govtypes.ModuleName),
+		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey],
+		authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
 
-	app.Erc20Keeper = erc20keeper.NewKeeper(keys[erc20types.StoreKey], appCodec,
-		authtypes.NewModuleAddress(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper, app.EvmKeeper)
+	app.Erc20Keeper = erc20keeper.NewKeeper(
+		keys[erc20types.StoreKey], appCodec,
+		authtypes.NewModuleAddress(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
+	)
 
 	app.EvmKeeper = app.EvmKeeper.SetHooks(app.Erc20Keeper.Hooks())
 
@@ -591,7 +596,9 @@ func New(
 		keys[mineplexchainmoduletypes.MemStoreKey],
 		app.GetSubspace(mineplexchainmoduletypes.ModuleName),
 	)
-	mineplexchainModule := mineplexchainmodule.NewAppModule(appCodec, app.MineplexchainKeeper, app.AccountKeeper, app.BankKeeper)
+	mineplexchainModule := mineplexchainmodule.NewAppModule(
+		appCodec, app.MineplexchainKeeper, app.AccountKeeper, app.BankKeeper,
+	)
 
 	app.TreasuryKeeper = *treasurymodulekeeper.NewKeeper(
 		appCodec,
@@ -653,7 +660,9 @@ func New(
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
-		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
+		feegrantmodule.NewAppModule(
+			appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry,
+		),
 		groupmodule.NewAppModule(appCodec, app.GroupKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
@@ -794,7 +803,9 @@ func New(
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
-		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
+		feegrantmodule.NewAppModule(
+			appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry,
+		),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper),
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
@@ -927,6 +938,31 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 		}
 		genesisState[minttypes.ModuleName], _ = tmjson.Marshal(mintGenState)
 
+		accGenState := authtypes.GetGenesisStateFromAppState(app.appCodec, genesisState)
+		accounts, err := authtypes.UnpackAccounts(accGenState.Accounts)
+		if err != nil {
+			panic(err)
+		}
+
+		for i, acc := range accounts {
+			if macc, ok := acc.(authtypes.ModuleAccountI); ok {
+				if macc.GetName() == authtypes.FeeCollectorName {
+					accounts[i] = authtypes.NewModuleAccount(
+						authtypes.NewBaseAccount(
+							macc.GetAddress(), macc.GetPubKey(), macc.GetAccountNumber(), macc.GetSequence(),
+						),
+						macc.GetName(), authtypes.Burner,
+					)
+				}
+			}
+		}
+
+		accGenState.Accounts, err = authtypes.PackAccounts(accounts)
+		if err != nil {
+			panic(err)
+		}
+		genesisState[authtypes.ModuleName] = app.appCodec.MustMarshalJSON(&accGenState)
+
 		fmGenState := feemarkettypes.DefaultGenesisState()
 		fmGenState.Params.MinGasPrice = sdk.NewDec(10000000000000)
 		genesisState[feemarkettypes.ModuleName], _ = tmjson.Marshal(fmGenState)
@@ -976,7 +1012,10 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 		owner := common.HexToAddress("0x5826279b07c067e007405Bb3c0f48A1451904368")
 		tokens := big.NewInt(0).Mul(big.NewInt(500000000), big.NewInt(1e18))
 
-		_, err = app.Erc20Keeper.CallEVM(ctx.WithBlockHeader(blockHeader), contracts.ERC20MinterBurnerDecimalsContract.ABI, erc20types.ModuleAddress, cheque, true, "mint", owner, tokens)
+		_, err = app.Erc20Keeper.CallEVM(
+			ctx.WithBlockHeader(blockHeader), contracts.ERC20MinterBurnerDecimalsContract.ABI, erc20types.ModuleAddress,
+			cheque, true, "mint", owner, tokens,
+		)
 		if err != nil {
 			panic(err)
 		}
