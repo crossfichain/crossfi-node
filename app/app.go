@@ -964,7 +964,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 		genesisState[authtypes.ModuleName] = app.appCodec.MustMarshalJSON(&accGenState)
 
 		fmGenState := feemarkettypes.DefaultGenesisState()
-		fmGenState.Params.MinGasPrice = sdk.NewDec(10000000000000)
+		fmGenState.Params.MinGasPrice = sdk.NewDec(500000000000)
 		genesisState[feemarkettypes.ModuleName], _ = tmjson.Marshal(fmGenState)
 
 		evmGenState := evmtypes.DefaultGenesisState()
