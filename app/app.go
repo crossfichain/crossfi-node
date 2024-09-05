@@ -920,7 +920,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 
 	if req.ChainId == "crossfi-mainnet-1" {
-		previousHeight := int64(7000000) // todo: update this value before upgrade
+		previousHeight := int64(8016912) // todo: update this value before upgrade
 
 		mintGenState := minttypes.GenesisState{}
 		err := tmjson.Unmarshal(genesisState[minttypes.ModuleName], &mintGenState)
