@@ -122,13 +122,9 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	mineplexchainmodule "github.com/crossfichain/crossfi-node/x/mineplexchain"
-	mineplexchainmodulekeeper "github.com/crossfichain/crossfi-node/x/mineplexchain/keeper"
-	mineplexchainmoduletypes "github.com/crossfichain/crossfi-node/x/mineplexchain/types"
 	treasurymodule "github.com/crossfichain/crossfi-node/x/treasury"
 	treasurymodulekeeper "github.com/crossfichain/crossfi-node/x/treasury/keeper"
 	treasurymoduletypes "github.com/crossfichain/crossfi-node/x/treasury/types"
-	// this line is used by starport scaffolding # stargate/app/moduleImport
 
 	appparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/crossfichain/crossfi-node/docs"
@@ -149,11 +145,8 @@ const (
 	Name                 = "crossfid"
 )
 
-// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
-
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
-	// this line is used by starport scaffolding # stargate/app/govProposalHandlers
 
 	govProposalHandlers = append(
 		govProposalHandlers,
@@ -166,8 +159,6 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 
 		erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler,
 		erc20client.ToggleTokenConversionProposalHandler,
-
-		// this line is used by starport scaffolding # stargate/app/govProposalHandler
 	)
 
 	return govProposalHandlers
@@ -201,7 +192,6 @@ var (
 		transfer.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		vesting.AppModuleBasic{},
-		mineplexchainmodule.AppModuleBasic{},
 		treasurymodule.AppModuleBasic{},
 
 		// ethermint
@@ -209,8 +199,6 @@ var (
 		feemarket.AppModuleBasic{},
 
 		erc20.AppModuleBasic{},
-
-		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
 	// module account permissions
@@ -229,7 +217,6 @@ var (
 		evmtypes.ModuleName: {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
 
 		erc20types.ModuleName: {authtypes.Minter, authtypes.Burner},
-		// this line is used by starport scaffolding # stargate/app/maccPerms
 	}
 )
 
@@ -297,12 +284,9 @@ type App struct {
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
 
-	MineplexchainKeeper mineplexchainmodulekeeper.Keeper
-
 	TreasuryKeeper treasurymodulekeeper.Keeper
 
 	Erc20Keeper erc20keeper.Keeper
-	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// mm is the module manager
 	mm *module.Manager
@@ -347,14 +331,11 @@ func New(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey, govtypes.StoreKey,
 		paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey, evidencetypes.StoreKey,
 		ibctransfertypes.StoreKey, icahosttypes.StoreKey, capabilitytypes.StoreKey, group.StoreKey,
-		icacontrollertypes.StoreKey,
-		mineplexchainmoduletypes.StoreKey,
-		treasurymoduletypes.StoreKey,
+		icacontrollertypes.StoreKey, treasurymoduletypes.StoreKey,
 
 		evmtypes.StoreKey, feemarkettypes.StoreKey,
 
 		erc20types.StoreKey,
-		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -392,7 +373,6 @@ func New(
 	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
-	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -590,16 +570,6 @@ func New(
 		govConfig,
 	)
 
-	app.MineplexchainKeeper = *mineplexchainmodulekeeper.NewKeeper(
-		appCodec,
-		keys[mineplexchainmoduletypes.StoreKey],
-		keys[mineplexchainmoduletypes.MemStoreKey],
-		app.GetSubspace(mineplexchainmoduletypes.ModuleName),
-	)
-	mineplexchainModule := mineplexchainmodule.NewAppModule(
-		appCodec, app.MineplexchainKeeper, app.AccountKeeper, app.BankKeeper,
-	)
-
 	app.TreasuryKeeper = *treasurymodulekeeper.NewKeeper(
 		appCodec,
 		keys[treasurymoduletypes.StoreKey],
@@ -608,8 +578,6 @@ func New(
 		app.BankKeeper,
 	)
 	treasuryModule := treasurymodule.NewAppModule(appCodec, app.TreasuryKeeper, app.AccountKeeper, app.BankKeeper)
-
-	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
 	/**** IBC Routing ****/
 
@@ -620,7 +588,6 @@ func New(
 	ibcRouter := ibcporttypes.NewRouter()
 	ibcRouter.AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
 		AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
-	// this line is used by starport scaffolding # ibc/app/router
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	/**** Module Hooks ****/
@@ -676,15 +643,12 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
 		icaModule,
-		mineplexchainModule,
 		treasuryModule,
 
 		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
 
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
-
-		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -715,10 +679,8 @@ func New(
 		group.ModuleName,
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
-		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
 		erc20types.ModuleName,
-		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
 	app.mm.SetOrderEndBlockers(
@@ -744,10 +706,8 @@ func New(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
-		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
 		erc20types.ModuleName,
-		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -782,10 +742,8 @@ func New(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
-		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
 		erc20types.ModuleName,
-		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
 	// Uncomment if you want to set a custom migration order here.
@@ -816,10 +774,8 @@ func New(
 		evidence.NewAppModule(app.EvidenceKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
-		mineplexchainModule,
 		treasuryModule,
 		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
-		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 	app.sm.RegisterStoreDecoders()
 
@@ -851,7 +807,6 @@ func New(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
-	// this line is used by starport scaffolding # stargate/app/beforeInitReturn
 
 	return app
 }
@@ -1163,15 +1118,12 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
-	paramsKeeper.Subspace(mineplexchainmoduletypes.ModuleName)
 	paramsKeeper.Subspace(treasurymoduletypes.ModuleName)
 
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 
 	paramsKeeper.Subspace(erc20types.ModuleName)
-
-	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper
 }
