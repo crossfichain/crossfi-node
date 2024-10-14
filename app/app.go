@@ -875,7 +875,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
 
 	if req.ChainId == "crossfi-mainnet-1" {
-		previousHeight := int64(8630000)
+		previousHeight := int64(8646000)
 
 		mintGenState := minttypes.GenesisState{}
 		err := tmjson.Unmarshal(genesisState[minttypes.ModuleName], &mintGenState)
@@ -922,6 +922,10 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 		fmGenState.Params.MinGasPrice = sdk.NewDec(500000000000)
 		genesisState[feemarkettypes.ModuleName], _ = tmjson.Marshal(fmGenState)
 
+		tmGenState := treasurymoduletypes.DefaultGenesis()
+		tmGenState.Params.Owner = "mx16tdma849j8xrrwvwqdhcwwta0mwalpqcnljgru"
+		genesisState[treasurymoduletypes.ModuleName], _ = tmjson.Marshal(tmGenState)
+
 		evmGenState := evmtypes.DefaultGenesisState()
 		evmGenState.Params.ExtraEIPs = append(evmGenState.Params.ExtraEIPs, 3855)
 		genesisState[evmtypes.ModuleName], _ = tmjson.Marshal(evmGenState)
@@ -964,7 +968,7 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 
 		cheque, err := app.Erc20Keeper.CreateCheque(ctx.WithBlockHeader(blockHeader), *pair)
 
-		owner := common.HexToAddress("0x5826279b07c067e007405Bb3c0f48A1451904368")
+		owner := common.HexToAddress("0xD2dBBE9Ea591Cc31B98E036f87397d7eDddF8418")
 		tokens := big.NewInt(0).Mul(big.NewInt(500000000), big.NewInt(1e18))
 
 		_, err = app.Erc20Keeper.CallEVM(
