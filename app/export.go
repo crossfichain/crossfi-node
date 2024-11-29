@@ -76,7 +76,7 @@ func (app *App) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs []str
 	app.StakingKeeper.IterateValidators(ctx, func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
 		_, err := app.DistrKeeper.WithdrawValidatorCommission(ctx, val.GetOperator())
 		if err != nil {
-			println(err.Error())
+			log.Printf("error withdrawing validator commission: %v (%s)", err, val.GetOperator().String())
 		}
 		return false
 	})

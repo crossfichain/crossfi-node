@@ -1,1 +1,1 @@
-# crossfichain/crossfi-node
+# CrossFi Node
