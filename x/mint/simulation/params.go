@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/mineplexio/mineplex-2-node/x/mint/types"
+	"github.com/crossfichain/crossfi-node/x/mint/types"
 )
 
 const (

@@ -1,0 +1,49 @@
+binary: "crossfid"
+home_dir: "./chain_data"
+keyring_backend: "test"
+key_algo: "eth_secp256k1"
+genesis:
+  chain_id: "mineplex-testnet-6"
+  genesis_time: "2023-03-29T13:30:00.000000Z"
+  consensus_params:
+    block:
+      max_gas: "20000000"
+  app_state:
+    evm:
+      params:
+        active_precompiles:
+        evm_denom:
+          xfi
+    crisis:
+      constant_fee:
+        denom: mpx
+    gov:
+      deposit_params:
+        min_deposit:
+          - amount: "1000000000000000000"
+            denom: mpx
+      voting_params:
+        voting_period:
+          600s
+    staking:
+      params:
+        bond_denom: mpx
+        max_validators: 64
+        unbonding_time: 6000s
+    treasury:
+      params:
+        owner: mx1fv9cgmsgvs4r4f346axfd76twmjd7mqllwndy5
+accounts:
+  - address: mx1tqpns4ukycaz0jhlf8dxghhzftld7x3l4kdscl
+    coins:
+      - 100000000000000000000000000mpx
+      - 100000000000000000000000000xfi
+validators:
+  - name: validator1
+    bonded: 1000000000000000000000000mpx
+    client:
+      keyring-backend: test
+      broadcast-mode: block
+    app:
+      json-rpc:
+        enable: true

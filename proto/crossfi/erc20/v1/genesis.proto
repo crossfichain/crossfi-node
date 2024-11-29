@@ -1,0 +1,41 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+syntax = "proto3";
+package crossfi.erc20.v1;
+
+import "crossfi/erc20/v1/erc20.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/crossfichain/crossfi-node/x/erc20/types";
+
+// GenesisState defines the module's genesis state.
+message GenesisState {
+  // params are the erc20 module parameters at genesis
+  Params params = 1 [(gogoproto.nullable) = false];
+  // token_pairs is a slice of the registered token pairs at genesis
+  repeated TokenPair token_pairs = 2 [(gogoproto.nullable) = false];
+}
+
+// Params defines the erc20 module params
+message Params {
+  // enable_erc20 is the parameter to enable the conversion of Cosmos coins <-->
+  // ERC20 tokens.
+  bool enable_erc20 = 1;
+  // enable_evm_hook is the parameter to enable the EVM hook that converts an
+  // ERC20 token to a Cosmos Coin by transferring the Tokens through a
+  // MsgEthereumTx to the ModuleAddress Ethereum address.
+  bool enable_evm_hook = 2 [(gogoproto.customname) = "EnableEVMHook"];
+}

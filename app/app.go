@@ -2,7 +2,24 @@ package app
 
 import (
 	"fmt"
-	myante "github.com/mineplexio/mineplex-2-node/app/ante"
+	"github.com/crossfichain/crossfi-node/app/post"
+	erc20upgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20"
+	erc20cheque "github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque"
+	"github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque_testnet"
+	"github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque_transfer"
+	erc20fixupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_fix"
+	erc20redeployupgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20_redeploy"
+	upgradeevmos "github.com/crossfichain/crossfi-node/app/upgrades/upgrade_evmos"
+	v2 "github.com/crossfichain/crossfi-node/app/upgrades/v2"
+	"github.com/crossfichain/crossfi-node/contracts"
+	"github.com/crossfichain/crossfi-node/x/erc20"
+	"github.com/ethereum/go-ethereum/common"
+	ethante "github.com/evmos/evmos/v12/app/ante/evm"
+	"github.com/evmos/evmos/v12/ethereum/eip712"
+	evmostypes "github.com/evmos/evmos/v12/types"
+	evmkeeper "github.com/evmos/evmos/v12/x/evm/keeper"
+	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/evmos/v12/x/feemarket/types"
 	"io"
 	"math/big"
 	"os"
@@ -23,7 +40,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -95,9 +111,10 @@ import (
 	ibcporttypes "github.com/cosmos/ibc-go/v6/modules/core/05-port/types"
 	ibchost "github.com/cosmos/ibc-go/v6/modules/core/24-host"
 	ibckeeper "github.com/cosmos/ibc-go/v6/modules/core/keeper"
-	"github.com/mineplexio/mineplex-2-node/x/mint"
-	mintkeeper "github.com/mineplexio/mineplex-2-node/x/mint/keeper"
-	minttypes "github.com/mineplexio/mineplex-2-node/x/mint/types"
+	"github.com/crossfichain/crossfi-node/x/mint"
+	mintkeeper "github.com/crossfichain/crossfi-node/x/mint/keeper"
+	minttypes "github.com/crossfichain/crossfi-node/x/mint/types"
+	"github.com/evmos/evmos/v12/app/ante"
 	"github.com/spf13/cast"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -105,37 +122,43 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	mineplexchainmodule "github.com/mineplexio/mineplex-2-node/x/mineplexchain"
-	mineplexchainmodulekeeper "github.com/mineplexio/mineplex-2-node/x/mineplexchain/keeper"
-	mineplexchainmoduletypes "github.com/mineplexio/mineplex-2-node/x/mineplexchain/types"
-	treasurymodule "github.com/mineplexio/mineplex-2-node/x/treasury"
-	treasurymodulekeeper "github.com/mineplexio/mineplex-2-node/x/treasury/keeper"
-	treasurymoduletypes "github.com/mineplexio/mineplex-2-node/x/treasury/types"
-	// this line is used by starport scaffolding # stargate/app/moduleImport
+	treasurymodule "github.com/crossfichain/crossfi-node/x/treasury"
+	treasurymodulekeeper "github.com/crossfichain/crossfi-node/x/treasury/keeper"
+	treasurymoduletypes "github.com/crossfichain/crossfi-node/x/treasury/types"
 
-	appparams "github.com/mineplexio/mineplex-2-node/app/params"
-	"github.com/mineplexio/mineplex-2-node/docs"
+	appparams "github.com/cosmos/cosmos-sdk/simapp/params"
+	"github.com/crossfichain/crossfi-node/docs"
+
+	"github.com/evmos/evmos/v12/x/evm"
+	"github.com/evmos/evmos/v12/x/feemarket"
+
+	srvflags "github.com/evmos/evmos/v12/server/flags"
+	evmtypes "github.com/evmos/evmos/v12/x/evm/types"
+
+	erc20client "github.com/crossfichain/crossfi-node/x/erc20/client"
+	erc20keeper "github.com/crossfichain/crossfi-node/x/erc20/keeper"
+	erc20types "github.com/crossfichain/crossfi-node/x/erc20/types"
 )
 
 const (
 	AccountAddressPrefix = "mx"
-	Name                 = "mineplex-chain"
+	Name                 = "crossfid"
 )
-
-// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
 
 func getGovProposalHandlers() []govclient.ProposalHandler {
 	var govProposalHandlers []govclient.ProposalHandler
-	// this line is used by starport scaffolding # stargate/app/govProposalHandlers
 
-	govProposalHandlers = append(govProposalHandlers,
+	govProposalHandlers = append(
+		govProposalHandlers,
 		paramsclient.ProposalHandler,
 		distrclient.ProposalHandler,
 		upgradeclient.LegacyProposalHandler,
 		upgradeclient.LegacyCancelProposalHandler,
 		ibcclientclient.UpdateClientProposalHandler,
 		ibcclientclient.UpgradeProposalHandler,
-		// this line is used by starport scaffolding # stargate/app/govProposalHandler
+
+		erc20client.RegisterCoinProposalHandler, erc20client.RegisterERC20ProposalHandler,
+		erc20client.ToggleTokenConversionProposalHandler,
 	)
 
 	return govProposalHandlers
@@ -169,14 +192,18 @@ var (
 		transfer.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		vesting.AppModuleBasic{},
-		mineplexchainmodule.AppModuleBasic{},
 		treasurymodule.AppModuleBasic{},
-		// this line is used by starport scaffolding # stargate/app/moduleBasic
+
+		// ethermint
+		evm.AppModuleBasic{},
+		feemarket.AppModuleBasic{},
+
+		erc20.AppModuleBasic{},
 	)
 
 	// module account permissions
 	maccPerms = map[string][]string{
-		authtypes.FeeCollectorName:     nil,
+		authtypes.FeeCollectorName:     {authtypes.Burner},
 		distrtypes.ModuleName:          nil,
 		icatypes.ModuleName:            nil,
 		minttypes.ModuleName:           {authtypes.Minter},
@@ -185,7 +212,11 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		treasurymoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner},
-		// this line is used by starport scaffolding # stargate/app/maccPerms
+
+		// evm
+		evmtypes.ModuleName: {authtypes.Minter, authtypes.Burner}, // used for secure addition and subtraction of balance using module account
+
+		erc20types.ModuleName: {authtypes.Minter, authtypes.Burner},
 	}
 )
 
@@ -202,7 +233,9 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, "."+Name)
+	DefaultNodeHome = filepath.Join(userHomeDir, ".crossfid")
+	evmtypes.DefaultEVMDenom = "xfi"
+	feemarkettypes.DefaultMinGasPrice = sdk.NewDec(10000000000000)
 }
 
 // App extends an ABCI application, but with most of its parameters exported.
@@ -242,15 +275,18 @@ type App struct {
 	FeeGrantKeeper   feegrantkeeper.Keeper
 	GroupKeeper      groupkeeper.Keeper
 
+	// ethermint
+	EvmKeeper       *evmkeeper.Keeper
+	FeeMarketKeeper feemarketkeeper.Keeper
+
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
 
-	MineplexchainKeeper mineplexchainmodulekeeper.Keeper
-
 	TreasuryKeeper treasurymodulekeeper.Keeper
-	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
+
+	Erc20Keeper erc20keeper.Keeper
 
 	// mm is the module manager
 	mm *module.Manager
@@ -273,9 +309,11 @@ func New(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
-	appCodec := encodingConfig.Marshaler
+	appCodec := encodingConfig.Codec
 	cdc := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
+
+	eip712.SetEncodingConfig(encodingConfig)
 
 	bApp := baseapp.NewBaseApp(
 		Name,
@@ -293,12 +331,13 @@ func New(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey, govtypes.StoreKey,
 		paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey, evidencetypes.StoreKey,
 		ibctransfertypes.StoreKey, icahosttypes.StoreKey, capabilitytypes.StoreKey, group.StoreKey,
-		icacontrollertypes.StoreKey,
-		mineplexchainmoduletypes.StoreKey,
-		treasurymoduletypes.StoreKey,
-		// this line is used by starport scaffolding # stargate/app/storeKey
+		icacontrollertypes.StoreKey, treasurymoduletypes.StoreKey,
+
+		evmtypes.StoreKey, feemarkettypes.StoreKey,
+
+		erc20types.StoreKey,
 	)
-	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
+	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
 	app := &App{
@@ -334,16 +373,15 @@ func New(
 	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
-	// this line is used by starport scaffolding # stargate/app/scopedKeeper
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
 		appCodec,
 		keys[authtypes.StoreKey],
 		app.GetSubspace(authtypes.ModuleName),
-		authtypes.ProtoBaseAccount,
+		evmostypes.ProtoAccount,
 		maccPerms,
-		sdk.Bech32PrefixAccAddr,
+		sdk.GetConfig().GetBech32AccountAddrPrefix(),
 	)
 
 	app.AuthzKeeper = authzkeeper.NewKeeper(
@@ -431,6 +469,29 @@ func New(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
+
+	app.FeeMarketKeeper = feemarketkeeper.NewKeeper(
+		appCodec, authtypes.NewModuleAddress(govtypes.ModuleName),
+		keys[feemarkettypes.StoreKey],
+		tkeys[feemarkettypes.TransientKey],
+		app.GetSubspace(feemarkettypes.ModuleName),
+	)
+
+	app.EvmKeeper = evmkeeper.NewKeeper(
+		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey],
+		authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
+		tracer, app.GetSubspace(evmtypes.ModuleName),
+	)
+
+	app.Erc20Keeper = erc20keeper.NewKeeper(
+		keys[erc20types.StoreKey], appCodec,
+		authtypes.NewModuleAddress(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper, app.EvmKeeper,
+	)
+
+	app.EvmKeeper = app.EvmKeeper.SetHooks(app.Erc20Keeper.Hooks())
+
 	// ... other modules keepers
 
 	// Create IBC Keeper
@@ -493,7 +554,9 @@ func New(
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
-		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
+		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
+		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper))
+
 	govConfig := govtypes.DefaultConfig()
 	app.GovKeeper = govkeeper.NewKeeper(
 		appCodec,
@@ -507,14 +570,6 @@ func New(
 		govConfig,
 	)
 
-	app.MineplexchainKeeper = *mineplexchainmodulekeeper.NewKeeper(
-		appCodec,
-		keys[mineplexchainmoduletypes.StoreKey],
-		keys[mineplexchainmoduletypes.MemStoreKey],
-		app.GetSubspace(mineplexchainmoduletypes.ModuleName),
-	)
-	mineplexchainModule := mineplexchainmodule.NewAppModule(appCodec, app.MineplexchainKeeper, app.AccountKeeper, app.BankKeeper)
-
 	app.TreasuryKeeper = *treasurymodulekeeper.NewKeeper(
 		appCodec,
 		keys[treasurymoduletypes.StoreKey],
@@ -523,8 +578,6 @@ func New(
 		app.BankKeeper,
 	)
 	treasuryModule := treasurymodule.NewAppModule(appCodec, app.TreasuryKeeper, app.AccountKeeper, app.BankKeeper)
-
-	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
 	/**** IBC Routing ****/
 
@@ -535,7 +588,6 @@ func New(
 	ibcRouter := ibcporttypes.NewRouter()
 	ibcRouter.AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
 		AddRoute(ibctransfertypes.ModuleName, transferIBCModule)
-	// this line is used by starport scaffolding # ibc/app/router
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	/**** Module Hooks ****/
@@ -575,7 +627,9 @@ func New(
 		vesting.NewAppModule(app.AccountKeeper, app.BankKeeper),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
-		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
+		feegrantmodule.NewAppModule(
+			appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry,
+		),
 		groupmodule.NewAppModule(appCodec, app.GroupKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		crisis.NewAppModule(&app.CrisisKeeper, skipGenesisInvariants),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
@@ -589,9 +643,12 @@ func New(
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
 		icaModule,
-		mineplexchainModule,
 		treasuryModule,
-		// this line is used by starport scaffolding # stargate/app/appModule
+
+		evm.NewAppModule(app.EvmKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
+		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
+
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -602,6 +659,8 @@ func New(
 		// upgrades should be run first
 		upgradetypes.ModuleName,
 		capabilitytypes.ModuleName,
+		feemarkettypes.ModuleName,
+		evmtypes.ModuleName,
 		minttypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
@@ -620,15 +679,16 @@ func New(
 		group.ModuleName,
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
-		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
-		// this line is used by starport scaffolding # stargate/app/beginBlockers
+		erc20types.ModuleName,
 	)
 
 	app.mm.SetOrderEndBlockers(
 		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
+		evmtypes.ModuleName,
+		feemarkettypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibchost.ModuleName,
 		icatypes.ModuleName,
@@ -646,9 +706,8 @@ func New(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
-		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
-		// this line is used by starport scaffolding # stargate/app/endBlockers
+		erc20types.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -666,6 +725,12 @@ func New(
 		govtypes.ModuleName,
 		minttypes.ModuleName,
 		crisistypes.ModuleName,
+		// Ethermint modules
+		// evm module denomination is used by the revenue module, in AnteHandle
+		evmtypes.ModuleName,
+		// NOTE: feemarket module needs to be initialized before genutil module:
+		// gentx transactions use MinGasPriceDecorator.AnteHandle
+		feemarkettypes.ModuleName,
 		genutiltypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibchost.ModuleName,
@@ -677,9 +742,8 @@ func New(
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
-		mineplexchainmoduletypes.ModuleName,
 		treasurymoduletypes.ModuleName,
-		// this line is used by starport scaffolding # stargate/app/initGenesis
+		erc20types.ModuleName,
 	)
 
 	// Uncomment if you want to set a custom migration order here.
@@ -697,7 +761,9 @@ func New(
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		capability.NewAppModule(appCodec, *app.CapabilityKeeper),
-		feegrantmodule.NewAppModule(appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry),
+		feegrantmodule.NewAppModule(
+			appCodec, app.AccountKeeper, app.BankKeeper, app.FeeGrantKeeper, app.interfaceRegistry,
+		),
 		gov.NewAppModule(appCodec, app.GovKeeper, app.AccountKeeper, app.BankKeeper),
 		mint.NewAppModule(appCodec, app.MintKeeper, app.AccountKeeper),
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
@@ -708,9 +774,8 @@ func New(
 		evidence.NewAppModule(app.EvidenceKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
-		mineplexchainModule,
 		treasuryModule,
-		// this line is used by starport scaffolding # stargate/app/appModule
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
 	)
 	app.sm.RegisterStoreDecoders()
 
@@ -723,24 +788,16 @@ func New(
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 
-	anteHandler, err := myante.NewAnteHandler(
-		myante.HandlerOptions{
-			AccountKeeper:   app.AccountKeeper,
-			BankKeeper:      app.BankKeeper,
-			SignModeHandler: encodingConfig.TxConfig.SignModeHandler(),
-			FeegrantKeeper:  app.FeeGrantKeeper,
-			StakingKeeper:   app.StakingKeeper,
-			SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
-		},
-	)
-	if err != nil {
-		panic(fmt.Errorf("failed to create AnteHandler: %w", err))
-	}
+	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
 
-	app.SetAnteHandler(anteHandler)
+	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
+	app.setPostHandler()
+
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
+
+	app.setupUpgradeHandlers()
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
@@ -750,9 +807,50 @@ func New(
 
 	app.ScopedIBCKeeper = scopedIBCKeeper
 	app.ScopedTransferKeeper = scopedTransferKeeper
-	// this line is used by starport scaffolding # stargate/app/beforeInitReturn
 
 	return app
+}
+
+func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
+	// todo: add filter delegations handler
+	options := ante.HandlerOptions{
+		Cdc:                    app.appCodec,
+		AccountKeeper:          app.AccountKeeper,
+		BankKeeper:             app.BankKeeper,
+		ExtensionOptionChecker: evmostypes.HasDynamicFeeExtensionOption,
+		EvmKeeper:              app.EvmKeeper,
+		StakingKeeper:          app.StakingKeeper,
+		FeegrantKeeper:         app.FeeGrantKeeper,
+		DistributionKeeper:     app.DistrKeeper,
+		IBCKeeper:              app.IBCKeeper,
+		FeeMarketKeeper:        app.FeeMarketKeeper,
+		SignModeHandler:        txConfig.SignModeHandler(),
+		SigGasConsumer:         ante.SigVerificationGasConsumer,
+		MaxTxGasWanted:         maxGasWanted,
+		TxFeeChecker:           ethante.NewDynamicFeeChecker(app.EvmKeeper),
+	}
+
+	if err := options.Validate(); err != nil {
+		panic(err)
+	}
+
+	anteHandler := ante.NewAnteHandler(options)
+
+	app.SetAnteHandler(anteHandler)
+}
+
+func (app *App) setPostHandler() {
+	options := post.HandlerOptions{
+		FeeCollectorName: authtypes.FeeCollectorName,
+		BankKeeper:       app.BankKeeper,
+		FeeMarketKeeper:  &app.FeeMarketKeeper,
+	}
+
+	if err := options.Validate(); err != nil {
+		panic(err)
+	}
+
+	app.SetPostHandler(post.NewPostHandler(options))
 }
 
 // Name returns the name of the App
@@ -775,6 +873,115 @@ func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.Res
 		panic(err)
 	}
 	app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap())
+
+	if req.ChainId == "crossfi-mainnet-1" {
+		previousHeight := int64(8646000)
+
+		mintGenState := minttypes.GenesisState{}
+		err := tmjson.Unmarshal(genesisState[minttypes.ModuleName], &mintGenState)
+		if err != nil {
+			panic(err)
+		}
+		for i, period := range mintGenState.Params.Periods {
+			if period.FromHeight > previousHeight {
+				mintGenState.Params.Periods[i].FromHeight -= previousHeight
+			}
+
+			if period.ToHeight > previousHeight {
+				mintGenState.Params.Periods[i].ToHeight -= previousHeight
+			}
+		}
+		genesisState[minttypes.ModuleName], _ = tmjson.Marshal(mintGenState)
+
+		accGenState := authtypes.GetGenesisStateFromAppState(app.appCodec, genesisState)
+		accounts, err := authtypes.UnpackAccounts(accGenState.Accounts)
+		if err != nil {
+			panic(err)
+		}
+
+		for i, acc := range accounts {
+			if macc, ok := acc.(authtypes.ModuleAccountI); ok {
+				if macc.GetName() == authtypes.FeeCollectorName {
+					accounts[i] = authtypes.NewModuleAccount(
+						authtypes.NewBaseAccount(
+							macc.GetAddress(), macc.GetPubKey(), macc.GetAccountNumber(), macc.GetSequence(),
+						),
+						macc.GetName(), authtypes.Burner,
+					)
+				}
+			}
+		}
+
+		accGenState.Accounts, err = authtypes.PackAccounts(accounts)
+		if err != nil {
+			panic(err)
+		}
+		genesisState[authtypes.ModuleName] = app.appCodec.MustMarshalJSON(&accGenState)
+
+		fmGenState := feemarkettypes.DefaultGenesisState()
+		fmGenState.Params.MinGasPrice = sdk.NewDec(500000000000)
+		genesisState[feemarkettypes.ModuleName], _ = tmjson.Marshal(fmGenState)
+
+		tmGenState := treasurymoduletypes.DefaultGenesis()
+		tmGenState.Params.Owner = "mx16tdma849j8xrrwvwqdhcwwta0mwalpqcnljgru"
+		genesisState[treasurymoduletypes.ModuleName], _ = tmjson.Marshal(tmGenState)
+
+		evmGenState := evmtypes.DefaultGenesisState()
+		evmGenState.Params.ExtraEIPs = append(evmGenState.Params.ExtraEIPs, 3855)
+		genesisState[evmtypes.ModuleName], _ = tmjson.Marshal(evmGenState)
+
+		genesisState[erc20types.ModuleName], _ = tmjson.Marshal(erc20types.DefaultGenesisState())
+
+		res := app.mm.InitGenesis(ctx, app.appCodec, genesisState)
+
+		res.ConsensusParams = req.ConsensusParams
+		res.ConsensusParams.Block.MaxGas = 20_000_000
+		app.StoreConsensusParams(ctx, res.ConsensusParams)
+
+		blockHeader := ctx.BlockHeader()
+		blockHeader.ProposerAddress, _ = app.StakingKeeper.GetAllValidators(ctx)[0].GetConsAddr()
+
+		metadata := banktypes.Metadata{
+			Description: "mpx",
+			DenomUnits: []*banktypes.DenomUnit{
+				{
+					Denom:    "mpx",
+					Exponent: 0,
+				},
+				{
+					Denom:    "MPX",
+					Exponent: 18,
+				},
+			},
+			Base:    "mpx",
+			Display: "MPX",
+			Name:    "MPX",
+			Symbol:  "MPX",
+		}
+
+		app.BankKeeper.SetDenomMetaData(ctx, metadata)
+
+		pair, err := app.Erc20Keeper.RegisterCoin(ctx.WithBlockHeader(blockHeader), metadata)
+		if err != nil {
+			panic(err)
+		}
+
+		cheque, err := app.Erc20Keeper.CreateCheque(ctx.WithBlockHeader(blockHeader), *pair)
+
+		owner := common.HexToAddress("0xD2dBBE9Ea591Cc31B98E036f87397d7eDddF8418")
+		tokens := big.NewInt(0).Mul(big.NewInt(500000000), big.NewInt(1e18))
+
+		_, err = app.Erc20Keeper.CallEVM(
+			ctx.WithBlockHeader(blockHeader), contracts.ERC20MinterBurnerDecimalsContract.ABI, erc20types.ModuleAddress,
+			cheque, true, "mint", owner, tokens,
+		)
+		if err != nil {
+			panic(err)
+		}
+
+		return res
+	}
+
 	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
@@ -915,9 +1122,12 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	paramsKeeper.Subspace(icacontrollertypes.SubModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
-	paramsKeeper.Subspace(mineplexchainmoduletypes.ModuleName)
 	paramsKeeper.Subspace(treasurymoduletypes.ModuleName)
-	// this line is used by starport scaffolding # stargate/app/paramSubspace
+
+	paramsKeeper.Subspace(feemarkettypes.ModuleName)
+	paramsKeeper.Subspace(evmtypes.ModuleName)
+
+	paramsKeeper.Subspace(erc20types.ModuleName)
 
 	return paramsKeeper
 }
@@ -925,4 +1135,98 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 // SimulationManager implements the SimulationApp interface
 func (app *App) SimulationManager() *module.SimulationManager {
 	return app.sm
+}
+
+func (app *App) setupUpgradeHandlers() {
+	app.UpgradeKeeper.SetUpgradeHandler(
+		v2.UpgradeName,
+		v2.CreateUpgradeHandler(
+			app.mm, app.configurator,
+			*app.EvmKeeper, app.FeeMarketKeeper, app.ParamsKeeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		erc20upgrade.UpgradeName,
+		erc20upgrade.CreateUpgradeHandler(
+			app.mm, app.configurator, app.Erc20Keeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		erc20fixupgrade.UpgradeName,
+		erc20fixupgrade.CreateUpgradeHandler(
+			app.mm, app.configurator, app.GovKeeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		erc20redeployupgrade.UpgradeName,
+		erc20redeployupgrade.CreateUpgradeHandler(
+			app.mm, app.configurator, app.Erc20Keeper, app.BankKeeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		erc20cheque.UpgradeName,
+		erc20cheque.CreateUpgradeHandler(
+			app.mm, app.configurator, app.Erc20Keeper, app.AccountKeeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		erc20_cheque_testnet.UpgradeName,
+		erc20_cheque_testnet.CreateUpgradeHandler(
+			app.mm, app.configurator, app.Erc20Keeper, *app.EvmKeeper, app.AccountKeeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		upgradeevmos.UpgradeName,
+		upgradeevmos.CreateUpgradeHandler(
+			app.mm, app.configurator,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		erc20_cheque_transfer.UpgradeName,
+		erc20_cheque_transfer.CreateUpgradeHandler(
+			app.mm, app.configurator, app.Erc20Keeper,
+		),
+	)
+
+	// When a planned update height is reached, the old binary will panic
+	// writing on disk the height and name of the update that triggered it
+	// This will read that value, and execute the preparations for the upgrade.
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(fmt.Errorf("failed to read upgrade info from disk: %w", err))
+	}
+
+	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		return
+	}
+
+	var storeUpgrades *storetypes.StoreUpgrades
+
+	switch upgradeInfo.Name {
+	case v2.UpgradeName:
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{
+				evmtypes.ModuleName,
+				feemarkettypes.ModuleName,
+			},
+		}
+	case erc20upgrade.UpgradeName:
+		storeUpgrades = &storetypes.StoreUpgrades{
+			Added: []string{
+				erc20types.ModuleName,
+			},
+		}
+	}
+
+	if storeUpgrades != nil {
+		// configure store loader that checks if version == upgradeHeight and applies store upgrades
+		app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, storeUpgrades))
+	}
 }

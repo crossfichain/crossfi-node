@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/mineplexio/mineplex-2-node/testutil/sample"
+	"github.com/crossfichain/crossfi-node/testutil/sample"
 	"github.com/stretchr/testify/require"
 )
 

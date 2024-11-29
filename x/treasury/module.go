@@ -16,9 +16,9 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/mineplexio/mineplex-2-node/x/treasury/client/cli"
-	"github.com/mineplexio/mineplex-2-node/x/treasury/keeper"
-	"github.com/mineplexio/mineplex-2-node/x/treasury/types"
+	"github.com/crossfichain/crossfi-node/x/treasury/client/cli"
+	"github.com/crossfichain/crossfi-node/x/treasury/keeper"
+	"github.com/crossfichain/crossfi-node/x/treasury/types"
 )
 
 var (
@@ -70,7 +70,9 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
 }
 
 // GetTxCmd returns the root Tx command for the module. The subcommands of this root command are used by end-users to generate new transactions containing messages defined in the module

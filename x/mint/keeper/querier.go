@@ -6,12 +6,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/mineplexio/mineplex-2-node/x/mint/types"
+	"github.com/crossfichain/crossfi-node/x/mint/types"
 )
 
 // NewQuerier returns a minting Querier handler.
 func NewQuerier(k Keeper, legacyQuerierCdc *codec.LegacyAmino) sdk.Querier {
 	return func(ctx sdk.Context, path []string, _ abci.RequestQuery) ([]byte, error) {
+		if len(path) == 0 {
+			return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "expected subpath")
+		}
+
 		switch path[0] {
 		case types.QueryParameters:
 			return queryParams(ctx, k, legacyQuerierCdc)

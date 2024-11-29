@@ -1,6 +1,7 @@
 package types
 
 import (
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -42,5 +43,10 @@ func (msg *MsgBurn) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
+
+	if !msg.Amount.IsPositive() {
+		return errors.Wrapf(sdkerrors.ErrInvalidCoins, "burned coins %s must be positive", msg.Amount)
+	}
+
 	return nil
 }

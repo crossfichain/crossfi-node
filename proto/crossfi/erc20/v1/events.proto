@@ -1,0 +1,65 @@
+// Copyright 2022 Evmos Foundation
+// This file is part of the Evmos Network packages.
+//
+// Evmos is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Evmos packages are distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with the Evmos packages. If not, see https://github.com/evmos/evmos/blob/main/LICENSE
+syntax = "proto3";
+package crossfi.erc20.v1;
+
+option go_package = "github.com/crossfichain/crossfi-node/x/erc20/types";
+
+// EventRegisterPair is an event emitted when a coin is registered.
+message EventRegisterPair {
+  // denom is the coin's denomination.
+  string denom = 1;
+  // erc20_address is the ERC20 contract address.
+  string erc20_address = 2;
+}
+
+// EventToggleTokenConversion is an event emitted when a coin's token conversion
+// is toggled.
+message EventToggleTokenConversion {
+  // denom is the coin's denomination.
+  string denom = 1;
+  // erc20_address is the ERC20 contract address.
+  string erc20_address = 2;
+}
+
+// EventConvertCoin is an event emitted when a coin is converted.
+message EventConvertCoin {
+  // sender is the sender's address.
+  string sender = 1;
+  // receiver is the receiver's address.
+  string receiver = 2;
+  // amount is the amount of coins to be converted.
+  string amount = 3;
+  // denom is the coin's denomination.
+  string denom = 4;
+  // erc20_address is the ERC20 contract address.
+  string erc20_address = 5;
+}
+
+// EventConvertERC20 is an event emitted when an ERC20 is converted.
+message EventConvertERC20 {
+  // sender is the sender's address.
+  string sender = 1;
+  // receiver is the receiver's address.
+  string receiver = 2;
+  // amount is the amount of coins to be converted.
+  string amount = 3;
+  // denom is the coin's denomination.
+  string denom = 4;
+  // contract_address of an ERC20 token contract, that is registered in a token
+  // pair
+  string contract_address = 5;
+}

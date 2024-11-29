@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	keepertest "github.com/mineplexio/mineplex-2-node/testutil/keeper"
-	"github.com/mineplexio/mineplex-2-node/x/treasury/keeper"
-	"github.com/mineplexio/mineplex-2-node/x/treasury/types"
+	keepertest "github.com/crossfichain/crossfi-node/testutil/keeper"
+	"github.com/crossfichain/crossfi-node/x/treasury/keeper"
+	"github.com/crossfichain/crossfi-node/x/treasury/types"
 )
 
 func setupMsgServer(t testing.TB) (types.MsgServer, context.Context) {

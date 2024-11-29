@@ -6,8 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/mineplexio/mineplex-2-node/x/treasury/keeper"
-	"github.com/mineplexio/mineplex-2-node/x/treasury/types"
+	"github.com/crossfichain/crossfi-node/x/treasury/keeper"
+	"github.com/crossfichain/crossfi-node/x/treasury/types"
 )
 
 func SimulateMsgBurn(

@@ -2,7 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/mineplexio/mineplex-2-node/x/mint/types"
+	"github.com/crossfichain/crossfi-node/x/mint/types"
 )
 
 // InitGenesis new mint genesis

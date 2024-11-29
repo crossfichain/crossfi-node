@@ -1,0 +1,13 @@
+syntax = "proto3";
+package crossfi.treasury;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/crossfichain/crossfi-node/x/treasury/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+
+  string owner = 1;
+}

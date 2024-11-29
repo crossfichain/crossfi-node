@@ -1,0 +1,10 @@
+syntax = "proto3";
+package crossfi.mineplexchain;
+
+import "gogoproto/gogo.proto";
+import "crossfi/mineplexchain/params.proto";
+
+option go_package = "github.com/crossfichain/crossfi-node/x/mineplexchain/types";
+
+// GenesisState defines the mineplexchain module's genesis state.
+message GenesisState {Params params = 1 [(gogoproto.nullable) = false];}
