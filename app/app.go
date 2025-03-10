@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"github.com/crossfichain/crossfi-node/app/post"
+	"github.com/crossfichain/crossfi-node/app/upgrades/decon"
 	erc20upgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20"
 	erc20cheque "github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque"
 	"github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque_testnet"
@@ -1192,6 +1193,13 @@ func (app *App) setupUpgradeHandlers() {
 		erc20_cheque_transfer.UpgradeName,
 		erc20_cheque_transfer.CreateUpgradeHandler(
 			app.mm, app.configurator, app.Erc20Keeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		decon.UpgradeName,
+		decon.CreateUpgradeHandler(
+			app.mm, app.configurator, app.StakingKeeper,
 		),
 	)
 

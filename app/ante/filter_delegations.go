@@ -54,7 +54,7 @@ func checkDelegationAmount(ctx sdk.Context, to sdk.ValAddress, amount sdk.Int, s
 		totalBonded := sdk.NewDecFromInt(sk.TotalBondedTokens(ctx).Add(amount))
 		bonded := sdk.NewDecFromInt(validator.BondedTokens().Add(amount))
 
-		if totalBonded.QuoInt64(5).LTE(bonded) {
+		if totalBonded.QuoInt64(10).LTE(bonded) {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "stake of validator %s is full", to.String())
 		}
 	}
