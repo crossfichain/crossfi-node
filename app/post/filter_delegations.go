@@ -1,4 +1,4 @@
-package ante
+package post
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -19,27 +19,23 @@ func NewFilterDelegationsDecorator(sk StakingKeeper) FilterDelegationsDecorator 
 func (fdd FilterDelegationsDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (sdk.Context, error) {
 	for _, msg := range tx.GetMsgs() {
 		if deletageMsg, ok := msg.(*types.MsgDelegate); ok {
-			// todo: handle different val address types
 			valAddress, err := sdk.ValAddressFromBech32(deletageMsg.ValidatorAddress)
 			if err != nil {
-				ctx.Logger().Error("Cannot unmarshal val address", "addr", deletageMsg.ValidatorAddress)
-				return next(ctx, tx, simulate)
+				return ctx, err
 			}
 
-			if err := checkDelegationAmount(ctx, valAddress, deletageMsg.Amount.Amount, fdd.sk); err != nil {
+			if err := checkDelegationAmount(ctx, valAddress, fdd.sk); err != nil {
 				return ctx, err
 			}
 		}
 
 		if beginRedelegateMsg, ok := msg.(*types.MsgBeginRedelegate); ok {
-			// todo: handle different val address types
 			valAddress, err := sdk.ValAddressFromBech32(beginRedelegateMsg.ValidatorDstAddress)
 			if err != nil {
-				ctx.Logger().Error("Cannot unmarshal val address", "addr", beginRedelegateMsg.ValidatorDstAddress)
-				return next(ctx, tx, simulate)
+				return ctx, err
 			}
 
-			if err := checkDelegationAmount(ctx, valAddress, beginRedelegateMsg.Amount.Amount, fdd.sk); err != nil {
+			if err := checkDelegationAmount(ctx, valAddress, fdd.sk); err != nil {
 				return ctx, err
 			}
 		}
@@ -48,13 +44,10 @@ func (fdd FilterDelegationsDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, sim
 	return next(ctx, tx, simulate)
 }
 
-func checkDelegationAmount(ctx sdk.Context, to sdk.ValAddress, amount sdk.Int, sk StakingKeeper) error {
+func checkDelegationAmount(ctx sdk.Context, to sdk.ValAddress, sk StakingKeeper) error {
 	validator, found := sk.GetValidator(ctx, to)
 	if found {
-		totalBonded := sdk.NewDecFromInt(sk.TotalBondedTokens(ctx).Add(amount))
-		bonded := sdk.NewDecFromInt(validator.BondedTokens().Add(amount))
-
-		if totalBonded.QuoInt64(10).LTE(bonded) {
+		if validator.BondedTokens().GTE(sk.TotalBondedTokens(ctx).QuoRaw(10)) {
 			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "stake of validator %s is full", to.String())
 		}
 	}

@@ -2,6 +2,7 @@ package post
 
 import (
 	"errors"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	feemarketkeeper "github.com/evmos/evmos/v12/x/feemarket/keeper"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,18 +13,21 @@ type HandlerOptions struct {
 	FeeCollectorName string
 	BankKeeper       bankkeeper.Keeper
 	FeeMarketKeeper  *feemarketkeeper.Keeper
+	StakingKeeper    *stakingkeeper.Keeper
 }
 
 func (h HandlerOptions) Validate() error {
 	if h.FeeCollectorName == "" {
 		return errors.New("fee collector name cannot be empty")
 	}
-
 	if h.BankKeeper == nil {
 		return errors.New("bank keeper cannot be nil")
 	}
 	if h.FeeMarketKeeper == nil {
 		return errors.New("feemarket keeper cannot be nil")
+	}
+	if h.StakingKeeper == nil {
+		return errors.New("staking keeper cannot be nil")
 	}
 
 	return nil
@@ -31,6 +35,7 @@ func (h HandlerOptions) Validate() error {
 
 func NewPostHandler(ho HandlerOptions) sdk.AnteHandler {
 	postDecorators := []sdk.AnteDecorator{
+		NewFilterDelegationsDecorator(ho.StakingKeeper),
 		NewBurnDecorator(ho.FeeCollectorName, ho.BankKeeper, *ho.FeeMarketKeeper),
 	}
 

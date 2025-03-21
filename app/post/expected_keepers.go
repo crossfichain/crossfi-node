@@ -1,4 +1,4 @@
-package ante
+package post
 
 import (
 	"cosmossdk.io/math"

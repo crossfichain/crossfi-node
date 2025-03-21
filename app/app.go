@@ -845,6 +845,7 @@ func (app *App) setPostHandler() {
 		FeeCollectorName: authtypes.FeeCollectorName,
 		BankKeeper:       app.BankKeeper,
 		FeeMarketKeeper:  &app.FeeMarketKeeper,
+		StakingKeeper:    &app.StakingKeeper,
 	}
 
 	if err := options.Validate(); err != nil {
