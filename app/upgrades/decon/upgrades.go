@@ -7,6 +7,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"time"
 )
 
 func CreateUpgradeHandler(
@@ -32,6 +33,23 @@ func CreateUpgradeHandler(
 				)
 				val.Commission.Rate = minCommissionRate
 				stakingKeeper.SetValidator(ctx, val)
+
+				ctx.EventManager().EmitEvents(
+					sdk.Events{
+						sdk.NewEvent(
+							stakingtypes.EventTypeEditValidator,
+							sdk.NewAttribute(stakingtypes.AttributeKeyCommissionRate, val.Commission.String()),
+							sdk.NewAttribute(
+								stakingtypes.AttributeKeyMinSelfDelegation, val.MinSelfDelegation.String(),
+							),
+						),
+						sdk.NewEvent(
+							sdk.EventTypeMessage,
+							sdk.NewAttribute(sdk.AttributeKeyModule, stakingtypes.AttributeValueCategory),
+							sdk.NewAttribute(sdk.AttributeKeySender, val.OperatorAddress),
+						),
+					},
+				)
 			}
 		}
 
@@ -55,18 +73,38 @@ func CreateUpgradeHandler(
 						continue
 					}
 
-					if _, err := stakingKeeper.Undelegate(
+					completionTime, err := stakingKeeper.Undelegate(
 						ctx, sdk.MustAccAddressFromBech32(delegation.DelegatorAddress), val.GetOperator(),
 						unbondSharesAmount,
-					); err != nil {
+					)
+					if err != nil {
 						return nil, err
 					}
+
 					logger.Info(
 						"undelegated tokens from delegator",
 						"delegator", delegation.DelegatorAddress,
 						"validator", val.GetOperator(),
 						"shares", unbondSharesAmount,
 						"amount", unbondAmount,
+					)
+
+					ctx.EventManager().EmitEvents(
+						sdk.Events{
+							sdk.NewEvent(
+								stakingtypes.EventTypeUnbond,
+								sdk.NewAttribute(stakingtypes.AttributeKeyValidator, val.OperatorAddress),
+								sdk.NewAttribute(sdk.AttributeKeyAmount, unbondAmount.String()),
+								sdk.NewAttribute(
+									stakingtypes.AttributeKeyCompletionTime, completionTime.Format(time.RFC3339),
+								),
+							),
+							sdk.NewEvent(
+								sdk.EventTypeMessage,
+								sdk.NewAttribute(sdk.AttributeKeyModule, stakingtypes.AttributeValueCategory),
+								sdk.NewAttribute(sdk.AttributeKeySender, delegation.DelegatorAddress),
+							),
+						},
 					)
 				}
 			}
