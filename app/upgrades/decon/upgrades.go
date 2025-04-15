@@ -63,7 +63,16 @@ func CreateUpgradeHandler(
 			},
 		)
 
-		newValidators = newValidators[len(overflown):10]
+		if len(overflown) >= len(newValidators) {
+			println("Cannot rebalance validators")
+			return vm, nil
+		}
+
+		newValidatorsCount := 10
+		if len(newValidators) <= newValidatorsCount {
+			newValidatorsCount = len(newValidators)
+		}
+		newValidators = newValidators[len(overflown):newValidatorsCount]
 		newValidatorsPointer := 0
 
 		for _, val := range stakingKeeper.GetAllValidators(ctx) {
