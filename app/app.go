@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/crossfichain/crossfi-node/app/post"
 	"github.com/crossfichain/crossfi-node/app/upgrades/decon"
+	"github.com/crossfichain/crossfi-node/app/upgrades/devnet_fix"
 	erc20upgrade "github.com/crossfichain/crossfi-node/app/upgrades/erc20"
 	erc20cheque "github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque"
 	"github.com/crossfichain/crossfi-node/app/upgrades/erc20_cheque_testnet"
@@ -1201,6 +1202,13 @@ func (app *App) setupUpgradeHandlers() {
 		decon.UpgradeName,
 		decon.CreateUpgradeHandler(
 			app.mm, app.configurator, app.StakingKeeper,
+		),
+	)
+
+	app.UpgradeKeeper.SetUpgradeHandler(
+		devnet_fix.UpgradeName,
+		devnet_fix.CreateUpgradeHandler(
+			app.mm, app.configurator, app.AccountKeeper,
 		),
 	)
 
