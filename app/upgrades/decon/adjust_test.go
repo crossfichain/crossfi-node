@@ -23,7 +23,7 @@ func TestAdjustValidatorStakes(t *testing.T) {
 	}
 
 	// Adjust the stakes
-	adjustedVals := adjustValidatorStakes(vals, maxPercent)
+	_, adjustedVals := adjustValidatorStakes(vals, maxPercent)
 
 	newTotalBonded := sdk.NewInt(0)
 	for _, amount := range adjustedVals {

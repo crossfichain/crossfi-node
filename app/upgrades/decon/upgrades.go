@@ -7,6 +7,7 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"sort"
 	"time"
 )
 
@@ -53,7 +54,17 @@ func CreateUpgradeHandler(
 			}
 		}
 
-		adjustedStakes := adjustValidatorStakes(stakingKeeper.GetAllValidators(ctx), 10)
+		overflown, adjustedStakes := adjustValidatorStakes(stakingKeeper.GetAllValidators(ctx), 10)
+
+		newValidators := stakingKeeper.GetAllValidators(ctx)
+		sort.Slice(
+			newValidators, func(i, j int) bool {
+				return newValidators[i].Tokens.GT(newValidators[j].Tokens)
+			},
+		)
+
+		newValidators = newValidators[len(overflown):10]
+		newValidatorsPointer := 0
 
 		for _, val := range stakingKeeper.GetAllValidators(ctx) {
 			adjusted := adjustedStakes[val.OperatorAddress]
@@ -61,43 +72,49 @@ func CreateUpgradeHandler(
 				excessTokens := val.Tokens.Sub(adjusted)
 				fractionToUnbond := sdk.NewDecFromInt(excessTokens).Quo(sdk.NewDecFromInt(val.Tokens))
 				logger.Info(
-					"validator exceeds 10% of total stake; unbonding excess tokens",
+					"validator exceeds 10% of total stake; rebonding excess tokens",
 					"validator", val.GetOperator(), "excess", excessTokens, "fraction", fractionToUnbond,
 				)
 
 				delegations := stakingKeeper.GetValidatorDelegations(ctx, val.GetOperator())
 				for _, delegation := range delegations {
-					unbondSharesAmount := delegation.Shares.Mul(fractionToUnbond)
-					unbondAmount := val.TokensFromShares(unbondSharesAmount)
-					if unbondAmount.TruncateInt().IsZero() {
+					rebondSharesAmount := delegation.Shares.Mul(fractionToUnbond)
+					rebondAmount := val.TokensFromShares(rebondSharesAmount)
+					if rebondAmount.TruncateInt().IsZero() {
 						continue
 					}
 
-					completionTime, err := stakingKeeper.Undelegate(
+					newVal := newValidators[newValidatorsPointer%len(newValidators)]
+					newValidatorsPointer++
+
+					completionTime, err := stakingKeeper.BeginRedelegation(
 						ctx, sdk.MustAccAddressFromBech32(delegation.DelegatorAddress), val.GetOperator(),
-						unbondSharesAmount,
+						newVal.GetOperator(),
+						rebondSharesAmount,
 					)
 					if err != nil {
 						return nil, err
 					}
-
 					logger.Info(
-						"undelegated tokens from delegator",
+						"redelegated tokens from delegator",
 						"delegator", delegation.DelegatorAddress,
 						"validator", val.GetOperator(),
-						"shares", unbondSharesAmount,
-						"amount", unbondAmount,
+						"to_validator", newVal.GetOperator(),
+						"shares", rebondSharesAmount,
+						"amount", rebondAmount,
 					)
 
 					ctx.EventManager().EmitEvents(
 						sdk.Events{
 							sdk.NewEvent(
-								stakingtypes.EventTypeUnbond,
-								sdk.NewAttribute(stakingtypes.AttributeKeyValidator, val.OperatorAddress),
-								sdk.NewAttribute(sdk.AttributeKeyAmount, unbondAmount.String()),
+								stakingtypes.EventTypeRedelegate,
+								sdk.NewAttribute(stakingtypes.AttributeKeySrcValidator, val.OperatorAddress),
+								sdk.NewAttribute(stakingtypes.AttributeKeyDstValidator, newVal.OperatorAddress),
+								sdk.NewAttribute(sdk.AttributeKeyAmount, rebondAmount.String()),
 								sdk.NewAttribute(
 									stakingtypes.AttributeKeyCompletionTime, completionTime.Format(time.RFC3339),
 								),
+								sdk.NewAttribute(stakingtypes.AttributeKeyDelegator, delegation.DelegatorAddress),
 							),
 							sdk.NewEvent(
 								sdk.EventTypeMessage,
@@ -114,7 +131,7 @@ func CreateUpgradeHandler(
 	}
 }
 
-func adjustValidatorStakes(vals stakingtypes.Validators, maxPercent int64) map[string]math.Int {
+func adjustValidatorStakes(vals stakingtypes.Validators, maxPercent int64) (map[string]bool, map[string]math.Int) {
 	if 100/int64(len(vals)) > maxPercent {
 		maxPercent = int64(100/len(vals)) + 1
 		println("maxPercent is too low, adjusting to", maxPercent)
@@ -125,12 +142,15 @@ func adjustValidatorStakes(vals stakingtypes.Validators, maxPercent int64) map[s
 		totalBonded = totalBonded.Add(val.Tokens)
 	}
 
+	overflownValidators := make(map[string]bool)
+
 	for i := 0; i < 100000; i++ {
 		maxStake := totalBonded.MulRaw(maxPercent).QuoRaw(100)
 		hasOverflow := false
 
 		for i, val := range vals {
 			if val.Tokens.GT(maxStake) {
+				overflownValidators[val.OperatorAddress] = true
 				sub := vals[i].Tokens.QuoRaw(100)
 				vals[i].Tokens = vals[i].Tokens.Sub(sub)
 				totalBonded = totalBonded.Sub(sub)
@@ -148,5 +168,5 @@ func adjustValidatorStakes(vals stakingtypes.Validators, maxPercent int64) map[s
 		valsMap[val.OperatorAddress] = val.Tokens
 	}
 
-	return valsMap
+	return overflownValidators, valsMap
 }
