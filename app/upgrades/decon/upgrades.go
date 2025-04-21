@@ -102,7 +102,8 @@ func CreateUpgradeHandler(
 						rebondSharesAmount,
 					)
 					if err != nil {
-						return nil, err
+						logger.Error("failed to begin redelegation", "error", err)
+						continue
 					}
 					logger.Info(
 						"redelegated tokens from delegator",
