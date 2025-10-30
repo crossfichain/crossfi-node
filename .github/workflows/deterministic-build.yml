@@ -1,0 +1,198 @@
+name: Deterministic Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0) or leave empty to use commit hash'
+        required: false
+        default: ''
+
+jobs:
+  deterministic-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21.0'
+
+      - name: Get build metadata
+        id: metadata
+        run: |
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          BUILD_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+          GO_VERSION=$(go version | awk '{print $3}')
+
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="dev-${COMMIT_HASH}"
+          fi
+
+          echo "commit_hash=${COMMIT_HASH}" >> $GITHUB_OUTPUT
+          echo "build_date=${BUILD_DATE}" >> $GITHUB_OUTPUT
+          echo "go_version=${GO_VERSION}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+          echo "Building version: ${VERSION}"
+          echo "Commit: ${COMMIT_HASH}"
+          echo "Build date: ${BUILD_DATE}"
+          echo "Go version: ${GO_VERSION}"
+
+      - name: Build darwin-amd64
+        run: |
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            ghcr.io/goreleaser/goreleaser-cross:v1.21 \
+            bash -c "
+              export CGO_ENABLED=1
+              export GOOS=darwin
+              export GOARCH=amd64
+              export CC=o64-clang
+              export CXX=o64-clang++
+
+              go build \
+                -mod=readonly \
+                -tags='cgo' \
+                -trimpath \
+                -buildvcs=false \
+                -ldflags='-X github.com/cosmos/cosmos-sdk/version.Name=crossfi \
+                  -X github.com/cosmos/cosmos-sdk/version.AppName=crossfid \
+                  -X github.com/cosmos/cosmos-sdk/version.Version=${{ steps.metadata.outputs.version }} \
+                  -X github.com/cosmos/cosmos-sdk/version.Commit=${{ steps.metadata.outputs.commit_hash }} \
+                  -X github.com/cosmos/cosmos-sdk/version.BuildTags=cgo \
+                  -X \"github.com/cosmos/cosmos-sdk/version.GoVersion=${{ steps.metadata.outputs.go_version }}\" \
+                  -w -s' \
+                -o bin/crossfid-darwin-amd64 \
+                ./cmd/crossfid
+            "
+
+      - name: Build darwin-arm64
+        run: |
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            ghcr.io/goreleaser/goreleaser-cross:v1.21 \
+            bash -c "
+              export CGO_ENABLED=1
+              export GOOS=darwin
+              export GOARCH=arm64
+              export CC=oa64-clang
+              export CXX=oa64-clang++
+
+              go build \
+                -mod=readonly \
+                -tags='cgo' \
+                -trimpath \
+                -buildvcs=false \
+                -ldflags='-X github.com/cosmos/cosmos-sdk/version.Name=crossfi \
+                  -X github.com/cosmos/cosmos-sdk/version.AppName=crossfid \
+                  -X github.com/cosmos/cosmos-sdk/version.Version=${{ steps.metadata.outputs.version }} \
+                  -X github.com/cosmos/cosmos-sdk/version.Commit=${{ steps.metadata.outputs.commit_hash }} \
+                  -X github.com/cosmos/cosmos-sdk/version.BuildTags=cgo \
+                  -X \"github.com/cosmos/cosmos-sdk/version.GoVersion=${{ steps.metadata.outputs.go_version }}\" \
+                  -w -s' \
+                -o bin/crossfid-darwin-arm64 \
+                ./cmd/crossfid
+            "
+
+      - name: Build linux-amd64
+        run: |
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            ghcr.io/goreleaser/goreleaser-cross:v1.21 \
+            bash -c "
+              export CGO_ENABLED=1
+              export GOOS=linux
+              export GOARCH=amd64
+              export CC=gcc
+              export CXX=g++
+
+              go build \
+                -mod=readonly \
+                -tags='cgo' \
+                -trimpath \
+                -buildvcs=false \
+                -ldflags='-X github.com/cosmos/cosmos-sdk/version.Name=crossfi \
+                  -X github.com/cosmos/cosmos-sdk/version.AppName=crossfid \
+                  -X github.com/cosmos/cosmos-sdk/version.Version=${{ steps.metadata.outputs.version }} \
+                  -X github.com/cosmos/cosmos-sdk/version.Commit=${{ steps.metadata.outputs.commit_hash }} \
+                  -X github.com/cosmos/cosmos-sdk/version.BuildTags=cgo \
+                  -X \"github.com/cosmos/cosmos-sdk/version.GoVersion=${{ steps.metadata.outputs.go_version }}\" \
+                  -w -s' \
+                -o bin/crossfid-linux-amd64 \
+                ./cmd/crossfid
+            "
+
+      - name: Build linux-arm64
+        run: |
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            ghcr.io/goreleaser/goreleaser-cross:v1.21 \
+            bash -c "
+              export CGO_ENABLED=1
+              export GOOS=linux
+              export GOARCH=arm64
+              export CC=aarch64-linux-gnu-gcc
+              export CXX=aarch64-linux-gnu-g++
+
+              go build \
+                -mod=readonly \
+                -tags='cgo' \
+                -trimpath \
+                -buildvcs=false \
+                -ldflags='-X github.com/cosmos/cosmos-sdk/version.Name=crossfi \
+                  -X github.com/cosmos/cosmos-sdk/version.AppName=crossfid \
+                  -X github.com/cosmos/cosmos-sdk/version.Version=${{ steps.metadata.outputs.version }} \
+                  -X github.com/cosmos/cosmos-sdk/version.Commit=${{ steps.metadata.outputs.commit_hash }} \
+                  -X github.com/cosmos/cosmos-sdk/version.BuildTags=cgo \
+                  -X \"github.com/cosmos/cosmos-sdk/version.GoVersion=${{ steps.metadata.outputs.go_version }}\" \
+                  -w -s' \
+                -o bin/crossfid-linux-arm64 \
+                ./cmd/crossfid
+            "
+
+      - name: Generate checksums
+        run: |
+          cd bin
+          sha256sum crossfid-* > checksums.txt
+          cat checksums.txt
+
+      - name: Display build info
+        run: |
+          echo "=== Build Information ==="
+          echo "Version: ${{ steps.metadata.outputs.version }}"
+          echo "Commit: ${{ steps.metadata.outputs.commit_hash }}"
+          echo "Build Date: ${{ steps.metadata.outputs.build_date }}"
+          echo "Go Version: ${{ steps.metadata.outputs.go_version }}"
+          echo ""
+          echo "=== Binary Sizes ==="
+          ls -lh bin/crossfid-*
+          echo ""
+          echo "=== SHA256 Checksums ==="
+          cat bin/checksums.txt
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: crossfid-binaries-${{ steps.metadata.outputs.version }}
+          path: |
+            bin/crossfid-*
+            !bin/checksums.txt
+          retention-days: 90
+
+      - name: Upload checksums
+        uses: actions/upload-artifact@v3
+        with:
+          name: checksums-${{ steps.metadata.outputs.version }}
+          path: bin/checksums.txt
+          retention-days: 90
